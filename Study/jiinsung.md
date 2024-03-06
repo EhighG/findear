@@ -9,3 +9,9 @@
 
 - Frontend FSD 파일구조 학습
 - 학습 내용 : https://abalone-dresser-75e.notion.site/Feature-Sliced-Design-fe7ef99d033147d0b1aebe96fb644a02?pvs=4
+
+
+# 2024.03.06 학습 내용
+- 피그마 작업
+- React Query 초기 자료조사 (추가 반영예정)
+- 자료조사 내용 : https://abalone-dresser-75e.notion.site/React-Query-Tanstack-Query-8250acfc00ea4e05904a0e719bdfcb9a?pvs=4

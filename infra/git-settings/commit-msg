@@ -1,5 +1,11 @@
 #!bin/bash
-
+echo 1
+EXCLUDED_BRANCH="A706Study"
+BRANCH_NAME=$(git symbolic-ref --short HEAD)
+if [[ $BRANCH_NAME =~ $EXCLUDED_BRANCH ]]; then
+	echo "Exception of commit convention"
+	exit 0
+fi
 COMMIT_NAME=$(grep -m 2 "S10P22A706" $1)
 COMMIT_NAME=$(echo "$COMMIT_NAME" | cut -d' ' -f2-)
 echo "Checking formula of ::: $COMMIT_NAME"

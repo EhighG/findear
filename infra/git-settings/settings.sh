@@ -4,16 +4,14 @@ GIT_ROOT_DIRECTORY=$(git rev-parse --show-toplevel)
 echo ${GIT_ROOT_DIRECTORY}
 
 echo "step 1. Configurating git hooks" 
-# cp -f ${GIT_ROOT_DIRECTORY}/infra/git-settings/prepare-commit-msg ${GIT_ROOT_DIRECTORY}/.git/hooks
-# cp -f ${GIT_ROOT_DIRECTORY}/infra/git-settings/commit-msg ${GIT_ROOT_DIRECTORY}/.git/hooks
 if [ -f ${GIT_ROOT_DIRECTORY}/.git/hooks/commit-msg ]; then
 	rm ${GIT_ROOT_DIRECTORY}/.git/hooks/commit-msg 
 fi
 if [ -f ${GIT_ROOT_DIRECTORY}/.git/hooks/prepare-commit-msg ]; then
 	rm ${GIT_ROOT_DIRECTORY}/.git/hooks/prepare-commit-msg 
 fi
-ln -s ${GIT_ROOT_DIRECTORY}/infra/git-settings/commit-msg  ${GIT_ROOT_DIRECTORY}/.git/hooks/commit-msg 
-ln -s ${GIT_ROOT_DIRECTORY}/infra/git-settings/prepare-commit-msg ${GIT_ROOT_DIRECTORY}/.git/hooks/prepare-commit-msg 
+ln ${GIT_ROOT_DIRECTORY}/infra/git-settings/commit-msg  ${GIT_ROOT_DIRECTORY}/.git/hooks/commit-msg 
+ln ${GIT_ROOT_DIRECTORY}/infra/git-settings/prepare-commit-msg ${GIT_ROOT_DIRECTORY}/.git/hooks/prepare-commit-msg 
 if [ $? -ne 0 ]; 
 then
     echo "Error occured. Check your git hooks" 

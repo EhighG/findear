@@ -5,6 +5,10 @@ if [[ $BRANCH_NAME =~ $EXCLUDED_BRANCH ]]; then
 	echo "Exception of commit convention"
 	exit 0
 fi
+if [[ $1 == "Merging branch*" ]]; then
+	echo "Merging branch"
+	exit 0
+fi
 COMMIT_NAME=$(sed -n '2p' $1)
 COMMIT_NAME=$(echo "$COMMIT_NAME" | cut -d' ' -f2-)
 echo "Checking formula of ::: $COMMIT_NAME"

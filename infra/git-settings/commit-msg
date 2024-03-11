@@ -5,7 +5,7 @@ if [[ $BRANCH_NAME =~ $EXCLUDED_BRANCH ]]; then
 	echo "Exception of commit convention"
 	exit 0
 fi
-if [[ $1 == "Merging branch*" ]]; then
+if [[ $1 == "Merge branch*" ]]; then
 	echo "Merging branch"
 	exit 0
 fi

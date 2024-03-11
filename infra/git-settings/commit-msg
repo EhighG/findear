@@ -1,5 +1,5 @@
 #!bin/bash
-EXCLUDED_BRANCH="A706Study"
+EXCLUDED_BRANCH="A706Study|match-dev|front-dev"
 BRANCH_NAME=$(git symbolic-ref --short HEAD)
 if [[ $BRANCH_NAME =~ $EXCLUDED_BRANCH ]]; then
 	echo "Exception of commit convention"

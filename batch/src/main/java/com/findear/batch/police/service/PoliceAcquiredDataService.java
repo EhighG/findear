@@ -4,18 +4,24 @@ import com.findear.batch.police.domain.PoliceAcquiredData;
 import com.findear.batch.police.dto.SaveDataRequestDto;
 import com.findear.batch.police.repository.PoliceAcquiredDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,9 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RequiredArgsConstructor
 @Service
@@ -34,51 +38,121 @@ public class PoliceAcquiredDataService {
 
     private final PoliceAcquiredDataRepository policeAcquiredDataRepository;
 
+    private final RestHighLevelClient restHighLevelClient;
+
     @Value("${my.secret-key}")
     private String secretKey;
 
     private Long id = 1L;
 
-    public void saveData(SaveDataRequestDto saveDataRequestDto) {
-
-//        PoliceAcquiredData policeAcquiredData = PoliceAcquiredData.builder()
-//                        .id(id++).atcId(saveDataRequestDto.getAtcId())
-//                        .fdYmd(saveDataRequestDto.getFdYmd())
-//                        .depPlace(saveDataRequestDto.getDepPlace())
-//                        .fdFilePathImg(saveDataRequestDto.getFdFilePathImg()).atcId(saveDataRequestDto.getAtcId())
-//                        .fdSbjt(saveDataRequestDto.getFdSbjt()).fdPrdtNm(saveDataRequestDto.getFdPrdtNm())
-//                        .prdtClNm(saveDataRequestDto.getPrdtClNm())
-//                        .build();
-//
-//        policeAcquiredDataRepository.save(policeAcquiredData);
-    }
 
     public void deleteDatas() {
 
         policeAcquiredDataRepository.deleteAll();
     }
 
-    public Page<PoliceAcquiredData> searchAllDatas() {
+    public List<PoliceAcquiredData> searchAllDatas() {
 
-        return (Page<PoliceAcquiredData>) policeAcquiredDataRepository.findAll();
+        try {
+
+            List<PoliceAcquiredData> allDatas = new ArrayList<>();
+            String searchAfter = null;
+            int pageSize = 1000; // 페이지당 가져올 문서 수
+
+            while (true) {
+                SearchRequest searchRequest = new SearchRequest("police_acquired_data"); // Elasticsearch 인덱스 이름
+                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+                searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+                searchSourceBuilder.size(pageSize);
+
+                if (searchAfter != null) {
+                    searchSourceBuilder.sort("_doc");
+                    searchSourceBuilder.searchAfter(new Object[]{searchAfter});
+                }
+
+                searchRequest.source(searchSourceBuilder);
+
+                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+                SearchHit[] hits = searchResponse.getHits().getHits();
+                if (hits.length == 0) {
+                    break;
+                }
+
+                for (SearchHit hit : hits) {
+                    allDatas.add(convertToPoliceData(hit));
+                }
+
+                // 다음 페이지를 가져오기 위해 검색 결과의 마지막 값을 설정
+                searchAfter = hits[hits.length - 1].getId();
+            }
+
+            return allDatas;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    // 여기에서 SearchHit을 PoliceAcquiredData 객체로 변환하는 코드를 작성
+    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
+
+
+        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+
+        PoliceAcquiredData policeAcquiredData;
+        if(sourceAsMap.get("subPrdtClNm") != null) {
+
+            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
+                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
+                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
+                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
+                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
+                    sourceAsMap.get("mainPrdtClNm").toString(), sourceAsMap.get("subPrdtClNm").toString());
+        } else {
+            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
+                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
+                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
+                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
+                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
+                    sourceAsMap.get("mainPrdtClNm").toString());
+        }
+
+        return policeAcquiredData;
+    }
+
+    public Page<PoliceAcquiredData> searchByPage(int page, int size) {
+
+        return policeAcquiredDataRepository.findAll(PageRequest.of(page, size));
     }
 
     public void savePoliceData() {
 
         try {
 
+            // elastic search 모든 데이터 삭제
+            deleteDatas();
+
+            // 요청을 보낼 링크 리스트 생성
             List<String> urlLinks = new ArrayList<>();
+
+            String pageNo = "1";
+            String numOfRows = "50000";
 
             /*URL*/
             String urlBuilder = "http://apis.data.go.kr/1320000/LosPtfundInfoInqireService/getPtLosfundInfoAccToClAreaPd" + "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + secretKey + /*Service Key*/
                     "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*페이지번호*/
-                    "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("10", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
+                    "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(numOfRows, StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
                     "&" + URLEncoder.encode("PRDT_CL_CD_01", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*대분류*/
                     "&" + URLEncoder.encode("PRDT_CL_CD_02", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*중분류*/
                     "&" + URLEncoder.encode("CLR_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*습득물 색상*/
                     "&" + URLEncoder.encode("START_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20170302", StandardCharsets.UTF_8) + /*검색시작일*/
-                    "&" + URLEncoder.encode("END_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20170802", StandardCharsets.UTF_8) + /*검색종료일*/
+                    "&" + URLEncoder.encode("END_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20230802", StandardCharsets.UTF_8) + /*검색종료일*/
                     "&" + URLEncoder.encode("N_FD_LCT_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8); /*습득지역*/
+
             URL url = new URL(urlBuilder);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -183,7 +257,15 @@ public class PoliceAcquiredDataService {
                     String prdtClNm = rowData[6];
                     array = prdtClNm.split(" ");
                     String mainPrdtClNm = array[0];
-                    String subPrdtClNm = array[2];
+
+                    String subPrdtClNm;
+                    if(array.length != 3) {
+                        subPrdtClNm = null;
+                    }
+                    else {
+
+                        subPrdtClNm = array[2];
+                    }
 
                     policeAcquiredData = new PoliceAcquiredData(id++,
                             rowData[0], rowData[1], rowData[2], rowData[3], rowData[4],

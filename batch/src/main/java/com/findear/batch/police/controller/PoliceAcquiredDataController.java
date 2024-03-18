@@ -29,20 +29,20 @@ public class PoliceAcquiredDataController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        Page<PoliceAcquiredData> result = policeAcquiredDataService.searchAllDatas();
+        List<PoliceAcquiredData> result = policeAcquiredDataService.searchAllDatas();
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
     }
 
-    @PostMapping
-    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto saveDataRequestDto) {
+    @GetMapping("/save")
+    public ResponseEntity<?> searchByPage(@RequestParam("page") int page, @RequestParam("size") int size) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        policeAcquiredDataService.saveData(saveDataRequestDto);
+        Page<PoliceAcquiredData> result = policeAcquiredDataService.searchByPage(page, size);
 
-        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "데이터 저장 성공", null));
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
     }
 
     @PostMapping("/save")

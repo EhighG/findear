@@ -38,6 +38,22 @@ public class PoliceAcquiredData {
 
     public PoliceAcquiredData(Long id, String atcId, String depPlace, String fdFilePathImg,
                               String fdPrdtNm, String fdSbjt, String clrNm, String fdYmd, String prdtClNm,
+                              String mainPrdtClNm) {
+
+        this.id = id;
+        this.atcId = atcId;
+        this.depPlace = depPlace;
+        this.fdFilePathImg = fdFilePathImg;
+        this.fdPrdtNm = fdPrdtNm;
+        this.fdSbjt = fdSbjt;
+        this.clrNm = clrNm;
+        this.fdYmd = fdYmd;
+        this.prdtClNm = prdtClNm;
+        this.mainPrdtClNm = mainPrdtClNm;
+    }
+
+    public PoliceAcquiredData(Long id, String atcId, String depPlace, String fdFilePathImg,
+                              String fdPrdtNm, String fdSbjt, String clrNm, String fdYmd, String prdtClNm,
                               String mainPrdtClNm, String subPrdtClNm) {
 
         this.id = id;
@@ -52,6 +68,8 @@ public class PoliceAcquiredData {
         this.mainPrdtClNm = mainPrdtClNm;
         this.subPrdtClNm = subPrdtClNm;
     }
+
+
 
 
 }

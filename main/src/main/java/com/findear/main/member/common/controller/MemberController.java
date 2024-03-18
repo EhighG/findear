@@ -21,7 +21,7 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<?> register(@RequestBody RegisterReqDto registerReqDto) {
         try {
             return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),

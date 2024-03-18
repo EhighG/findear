@@ -56,10 +56,10 @@ public class MemberService {
     }
 
     public MemberDto findById(Long memberId) {
-        Member wrongMemberId = memberRepository.findById(memberId)
+        Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("wrong memberId"));
         MemberDto memberDto = MemberDto.of(
-                wrongMemberId
+                foundMember
         );
         return memberDto;
     }
@@ -101,6 +101,7 @@ public class MemberService {
         Long memberId = jwtService.getMemberId(refreshToken);
         String accessToken = jwtService.createAccessToken(memberId);
         Map<String, String> result = new HashMap<>();
+        result.put("tokenType", JwtService.TOKEN_TYPE);
         result.put("accessToken", accessToken);
         return result;
     }

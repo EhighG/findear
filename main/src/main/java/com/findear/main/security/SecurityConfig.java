@@ -40,13 +40,11 @@ public class SecurityConfig {
         http
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.GET, "/members/**").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/members/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/acquisitions").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/losts").authenticated()
-                        .requestMatchers("/members/logout", "/members/token/refresh", "/acquisitions/**",
-                                "/losts/**", "/scraps", "/messages/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/members/login", "/members/emails/**", "/members/find-password",
+                                "/members/nicknames/duplicate", "/actuator/health", "/error").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
+                        .anyRequest().authenticated()
                 );
 
         http

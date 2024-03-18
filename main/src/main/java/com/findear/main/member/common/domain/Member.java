@@ -5,9 +5,7 @@ import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.common.domain.Scrap;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +13,8 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "tbl_member")
 public class Member {
@@ -60,6 +60,7 @@ public class Member {
     private LocalDateTime withdrawalAt;
 
     private Boolean withdrawalYn;
+
 
 }
 

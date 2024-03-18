@@ -47,12 +47,16 @@ public class MemberService {
     }
 
     public LoginResDto login(LoginReqDto loginReqDto) {
-        MemberDto memberDto = MemberDto.of(
-                memberRepository.findByEmail(loginReqDto.getEmail())
-                        .orElseThrow(() -> new UsernameNotFoundException("유저 정보가 존재하지 않습니다."))
-        );
+        Member member = memberRepository.findByEmail(loginReqDto.getEmail())
+                        .orElseThrow(() -> new UsernameNotFoundException("유저 정보가 존재하지 않습니다."));
+        MemberDto memberDto = MemberDto.of(member);
+
         verifyPassword(loginReqDto.getPassword(), memberDto);
-        return makeTokens(memberDto);
+
+        LoginResDto loginResDto = new LoginResDto();
+        loginResDto.setMember(memberDto);
+        makeTokens(memberDto, loginResDto);
+        return loginResDto;
     }
 
     public MemberDto findById(Long memberId) {
@@ -106,15 +110,14 @@ public class MemberService {
         return result;
     }
 
-    private LoginResDto makeTokens(MemberDto memberDto) {
+    private LoginResDto makeTokens(MemberDto memberDto, LoginResDto loginResDto) {
         String accessToken = jwtService.createAccessToken(memberDto.getId());
         String refreshToken = jwtService.createRefreshToken(memberDto.getId());
         tokenRepository.save(memberDto.getId(), refreshToken);
 
-        return LoginResDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        loginResDto.setAccessToken(accessToken);
+        loginResDto.setRefreshToken(refreshToken);
+        return loginResDto;
     }
 
     private void verifyPassword(String password, MemberDto member) {

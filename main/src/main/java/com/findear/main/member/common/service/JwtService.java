@@ -45,10 +45,8 @@ public class JwtService {
                 .getBody();
     }
 
-    public void checkExpiration(String token) {
-        if (!getExpiration(token).before(new Date())) {
-            throw new RuntimeException("invalid token 예외");
-        }
+    public boolean isExpired(String token) {
+        return getExpiration(token).before(new Date());
     }
 
     /**

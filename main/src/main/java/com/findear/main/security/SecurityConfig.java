@@ -2,6 +2,7 @@ package com.findear.main.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,8 +34,13 @@ public class SecurityConfig {
         http
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/members/register", "/error", "/members/login").permitAll()
-                        .anyRequest().hasRole("NORMAL"));
+                        .requestMatchers(HttpMethod.GET, "/members/**").authenticated()
+                        .requestMatchers("/members/token/refresh").authenticated()
+                        .anyRequest().permitAll()
+                );
+//                        .requestMatchers("/members/register", "/error", "/members/login").permitAll()
+//                        .anyRequest().hasRole("NORMAL"));
+
         http
                 .httpBasic(Customizer.withDefaults());
 

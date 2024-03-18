@@ -3,6 +3,7 @@ package com.findear.main.member.common.service;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.common.dto.*;
 import com.findear.main.member.common.repository.MemberRepository;
+import com.findear.main.member.common.repository.RefreshTokenRepository;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,15 +18,17 @@ import java.util.Map;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     // redis로 대체될 저장소들
-    private Map<String, MemberDto> accessTokens = new HashMap<>();
-    private Map<String, MemberDto> refreshTokens = new HashMap<>();
+//    private Map<String, MemberDto> accessTokens = new HashMap<>();
+//    private Map<Long, String> refreshTokens = new HashMap<>(); // Map<AccessToken, RefreshToken>
 
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public MemberService(MemberRepository memberRepository, RefreshTokenRepository tokenRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.memberRepository = memberRepository;
+        this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -62,26 +65,50 @@ public class MemberService {
     }
 
     public MemberDto verifyAccessToken(String accessToken) {
-        MemberDto storedMember = accessTokens.get(accessToken);
-        if (storedMember == null || !storedMember.getId().equals(jwtService.getMemberId(accessToken))) {
-            throw new AuthenticationServiceException("401 unauthorized / accessToken mismatch");
+        if (jwtService.isExpired(accessToken)) {
+            throw new AuthenticationServiceException("401 unauthorized");
         }
-        return storedMember;
+        Long memberId = jwtService.getMemberId(accessToken);
+        String refreshToken = tokenRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new AuthenticationServiceException("401 unauthorized"));
+
+        if (refreshToken == null || !jwtService.getMemberId(refreshToken).equals(memberId)) {
+            throw new AuthenticationServiceException("401 unauthorized");
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원정보가 존재하지 않습니다."));
+
+        return MemberDto.of(member);
     }
 
     public MemberDto verifyRefreshToken(String refreshToken) {
-        MemberDto storedMember = accessTokens.get(refreshToken);
-        if (storedMember == null || !storedMember.getId().equals(jwtService.getMemberId(refreshToken))) {
-            throw new AuthenticationServiceException("401 unauthorized / refreshToken mismatch");
+        Long memberId = jwtService.getMemberId(refreshToken);
+//        String storedToken = refreshTokens.get(memberId);
+        String storedToken = tokenRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new AuthenticationServiceException("401 unauthorized"));
+
+        if (!refreshToken.equals(storedToken)) {
+            throw new RuntimeException("401 unauthorized");
         }
-        return storedMember;
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("invalid memberId"));
+        return MemberDto.of(member);
+    }
+
+    public Map<String, String> refreshAccessToken(String refreshToken) {
+        // refreshToken 검증은 마친 상태
+        Long memberId = jwtService.getMemberId(refreshToken);
+        String accessToken = jwtService.createAccessToken(memberId);
+        Map<String, String> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        return result;
     }
 
     private LoginResDto makeTokens(MemberDto memberDto) {
         String accessToken = jwtService.createAccessToken(memberDto.getId());
         String refreshToken = jwtService.createRefreshToken(memberDto.getId());
-        accessTokens.put(accessToken, memberDto);
-        refreshTokens.put(refreshToken, memberDto);
+        tokenRepository.save(memberDto.getId(), refreshToken);
 
         return LoginResDto.builder()
                 .accessToken(accessToken)

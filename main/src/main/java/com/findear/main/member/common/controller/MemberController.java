@@ -4,7 +4,9 @@ import com.findear.main.member.common.dto.LoginReqDto;
 import com.findear.main.member.common.dto.MemberDto;
 import com.findear.main.member.common.dto.RegisterReqDto;
 import com.findear.main.member.common.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/members")
@@ -15,11 +17,6 @@ public class MemberController {
 
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
@@ -36,5 +33,12 @@ public class MemberController {
     public ResponseEntity<?> findById(@PathVariable Long memberId) {
         MemberDto byId = memberService.findById(memberId);
         return ResponseEntity.ok(byId);
+    }
+
+    @PostMapping("/token/refresh")
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("refresh-token");
+        return ResponseEntity
+                .ok(memberService.refreshAccessToken(refreshToken));
     }
 }

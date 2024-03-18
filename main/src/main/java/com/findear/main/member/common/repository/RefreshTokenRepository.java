@@ -10,9 +10,9 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class RefreshTokenRepository {
 
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<Long, String> redisTemplate;
 
-    public RefreshTokenRepository(RedisTemplate redisTemplate) {
+    public RefreshTokenRepository(RedisTemplate<Long, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

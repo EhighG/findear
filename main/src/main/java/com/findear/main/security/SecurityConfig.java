@@ -35,11 +35,13 @@ public class SecurityConfig {
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.GET, "/members/**").authenticated()
-                        .requestMatchers("/members/token/refresh").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/members/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/acquisitions").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/losts").authenticated()
+                        .requestMatchers("/members/logout", "/members/token/refresh", "/acquisitions/**",
+                                "/losts/**", "/scraps", "/messages/**").authenticated()
                         .anyRequest().permitAll()
                 );
-//                        .requestMatchers("/members/register", "/error", "/members/login").permitAll()
-//                        .anyRequest().hasRole("NORMAL"));
 
         http
                 .httpBasic(Customizer.withDefaults());

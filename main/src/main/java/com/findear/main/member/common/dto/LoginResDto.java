@@ -17,6 +17,6 @@ public class LoginResDto {
 
 
     public void setMember(MemberDto memberDto) {
-        this.member = new LoginResMemberDto(memberDto.getId(), memberDto.getNickname());
+        this.member = new LoginResMemberDto(memberDto.getId(), memberDto.getPhoneNumber());
     }
 }

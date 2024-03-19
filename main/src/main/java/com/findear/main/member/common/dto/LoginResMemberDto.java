@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class LoginResMemberDto {
     private Long memberId;
-    private String nickname;
+    private String phoneNumber;
 
-    public LoginResMemberDto(Long memberId, String nickname) {
+    public LoginResMemberDto(Long memberId, String phoneNumber) {
         this.memberId = memberId;
-        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
     }
 }

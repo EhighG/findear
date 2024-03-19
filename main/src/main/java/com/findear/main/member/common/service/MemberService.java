@@ -1,6 +1,7 @@
 package com.findear.main.member.common.service;
 
 import com.findear.main.member.common.domain.Member;
+import com.findear.main.member.common.domain.Role;
 import com.findear.main.member.common.dto.*;
 import com.findear.main.member.common.repository.MemberRepository;
 import com.findear.main.member.common.repository.RefreshTokenRepository;
@@ -35,19 +36,17 @@ public class MemberService {
 
     public String register(RegisterReqDto registerReqDto) {
         Member registerMember = Member.builder()
-                .email(registerReqDto.getEmail())
-                .nickname(registerReqDto.getNickname())
-                .password(passwordEncoder.encode(registerReqDto.getPassword()))
                 .phoneNumber(registerReqDto.getPhoneNumber())
-                .role(registerReqDto.getRole())
+                .password(passwordEncoder.encode(registerReqDto.getPassword()))
+                .role(Role.NORMAL)
                 .build();
         Member savedMember = memberRepository.save(registerMember);
 
-        return savedMember.getEmail();
+        return savedMember.getPhoneNumber();
     }
 
     public LoginResDto login(LoginReqDto loginReqDto) {
-        Member member = memberRepository.findByEmail(loginReqDto.getEmail())
+        Member member = memberRepository.findByPhoneNumber(loginReqDto.getPhoneNumber())
                         .orElseThrow(() -> new UsernameNotFoundException("유저 정보가 존재하지 않습니다."));
         MemberDto memberDto = MemberDto.of(member);
 

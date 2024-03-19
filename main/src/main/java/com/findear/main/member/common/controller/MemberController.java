@@ -34,6 +34,8 @@ public class MemberController {
         }
     }
 
+    @PatchMapping("")
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
         try {

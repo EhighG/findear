@@ -1,5 +1,6 @@
 package com.findear.main.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,10 +20,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -31,7 +34,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter,
+                                           JwtAuthenticationEntryPoint entryPoint) throws Exception {
 
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
@@ -40,17 +44,17 @@ public class SecurityConfig {
         http
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.GET, "/members/**").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/members/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/acquisitions").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/losts").authenticated()
-                        .requestMatchers("/members/logout", "/members/token/refresh", "/acquisitions/**",
-                                "/losts/**", "/scraps", "/messages/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/members/login", "/members/emails/**", "/members/find-password",
+                                "/members/nicknames/duplicate", "/actuator/**", "/error").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
+                        .anyRequest().authenticated()
                 );
 
         http
                 .httpBasic(Customizer.withDefaults());
+        http
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint));
 
         return http.build();
 

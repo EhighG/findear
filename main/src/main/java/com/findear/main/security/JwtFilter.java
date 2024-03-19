@@ -6,16 +6,18 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -25,27 +27,46 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider authenticationProvider;
 
     private final Authentication authenticationForGuests;
-    private Set<String> exclusiveUris;
+    private List<AntPathRequestMatcher> exclusiveRequestMatchers;
+
 
     public JwtFilter(JwtAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
         authenticationForGuests = JwtAuthenticationToken.authenticated("guest", "guestCredntial",
                 null);
-        exclusiveUris = new HashSet<>();
-        exclusiveUris.addAll(Arrays.asList("/members/register", "/members/login"));
+        setExclusiveRequestMatchers();
+    }
+
+    private void setExclusiveRequestMatchers() {
+        exclusiveRequestMatchers = new ArrayList<>();
+        // only pattern
+        List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password",
+                "/members/nicknames/duplicate", "/actuator/**", "/error");
+        for (String uri : exclusiveUris) {
+            exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
+        }
+        // pattern, http method
+        exclusiveRequestMatchers.add(new AntPathRequestMatcher("/members", HttpMethod.POST.name()));
+        exclusiveRequestMatchers.add(new AntPathRequestMatcher("/acquisitions", HttpMethod.GET.name()));
+        exclusiveRequestMatchers.add(new AntPathRequestMatcher("/losts", HttpMethod.GET.name()));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        JwtAuthenticationToken authentication = new JwtAuthenticationToken("tmpPrincipal", "tmpCredentials", Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
-//
-//        authentication.setDetails(new JwtUserDetails("tmpAuthorities", "1", "sampletoken"));
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        filterChain.doFilter(request, response);
         String requestUri = request.getRequestURI();
-        Authentication authentication = exclusiveUris.contains(requestUri) ? authenticationForGuests : attemptAuthenticate(request);
+//        Authentication authentication = exclusiveUris.contains(requestUri) ? authenticationForGuests : attemptAuthenticate(request);
+        Authentication authentication;
+        if (exclusiveRequestMatchers.stream().anyMatch(matcher -> matcher.matches(request))) {
+            authentication = authenticationForGuests;
+        } else {
+            try {
+                authentication = attemptAuthenticate(request);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                throw new AuthenticationServiceException("401 unauthorized");
+            }
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);

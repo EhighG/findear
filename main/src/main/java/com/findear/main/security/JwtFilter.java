@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final Authentication authenticationForGuests;
     private List<AntPathRequestMatcher> exclusiveRequestMatchers;
 
+
     public JwtFilter(JwtAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
         authenticationForGuests = JwtAuthenticationToken.authenticated("guest", "guestCredntial",
@@ -37,11 +39,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void setExclusiveRequestMatchers() {
         exclusiveRequestMatchers = new ArrayList<>();
+        // only pattern
         List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password",
-                "/members/nicknames/duplicate", "/actuator/health", "/error");
+                "/members/nicknames/duplicate", "/actuator/**", "/error");
         for (String uri : exclusiveUris) {
             exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
         }
+        // pattern, http method
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/members", HttpMethod.POST.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/acquisitions", HttpMethod.GET.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/losts", HttpMethod.GET.name()));

@@ -1,9 +1,9 @@
 package com.findear.batch.police.service;
 
 import com.findear.batch.police.domain.PoliceAcquiredData;
-import com.findear.batch.police.dto.SaveDataRequestDto;
 import com.findear.batch.police.repository.PoliceAcquiredDataRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.transaction.Transactional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
@@ -30,9 +31,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class PoliceAcquiredDataService {
 
@@ -45,25 +50,23 @@ public class PoliceAcquiredDataService {
 
     private Long id = 1L;
 
-
     public void deleteDatas() {
 
         policeAcquiredDataRepository.deleteAll();
     }
 
     public List<PoliceAcquiredData> searchAllDatas() {
-
         try {
-
             List<PoliceAcquiredData> allDatas = new ArrayList<>();
             String searchAfter = null;
-            int pageSize = 1000; // 페이지당 가져올 문서 수
+            int pageSize = 200; // 페이지당 가져올 문서 수
 
             while (true) {
-                SearchRequest searchRequest = new SearchRequest("police_acquired_data"); // Elasticsearch 인덱스 이름
+                SearchRequest searchRequest = new SearchRequest("police_acquired_data");
                 SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
                 searchSourceBuilder.query(QueryBuilders.matchAllQuery());
                 searchSourceBuilder.size(pageSize);
+                searchSourceBuilder.fetchSource(new String[]{"id", "atcId", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "prdtClNm", "mainPrdtClNm", "subPrdtClNm"}, null);
 
                 if (searchAfter != null) {
                     searchSourceBuilder.sort("_doc");
@@ -71,7 +74,6 @@ public class PoliceAcquiredDataService {
                 }
 
                 searchRequest.source(searchSourceBuilder);
-
                 SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
                 SearchHit[] hits = searchResponse.getHits().getHits();
@@ -83,51 +85,132 @@ public class PoliceAcquiredDataService {
                     allDatas.add(convertToPoliceData(hit));
                 }
 
-                // 다음 페이지를 가져오기 위해 검색 결과의 마지막 값을 설정
-                searchAfter = hits[hits.length - 1].getId();
+                searchAfter = getLastSortValue(hits);
+                System.out.println("searchAfter = " + searchAfter);
             }
 
             return allDatas;
 
         } catch (Exception e) {
+
             e.printStackTrace();
         }
-
         return null;
-
     }
 
-    // 여기에서 SearchHit을 PoliceAcquiredData 객체로 변환하는 코드를 작성
-    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
-
-
-        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-
-        PoliceAcquiredData policeAcquiredData;
-        if(sourceAsMap.get("subPrdtClNm") != null) {
-
-            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
-                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
-                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
-                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
-                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
-                    sourceAsMap.get("mainPrdtClNm").toString(), sourceAsMap.get("subPrdtClNm").toString());
+    private String getLastSortValue(SearchHit[] hits) {
+        SearchHit lastHit = hits[hits.length - 1];
+        Object[] sortValues = lastHit.getSortValues();
+        if (sortValues != null && sortValues.length > 0) {
+            return sortValues[0].toString();
         } else {
-            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
-                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
-                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
-                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
-                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
-                    sourceAsMap.get("mainPrdtClNm").toString());
+            return lastHit.getId();
         }
-
-        return policeAcquiredData;
     }
+
+    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
+        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+        return new PoliceAcquiredData(
+                Long.parseLong(sourceAsMap.get("id").toString()),
+                sourceAsMap.get("atcId").toString(),
+                sourceAsMap.get("depPlace").toString(),
+                sourceAsMap.get("fdFilePathImg").toString(),
+                sourceAsMap.get("fdPrdtNm").toString(),
+                sourceAsMap.get("fdSbjt").toString(),
+                sourceAsMap.get("clrNm").toString(),
+                sourceAsMap.get("fdYmd").toString(),
+                sourceAsMap.get("prdtClNm").toString(),
+                sourceAsMap.get("mainPrdtClNm").toString(),
+                sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
+        );
+    }
+
+//    public List<PoliceAcquiredData> searchAllDatas() {
+//
+//        try {
+//
+//            List<PoliceAcquiredData> allDatas = new ArrayList<>();
+//            String searchAfter = null;
+//            int pageSize = 200; // 페이지당 가져올 문서 수
+//
+//            while (true) {
+//                SearchRequest searchRequest = new SearchRequest("police_acquired_data"); // Elasticsearch 인덱스 이름
+//                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+//                searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+//                searchSourceBuilder.size(pageSize);
+//
+//                if (searchAfter != null) {
+//                    searchSourceBuilder.sort("_doc");
+//                    searchSourceBuilder.searchAfter(new Object[]{searchAfter});
+//                }
+//
+//                searchRequest.source(searchSourceBuilder);
+//
+//                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+//
+//                SearchHit[] hits = searchResponse.getHits().getHits();
+//                if (hits.length == 0) {
+//                    break;
+//                }
+//
+//                for (SearchHit hit : hits) {
+//                    allDatas.add(convertToPoliceData(hit));
+//                }
+//
+//                // 다음 페이지를 가져오기 위해 검색 결과의 마지막 문서의 sort key 값을 설정
+//                SearchHit lastHit = hits[hits.length - 1];
+//                Object[] sortValues = lastHit.getSortValues();
+//                if (sortValues != null && sortValues.length > 0) {
+//                    searchAfter = sortValues[0].toString(); // 첫 번째 sort key 값을 사용
+//                } else {
+//                    // sort key가 없는 경우 _id를 사용하여 다음 페이지를 설정
+//                    searchAfter = lastHit.getId();
+//                }
+//
+//                System.out.println("searchAfter = " + searchAfter);
+//            }
+//
+//            return allDatas;
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//
+//    }
+//
+//    // 여기에서 SearchHit을 PoliceAcquiredData 객체로 변환하는 코드를 작성
+//    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
+//
+//        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+//
+//        PoliceAcquiredData policeAcquiredData;
+//        if(sourceAsMap.get("subPrdtClNm") != null) {
+//
+//            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
+//                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
+//                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
+//                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
+//                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
+//                    sourceAsMap.get("mainPrdtClNm").toString(), sourceAsMap.get("subPrdtClNm").toString());
+//        } else {
+//            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
+//                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
+//                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
+//                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
+//                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
+//                    sourceAsMap.get("mainPrdtClNm").toString());
+//        }
+//
+//        return policeAcquiredData;
+//    }
 
     public Page<PoliceAcquiredData> searchByPage(int page, int size) {
 
         return policeAcquiredDataRepository.findAll(PageRequest.of(page, size));
     }
+
 
     public void savePoliceData() {
 
@@ -135,54 +218,71 @@ public class PoliceAcquiredDataService {
 
             // elastic search 모든 데이터 삭제
             deleteDatas();
+            log.info("데이터 삭제 성공");
 
-            // 요청을 보낼 링크 리스트 생성
-            List<String> urlLinks = new ArrayList<>();
+            LocalDateTime today = LocalDateTime.now();
+            String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            log.info(todaysDate + "까지 데이터 저장");
 
-            String pageNo = "1";
-            String numOfRows = "50000";
-
-            /*URL*/
-            String urlBuilder = "http://apis.data.go.kr/1320000/LosPtfundInfoInqireService/getPtLosfundInfoAccToClAreaPd" + "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + secretKey + /*Service Key*/
-                    "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*페이지번호*/
-                    "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(numOfRows, StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
-                    "&" + URLEncoder.encode("PRDT_CL_CD_01", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*대분류*/
-                    "&" + URLEncoder.encode("PRDT_CL_CD_02", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*중분류*/
-                    "&" + URLEncoder.encode("CLR_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*습득물 색상*/
-                    "&" + URLEncoder.encode("START_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20170302", StandardCharsets.UTF_8) + /*검색시작일*/
-                    "&" + URLEncoder.encode("END_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20230802", StandardCharsets.UTF_8) + /*검색종료일*/
-                    "&" + URLEncoder.encode("N_FD_LCT_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8); /*습득지역*/
-
-            URL url = new URL(urlBuilder);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-type", "application/json");
-
-            System.out.println("Response code: " + conn.getResponseCode());
+            String numOfRows = "30000";
 
             BufferedReader rd;
-            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-            rd.close();
-            conn.disconnect();
-
-            System.out.println(sb);
 
             List<String> responses = new ArrayList<>();
-            responses.add(sb.toString());
 
-            System.out.println("responses : ");
+            int count = 0;
+            for(int pageNo = 1; ; pageNo++) {
 
-            for(String res : responses) {
-                System.out.println(res);
+                /*URL*/
+                String urlBuilder = "http://apis.data.go.kr/1320000/LosPtfundInfoInqireService/getPtLosfundInfoAccToClAreaPd" + "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + secretKey + /*Service Key*/
+                        "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(String.valueOf(pageNo), StandardCharsets.UTF_8) + /*페이지번호*/
+                        "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(numOfRows, StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
+                        "&" + URLEncoder.encode("PRDT_CL_CD_01", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*대분류*/
+                        "&" + URLEncoder.encode("PRDT_CL_CD_02", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*중분류*/
+                        "&" + URLEncoder.encode("CLR_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8) + /*습득물 색상*/
+                        "&" + URLEncoder.encode("START_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20150101", StandardCharsets.UTF_8) + /*검색시작일*/
+                        "&" + URLEncoder.encode("END_YMD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(todaysDate, StandardCharsets.UTF_8) + /*검색종료일*/
+                        "&" + URLEncoder.encode("N_FD_LCT_CD", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("", StandardCharsets.UTF_8); /*습득지역*/
+
+                URL url = new URL(urlBuilder);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Content-type", "application/json");
+
+                System.out.println("Response code: " + conn.getResponseCode());
+
+                if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+                    rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                } else {
+                    rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                }
+
+                boolean isEnd = false;
+                String line;
+                while ((line = rd.readLine()) != null) {
+
+                    if(!(line.contains("atcId")) && count == 0) {
+                        count++;
+                        continue;
+                    }
+
+                    if(!(line.contains("atcId")) && count == 1) {
+                        isEnd = true;
+                        break;
+                    }
+
+                    log.info(line);
+
+                    responses.add(line);
+                }
+
+
+                rd.close();
+                conn.disconnect();
+
+                if(isEnd) {
+                    break;
+                }
             }
 
             // 업로드 및 lastTrs 업데이트 실행
@@ -193,6 +293,7 @@ public class PoliceAcquiredDataService {
             System.out.println(e.getMessage());
         }
     }
+
 
     /**
      * 각 속성값 문자열로 추출
@@ -211,8 +312,6 @@ public class PoliceAcquiredDataService {
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
 
             for (String response : responses) {
-
-                System.out.println("response : " + response);
 
                 // String -> document 변환
                 Document xmlDoc = builder.parse(new ByteArrayInputStream(response.getBytes()));
@@ -238,8 +337,6 @@ public class PoliceAcquiredDataService {
                     for (int j = 0; j < targetTagNames.length; j++) {
                         Node valueNode = item.getElementsByTagName(targetTagNames[j]).item(0);
                         String value = (valueNode == null) ? null : valueNode.getTextContent();
-
-                        System.out.println("value = " + value);
 
                         // null값 있는(잘못된) 데이터는 pass
                         if (value == null) continue;
@@ -277,9 +374,12 @@ public class PoliceAcquiredDataService {
 
                 policeAcquiredDataRepository.saveAll(policeAcquiredDataList);
 
+                log.info("모든 데이터 저장 완료");
+
             }
 
         } catch (Exception e) {
+
             e.printStackTrace();
         }
     }

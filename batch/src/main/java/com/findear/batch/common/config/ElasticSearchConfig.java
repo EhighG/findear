@@ -2,6 +2,7 @@ package com.findear.batch.common.config;
 
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
@@ -18,7 +19,11 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
     @Override
     public RestHighLevelClient elasticsearchClient() {
         // http port 와 통신할 주소
-        ClientConfiguration configuration = ClientConfiguration.builder().connectedTo(ELASTIC_SEARCH_PORT).build();
+        ClientConfiguration configuration = ClientConfiguration.builder().connectedTo(ELASTIC_SEARCH_PORT)
+                .withConnectTimeout(10000)
+                .withSocketTimeout(30000).build();
+
         return RestClients.create(configuration).rest();
     }
+
 }

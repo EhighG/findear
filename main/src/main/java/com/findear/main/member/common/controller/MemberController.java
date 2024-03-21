@@ -77,6 +77,13 @@ public class MemberController {
                         briefMemberDto));
     }
 
+    @GetMapping("/token-check")
+    public ResponseEntity<?> checkAccessToken() {
+        return ResponseEntity
+                .ok()
+                .body(new SuccessResponse(HttpStatus.OK.value(), "유효한 accessToken입니다."));
+    }
+
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("refresh-token");

@@ -20,23 +20,23 @@ public class JwtAuthenticationProvider {
 
     /**
      * param : unauthenticated 이고, accessToken만 담고 있는 객체
-     * return : authenticated이고, member가 추가된 객체
+     * return : authenticated이고, memberId가 추가된 객체
      */
     public Authentication authenticateAccessToken(String accessToken) {
         MemberDto memberDto = memberService.verifyAccessToken(accessToken);
 
-        return JwtAuthenticationToken.authenticated(memberDto, accessToken,
+        return JwtAuthenticationToken.authenticated(memberDto.getId(), accessToken,
                 Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
     }
 
     /**
      * param : unauthenticated 이고, refreshToken만 담고 있는 객체
-     * return : authenticated이고, member가 추가된 객체
+     * return : authenticated이고, memberId가 추가된 객체
      */
     public Authentication authenticationRefreshToken(String refreshToken) {
         MemberDto memberDto = memberService.verifyRefreshToken(refreshToken);
 
-        return JwtAuthenticationToken.authenticated(memberDto, refreshToken,
+        return JwtAuthenticationToken.authenticated(memberDto.getId(), refreshToken,
                 Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
     }
 }

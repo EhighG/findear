@@ -3,9 +3,14 @@ package com.findear.main.member.common.domain;
 import com.findear.main.Alarm.common.domain.Alarm;
 import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.common.domain.Scrap;
+import com.findear.main.member.common.dto.ModifyMemberReqDto;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "tbl_member")
 public class Member {
 
@@ -36,11 +42,9 @@ public class Member {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Alarm> alarmList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agency_id")
     private Agency agency;
-
-    @Column(nullable = false)
-    private String email;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
@@ -50,17 +54,31 @@ public class Member {
     private String password;
 
     @Column(nullable = false)
-    private String nickname;
-
-    @Column(nullable = false)
     private String phoneNumber;
 
+    @CreatedDate
     private LocalDateTime joinedAt;
 
     private LocalDateTime withdrawalAt;
 
     private Boolean withdrawalYn;
 
+    public void setAgencyAndRole(Agency agency, Role role) {
+        this.agency = agency;
+        this.role = role;
+        agency.addMember(this);
+    }
 
+    public void changeAgency(Agency agency) {
+        this.agency.removeMember(this);
+        agency.addMember(this);
+        this.agency = agency;
+    }
+
+    public void toNormal() {
+        this.agency.removeMember(this);
+        this.agency = null;
+        this.role = Role.NORMAL;
+    }
 }
 

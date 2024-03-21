@@ -33,13 +33,9 @@ public class MemberDto {
 
     private Agency agency;
 
-    private String email;
-
     private Role role;
 
     private String password;
-
-    private String nickname;
 
     private String phoneNumber;
 
@@ -53,8 +49,6 @@ public class MemberDto {
         return MemberDto.builder()
                 .id(member.getId())
 //                .messageRoomList(member.getMessageRoomList())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
                 .password(member.getPassword())
                 .agency(member.getAgency())
 //                .scrapList(member.getScrapList())
@@ -72,8 +66,6 @@ public class MemberDto {
         return Member.builder()
                 .id(id)
 //                .messageRoomList(messageRoomList)
-                .email(email)
-                .nickname(nickname)
                 .password(password)
                 .agency(agency)
 //                .scrapList(scrapList)

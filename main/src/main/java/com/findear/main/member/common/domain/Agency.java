@@ -1,12 +1,15 @@
 package com.findear.main.member.common.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "tbl_agency")
 public class Agency {
@@ -16,9 +19,8 @@ public class Agency {
     @Column(name = "agency_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @OneToMany(mappedBy = "agency", fetch = FetchType.LAZY)
+    private List<Member> memberList = new ArrayList<>();
 
     private String name;
 
@@ -38,4 +40,11 @@ public class Agency {
 
     private String sido;
 
+    public void addMember(Member member) {
+        memberList.add(member);
+    }
+
+    public void removeMember(Member member) {
+        memberList.remove(member);
+    }
 }

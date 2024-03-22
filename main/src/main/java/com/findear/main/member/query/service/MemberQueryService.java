@@ -2,6 +2,7 @@ package com.findear.main.member.query.service;
 
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.common.dto.*;
+import com.findear.main.member.query.dto.FindMemberListResDto;
 import com.findear.main.member.query.dto.FindMemberResDto;
 import com.findear.main.member.query.repository.MemberQueryRepository;
 import com.findear.main.security.RefreshTokenRepository;
@@ -13,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -65,10 +69,13 @@ public class MemberQueryService {
         return foundMember;
     }
 
-//    public List<Member> findMembers(String keyword) {
-//        List<Member> members = memberQueryRepository.findAll();
-//        return members.stream().filter((member) -> member.getPhoneNumber().contains(keyword)).collect(Collectors.toList());
-//    }
+    public List<FindMemberListResDto> findMembers(String keyword) {
+        List<Member> members = memberQueryRepository.findAll();
+        return members.stream()
+                .filter(member -> member.getPhoneNumber().contains(keyword))
+                .map(FindMemberListResDto::of)
+                .collect(Collectors.toList());
+    }
 
     public MemberDto verifyAccessToken(String accessToken) {
         if (jwtService.isExpired(accessToken)) {

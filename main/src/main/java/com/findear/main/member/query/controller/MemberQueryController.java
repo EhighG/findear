@@ -43,11 +43,11 @@ public class MemberQueryController {
                 .body(new SuccessResponse(HttpStatus.OK.value(), "유효한 accessToken입니다."));
     }
 
-//    @GetMapping
-//    public ResponseEntity<?> findMembers(@RequestParam(required = false) String keyword) {
-//        return ResponseEntity
-//                .ok()
-//                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
-//                        memberQueryService.findMembers(keyword)));
-//    }
+    @GetMapping
+    public ResponseEntity<?> findMembers(@RequestParam(required = false) String keyword) {
+        return ResponseEntity
+                .ok()
+                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
+                        memberQueryService.findMembers(keyword)));
+    }
 }

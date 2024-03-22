@@ -1,4 +1,4 @@
-package com.findear.main.member.common.service;
+package com.findear.main.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

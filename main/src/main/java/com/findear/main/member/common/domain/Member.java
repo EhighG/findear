@@ -3,13 +3,10 @@ package com.findear.main.member.common.domain;
 import com.findear.main.Alarm.common.domain.Alarm;
 import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.common.domain.Scrap;
-import com.findear.main.member.common.dto.ModifyMemberReqDto;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;

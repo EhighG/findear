@@ -1,6 +1,7 @@
-package com.findear.main.member.common.dto;
+package com.findear.main.member.command.dto;
 
 import com.findear.main.member.common.domain.Role;
+import com.findear.main.member.common.dto.AgencyDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

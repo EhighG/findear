@@ -1,15 +1,14 @@
-package com.findear.main.member.common.repository;
+package com.findear.main.member.query.repository;
 
 import com.findear.main.member.common.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberQueryRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m left join fetch m.agency where m.phoneNumber = :phoneNumber")
     Optional<Member> findByPhoneNumber(String phoneNumber);
 

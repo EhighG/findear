@@ -1,4 +1,4 @@
-package com.findear.main.member.common.dto;
+package com.findear.main.member.command.dto;
 
 import com.findear.main.member.common.domain.Role;
 import lombok.Getter;

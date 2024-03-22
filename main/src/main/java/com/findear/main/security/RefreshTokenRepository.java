@@ -1,4 +1,4 @@
-package com.findear.main.member.common.repository;
+package com.findear.main.security;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

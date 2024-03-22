@@ -97,6 +97,9 @@ public class MemberService {
     }
 
     public boolean checkDuplicate(String phoneNumber) {
+        if (phoneNumber.charAt(0) == '"') {
+            phoneNumber = phoneNumber.substring(1, phoneNumber.length() - 1);
+        }
         return memberRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 

@@ -22,8 +22,12 @@ public class MemberQueryController {
     public ResponseEntity<?> checkDuplicate(@RequestBody String phoneNumber) {
         return ResponseEntity
                 .ok()
-                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
+                .body(new SuccessResponse(HttpStatus.OK.value(), "변경사항 적용 테스트테스트테스트\n\n\n",
                         memberQueryService.checkDuplicate(phoneNumber)));
+//        return ResponseEntity
+//                .ok()
+//                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
+//                        memberQueryService.checkDuplicate(phoneNumber)));
     }
 
     @GetMapping("/{targetMemberId}")

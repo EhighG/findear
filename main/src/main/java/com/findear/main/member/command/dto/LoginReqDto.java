@@ -1,4 +1,4 @@
-package com.findear.main.member.common.dto;
+package com.findear.main.member.command.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

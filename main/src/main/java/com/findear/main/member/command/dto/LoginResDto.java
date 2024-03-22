@@ -1,5 +1,7 @@
-package com.findear.main.member.common.dto;
+package com.findear.main.member.command.dto;
 
+import com.findear.main.member.command.dto.BriefMemberDto;
+import com.findear.main.member.common.dto.MemberDto;
 import lombok.Getter;
 import lombok.Setter;
 

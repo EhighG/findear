@@ -1,8 +1,8 @@
 package com.findear.main.security;
 
 import com.findear.main.member.common.dto.MemberDto;
-import com.findear.main.member.common.service.JwtService;
-import com.findear.main.member.common.service.MemberService;
+import com.findear.main.member.command.service.MemberCommandService;
+import com.findear.main.member.query.service.MemberQueryService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -12,10 +12,10 @@ import java.util.Arrays;
 @Component
 public class JwtAuthenticationProvider {
 
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
 
-    public JwtAuthenticationProvider(MemberService memberService) {
-        this.memberService = memberService;
+    public JwtAuthenticationProvider(MemberQueryService memberQueryService) {
+        this.memberQueryService = memberQueryService;
     }
 
     /**
@@ -23,7 +23,7 @@ public class JwtAuthenticationProvider {
      * return : authenticated이고, memberId가 추가된 객체
      */
     public Authentication authenticateAccessToken(String accessToken) {
-        MemberDto memberDto = memberService.verifyAccessToken(accessToken);
+        MemberDto memberDto = memberQueryService.verifyAccessToken(accessToken);
 
         return JwtAuthenticationToken.authenticated(memberDto.getId(), accessToken,
                 Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
@@ -34,7 +34,7 @@ public class JwtAuthenticationProvider {
      * return : authenticated이고, memberId가 추가된 객체
      */
     public Authentication authenticationRefreshToken(String refreshToken) {
-        MemberDto memberDto = memberService.verifyRefreshToken(refreshToken);
+        MemberDto memberDto = memberQueryService.verifyRefreshToken(refreshToken);
 
         return JwtAuthenticationToken.authenticated(memberDto.getId(), refreshToken,
                 Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));

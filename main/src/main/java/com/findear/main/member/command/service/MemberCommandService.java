@@ -74,7 +74,7 @@ public class MemberCommandService {
         verifyPassword(loginReqDto.getPassword(), memberDto);
 
         LoginResDto loginResDto = new LoginResDto();
-        loginResDto.setMember(memberDto);
+        loginResDto.setMemberAndAgency(memberDto);
         makeTokens(memberDto, loginResDto);
         return loginResDto;
     }
@@ -108,7 +108,7 @@ public class MemberCommandService {
         }
         // 나머지 member 정보 변경 : 일단은 전화번호만
         member.changePhoneNumber(modifyMemberReqDto.getPhoneNumber());
-        return new BriefMemberDto(member.getId(), member.getPhoneNumber());
+        return new BriefMemberDto(member.getId(), member.getPhoneNumber(), member.getRole());
     }
 
     public void deleteMember(Long requestMemberId, Long targetMemberId) {

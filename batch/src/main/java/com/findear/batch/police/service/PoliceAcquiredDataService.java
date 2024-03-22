@@ -48,7 +48,7 @@ public class PoliceAcquiredDataService {
     @Value("${my.secret-key}")
     private String secretKey;
 
-    private Long id = 1L;
+//    private Long id = 1L;
 
     public void deleteDatas() {
 
@@ -109,20 +109,41 @@ public class PoliceAcquiredDataService {
     }
 
     private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
+
         Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-        return new PoliceAcquiredData(
-                Long.parseLong(sourceAsMap.get("id").toString()),
-                sourceAsMap.get("atcId").toString(),
-                sourceAsMap.get("depPlace").toString(),
-                sourceAsMap.get("fdFilePathImg").toString(),
-                sourceAsMap.get("fdPrdtNm").toString(),
-                sourceAsMap.get("fdSbjt").toString(),
-                sourceAsMap.get("clrNm").toString(),
-                sourceAsMap.get("fdYmd").toString(),
-                sourceAsMap.get("prdtClNm").toString(),
-                sourceAsMap.get("mainPrdtClNm").toString(),
-                sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
-        );
+
+        if(sourceAsMap.get("fdSbjt") != null) {
+
+            return new PoliceAcquiredData(
+                    Long.parseLong(sourceAsMap.get("id").toString()),
+                    sourceAsMap.get("atcId").toString(),
+                    sourceAsMap.get("depPlace").toString(),
+                    sourceAsMap.get("fdFilePathImg").toString(),
+                    sourceAsMap.get("fdPrdtNm").toString(),
+                    sourceAsMap.get("fdSbjt").toString(),
+                    sourceAsMap.get("clrNm").toString(),
+                    sourceAsMap.get("fdYmd").toString(),
+                    sourceAsMap.get("prdtClNm").toString(),
+                    sourceAsMap.get("mainPrdtClNm").toString(),
+                    sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
+            );
+        } else {
+
+            return new PoliceAcquiredData(
+
+                    Long.parseLong(sourceAsMap.get("id").toString()),
+                    sourceAsMap.get("atcId").toString(),
+                    sourceAsMap.get("depPlace").toString(),
+                    sourceAsMap.get("fdFilePathImg").toString(),
+                    sourceAsMap.get("fdPrdtNm").toString(),
+                    sourceAsMap.get("clrNm").toString(),
+                    sourceAsMap.get("fdYmd").toString(),
+                    sourceAsMap.get("prdtClNm").toString(),
+                    sourceAsMap.get("mainPrdtClNm").toString(),
+                    sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
+            );
+        }
+
     }
 
 //    public List<PoliceAcquiredData> searchAllDatas() {
@@ -224,7 +245,7 @@ public class PoliceAcquiredDataService {
             String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             log.info(todaysDate + "까지 데이터 저장");
 
-            String numOfRows = "30000";
+            String numOfRows = "50000";
 
             BufferedReader rd;
 
@@ -303,6 +324,9 @@ public class PoliceAcquiredDataService {
     private void readandSaveData(List<String> responses) {
 
         try {
+
+            Long id = 1L;
+
             // 결과값 List
             List<String[]> rowDatas = new ArrayList<>();
 
@@ -345,10 +369,15 @@ public class PoliceAcquiredDataService {
 
                     }
 
+                    String[] array;
+                    String fdSbjt = "";
+                    String clrNm = "";
                     // 색상 컬럼 분류 로직
-                    String fdSbjt = rowData[4];
-                    String[] array = fdSbjt.split("\\(");
-                    String clrNm = array[1];
+                    if(rowData[4] != null) {
+                        fdSbjt = rowData[4];
+                        array = fdSbjt.split("\\(");
+                        clrNm = array[1];
+                    }
 
                     // 대분류, 소분류 컬럼 분류 로직
                     String prdtClNm = rowData[6];
@@ -374,9 +403,13 @@ public class PoliceAcquiredDataService {
 
                 policeAcquiredDataRepository.saveAll(policeAcquiredDataList);
 
-                log.info("모든 데이터 저장 완료");
+                policeAcquiredDataList.clear();
+
+                log.info("데이터 저장 완료");
 
             }
+
+            log.info("모든 데이터 저장 완료");
 
         } catch (Exception e) {
 

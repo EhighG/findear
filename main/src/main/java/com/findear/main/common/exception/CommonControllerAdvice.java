@@ -1,4 +1,4 @@
-package com.findear.main;
+package com.findear.main.common.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseEntity;

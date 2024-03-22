@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/members/login", "/members/emails/**", "/members/find-password",
-                                "/members/nicknames/duplicate", "/actuator/**", "/error").permitAll()
+                                "/members/nicknames/duplicate", "/actuator/**", "/members/duplicate", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
                         .anyRequest().authenticated()

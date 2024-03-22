@@ -19,9 +19,6 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<SubCategory> subCategoryList = new ArrayList<>();
-
     private String categoryName;
 
 }

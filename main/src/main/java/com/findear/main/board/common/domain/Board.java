@@ -35,8 +35,7 @@ public class Board {
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<imgFile> imgFileList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
-    private List<ProductColor> productColorList = new ArrayList<>();
+    private String color;
 
     @OneToOne(mappedBy = "board", fetch = FetchType.LAZY)
     private AcquiredBoard acquiredBoard;
@@ -60,7 +59,4 @@ public class Board {
     private String thumbnailUrl;
 
     private String categoryName;
-
-    private String subCategoryName;
-
 }

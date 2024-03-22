@@ -9,4 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface MemberCommandRepository extends JpaRepository<Member, Long> {
+
 }

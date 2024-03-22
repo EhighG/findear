@@ -28,17 +28,7 @@ public class Agency {
 
     private Float yPos;
 
-    private String phoneNumber;
-
     private String address;
-
-    private String detailAddress;
-
-    private String dong;
-
-    private String sigungu;
-
-    private String sido;
 
     public void addMember(Member member) {
         memberList.add(member);

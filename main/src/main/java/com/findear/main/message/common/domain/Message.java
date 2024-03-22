@@ -2,6 +2,7 @@ package com.findear.main.message.common.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,5 +29,13 @@ public class Message {
     private String content;
 
     private LocalDateTime sendAt;
+
+    @Builder
+    public Message(MessageRoom messageRoom, String title, String content) {
+        this.messageRoom = messageRoom;
+        this.title = title;
+        this.content = content;
+        this.sendAt = LocalDateTime.now();
+    }
 
 }

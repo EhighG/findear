@@ -4,6 +4,7 @@ import com.findear.main.board.common.domain.Board;
 import com.findear.main.member.common.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,5 +32,10 @@ public class MessageRoom {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
+    @Builder MessageRoom(Member member, Board board) {
+        this.member = member;
+        this.board = board;
+    }
 
 }

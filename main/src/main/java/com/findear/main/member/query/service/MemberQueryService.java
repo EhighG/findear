@@ -23,7 +23,7 @@ public class MemberQueryService {
     private final RefreshTokenRepository tokenRepository;
     private final JwtService jwtService;
 
-    public Long getAuthenticatedMemberId() {
+    public static Long getAuthenticatedMemberId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!authentication.isAuthenticated()) {
             throw new IllegalStateException("로그인되지 않은 상태입니다.");

@@ -227,6 +227,7 @@ public class PoliceAcquiredDataService {
 //        return policeAcquiredData;
 //    }
 
+
     public Page<PoliceAcquiredData> searchByPage(int page, int size) {
 
         return policeAcquiredDataRepository.findAll(PageRequest.of(page, size));

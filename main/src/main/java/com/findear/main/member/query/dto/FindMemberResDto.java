@@ -33,7 +33,6 @@ public class FindMemberResDto {
                         .address(agency.getAddress())
                         .xPos(agency.getXPos())
                         .yPos(agency.getYPos())
-                        .phoneNumber(agency.getPhoneNumber())
                         .build() : null)
                 .build();
     }

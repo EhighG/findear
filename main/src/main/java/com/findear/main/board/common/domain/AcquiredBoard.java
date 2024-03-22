@@ -29,8 +29,6 @@ public class AcquiredBoard {
 
     private LocalDate acquiredAt;
 
-    private String phoneNumber;
-
     private String address;
 
     private String name;

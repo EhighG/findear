@@ -15,7 +15,6 @@ public class AgencyDto {
     private Long id;
     private String name;
     private List<Member> memberList = new ArrayList<>();
-    private String phoneNumber;
     private String address;
     private Float xPos;
     private Float yPos;
@@ -25,7 +24,6 @@ public class AgencyDto {
                 .id(agency.getId())
                 .name(agency.getName())
                 .memberList(agency.getMemberList())
-                .phoneNumber(agency.getPhoneNumber())
                 .address(agency.getAddress())
                 .xPos(agency.getXPos())
                 .yPos(agency.getYPos())
@@ -37,7 +35,6 @@ public class AgencyDto {
                 .id(id)
                 .name(name)
                 .memberList(memberList)
-                .phoneNumber(phoneNumber)
                 .address(address)
                 .xPos(xPos)
                 .yPos(yPos)

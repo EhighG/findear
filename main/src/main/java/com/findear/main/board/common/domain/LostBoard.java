@@ -26,8 +26,6 @@ public class LostBoard {
 
     private String suspiciousPlace;
 
-    private Long suspiciousLadius;
-
     private Float xPos;
 
     private Float yPos;

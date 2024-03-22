@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class MemberQueryController {
 
-    private final MemberQueryService memberService;
+    private final MemberQueryService memberQueryService;
 
-    public MemberQueryController(MemberQueryService memberService) {
-        this.memberService = memberService;
+    public MemberQueryController(MemberQueryService memberQueryService) {
+        this.memberQueryService = memberQueryService;
     }
 
     @PostMapping("/duplicate")
@@ -23,13 +23,13 @@ public class MemberQueryController {
         return ResponseEntity
                 .ok()
                 .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
-                        memberService.checkDuplicate(phoneNumber)));
+                        memberQueryService.checkDuplicate(phoneNumber)));
     }
 
     @GetMapping("/{targetMemberId}")
     public ResponseEntity<?> findById(@PathVariable Long targetMemberId,
                                       @AuthenticationPrincipal Long requestMemberId) {
-        FindMemberResDto foundMember = memberService.findMemberById(targetMemberId, requestMemberId);
+        FindMemberResDto foundMember = memberQueryService.findMemberById(targetMemberId, requestMemberId);
         return ResponseEntity
                 .ok()
                 .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
@@ -48,6 +48,6 @@ public class MemberQueryController {
 //        return ResponseEntity
 //                .ok()
 //                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
-//                        memberService.findMembers(keyword)));
+//                        memberQueryService.findMembers(keyword)));
 //    }
 }

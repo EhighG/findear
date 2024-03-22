@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/members")
@@ -83,6 +84,23 @@ public class MemberController {
                 .ok()
                 .body(new SuccessResponse(HttpStatus.OK.value(), "유효한 accessToken입니다."));
     }
+
+    @PatchMapping("/{targetMemberId}/delete")
+    public ResponseEntity<?> deleteMember(@AuthenticationPrincipal Long requestMemberId,
+                                          @PathVariable Long targetMemberId) {
+        memberService.deleteMember(requestMemberId, targetMemberId);
+        return ResponseEntity
+                .ok()
+                .body(new SuccessResponse(HttpStatus.OK.value(), "탈퇴되었습니다."));
+    }
+
+//    @GetMapping
+//    public ResponseEntity<?> findMembers(@RequestParam(required = false) String keyword) {
+//        return ResponseEntity
+//                .ok()
+//                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
+//                        memberService.findMembers(keyword)));
+//    }
 
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {

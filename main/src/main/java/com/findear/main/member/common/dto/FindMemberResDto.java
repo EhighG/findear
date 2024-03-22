@@ -17,15 +17,23 @@ public class FindMemberResDto {
     private String phoneNumber;
     private Role role;
     private LocalDateTime joinedAt;
-    private Agency agency;
+    private AgencyDto agency;
 
     public static FindMemberResDto of(Member member) {
+        Agency agency = member.getAgency();
         return FindMemberResDto.builder()
                 .memberId(member.getId())
                 .phoneNumber(member.getPhoneNumber())
                 .role(member.getRole())
                 .joinedAt(member.getJoinedAt())
-                .agency(member.getAgency())
+                .agency(agency != null ? AgencyDto.builder()
+                        .id(agency.getId())
+                        .name(agency.getName())
+                        .address(agency.getAddress())
+                        .xPos(agency.getXPos())
+                        .yPos(agency.getYPos())
+                        .phoneNumber(agency.getPhoneNumber())
+                        .build() : null)
                 .build();
     }
 }

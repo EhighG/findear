@@ -75,10 +75,19 @@ public class Member {
         this.agency = agency;
     }
 
+    public void changePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public void toNormal() {
         this.agency.removeMember(this);
         this.agency = null;
         this.role = Role.NORMAL;
+    }
+
+    public void withdraw() {
+        this.withdrawalYn = true;
+        this.withdrawalAt = LocalDateTime.now();
     }
 }
 

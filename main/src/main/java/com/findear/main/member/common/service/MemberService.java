@@ -9,6 +9,7 @@ import com.findear.main.member.common.repository.MemberRepository;
 import com.findear.main.member.common.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -69,8 +72,9 @@ public class MemberService {
         }
         // agency가 이미 존재할 때, 기존 것에 연결처리
         Optional<Agency> sameAgency = agencyRepository.findByAddressAndName(agencyDto.getAddress(), agencyDto.getName());
-        Agency agency = sameAgency.orElseGet(()
-                -> agencyRepository.save(agencyDto.toEntity()));
+//        Agency agency = sameAgency.orElseGet(()
+//                -> agencyRepository.save(agencyDto.toEntity()));
+        Agency agency = sameAgency.isPresent() ? sameAgency.get() : agencyRepository.save(agencyDto.toEntity());
 
         member.setAgencyAndRole(agency, Role.MANAGER);
     }
@@ -97,10 +101,17 @@ public class MemberService {
     }
 
     public FindMemberResDto findById(Long targetMemberId, Long requestMemberId) {
-        Member member = memberRepository.findById(targetMemberId)
+
+        Member member = memberRepository.findByIdWithAgency(targetMemberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원정보가 존재하지 않습니다."));
+
+//        System.out.println("ddd : " + member.getAgency().getId());
+
+
         validMemberNotDeleted(member);
+
         FindMemberResDto foundMember = FindMemberResDto.of(member);
+
         if (!foundMember.getMemberId().equals(requestMemberId)) {
             foundMember.setPhoneNumber(blindPhoneNumber(foundMember.getPhoneNumber()));
         }
@@ -134,9 +145,25 @@ public class MemberService {
                 normalToManager(member, modifyMemberReqDto);
             }
         }
-        // 나머지 member 정보 변경 : 일단은 변경할 것 없음
+        // 나머지 member 정보 변경 : 일단은 전화번호만
+        member.changePhoneNumber(modifyMemberReqDto.getPhoneNumber());
         return new BriefMemberDto(member.getId(), member.getPhoneNumber());
     }
+
+    public void deleteMember(Long requestMemberId, Long targetMemberId) {
+        Member member = memberRepository.findById(targetMemberId)
+                .orElseThrow(() -> new UsernameNotFoundException("잘못된 접근입니다."));
+        validMemberNotDeleted(member);
+        if (!targetMemberId.equals(requestMemberId)) {
+            throw new AuthenticationServiceException("권한이 없습니다.");
+        }
+        member.withdraw();
+    }
+
+//    public List<Member> findMembers(String keyword) {
+//        List<Member> members = memberRepository.findAll();
+//        return members.stream().filter((member) -> member.getPhoneNumber().contains(keyword)).collect(Collectors.toList());
+//    }
 
     public MemberDto verifyAccessToken(String accessToken) {
         if (jwtService.isExpired(accessToken)) {
@@ -188,7 +215,11 @@ public class MemberService {
     private Agency saveAgency(Agency agency) {
         Optional<Agency> optionalAgency = agencyRepository.findByAddressAndName(agency.getAddress(),
                 agency.getName());
-        return optionalAgency.orElseGet(() -> agencyRepository.save(agency));
+
+        Agency savedAgency = optionalAgency.isPresent() ? optionalAgency.get() : agencyRepository.save(agency);
+
+        return savedAgency;
+//        return optionalAgency.orElseGet(() -> agencyRepository.save(agency));
     }
 
     private void normalToManager(Member oldMember, ModifyMemberReqDto modifyReqDto) {

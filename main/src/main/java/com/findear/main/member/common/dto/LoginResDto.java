@@ -1,6 +1,5 @@
 package com.findear.main.member.common.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +12,10 @@ public class LoginResDto {
     @Setter
     private String refreshToken;
 
-    private LoginResMemberDto member;
+    private BriefMemberDto member;
 
 
     public void setMember(MemberDto memberDto) {
-        this.member = new LoginResMemberDto(memberDto.getId(), memberDto.getNickname());
+        this.member = new BriefMemberDto(memberDto.getId(), memberDto.getPhoneNumber());
     }
 }

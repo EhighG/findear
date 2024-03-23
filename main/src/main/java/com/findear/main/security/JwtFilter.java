@@ -40,8 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private void setExclusiveRequestMatchers() {
         exclusiveRequestMatchers = new ArrayList<>();
         // only pattern
-        List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password",
-                "/members/nicknames/duplicate", "/members/duplicate", "/actuator/**", "/error", "/assets/**");
+        List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password", "/members/duplicate", "/actuator/**", "/error", "/assets/**");
         for (String uri : exclusiveUris) {
             exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
         }
@@ -54,8 +53,6 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
-        System.out.println("requestUri = " + requestUri);
-//        Authentication authentication = exclusiveUris.contains(requestUri) ? authenticationForGuests : attemptAuthenticate(request);
         Authentication authentication;
         if (exclusiveRequestMatchers.stream().anyMatch(matcher -> matcher.matches(request))) {
             authentication = authenticationForGuests;

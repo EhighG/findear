@@ -71,6 +71,8 @@ public class MemberCommandService {
     public LoginResDto login(LoginReqDto loginReqDto) {
         MemberDto memberDto = memberQueryService.findByPhoneNumber(loginReqDto.getPhoneNumber());
 
+        memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
+
         verifyPassword(loginReqDto.getPassword(), memberDto);
 
         LoginResDto loginResDto = new LoginResDto();

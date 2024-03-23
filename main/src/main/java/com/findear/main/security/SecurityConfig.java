@@ -27,7 +27,6 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
 
@@ -42,17 +41,14 @@ public class SecurityConfig {
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
 //                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
-
         http
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/members/login", "/members/emails/**", "/members/find-password",
-                                "/members/nicknames/duplicate", "/actuator/**", "/members/duplicate", "/error", "/assets/**").permitAll()
+                        .requestMatchers("/members/login", "/members/emails/**", "/members/find-password", "/actuator/**", "/members/duplicate", "/error", "/assets/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
                         .anyRequest().authenticated()
                 );
-
         http
                 .httpBasic(Customizer.withDefaults());
         http
@@ -65,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://j10a706.p.ssafy.io"));
+        configuration.setAllowedOrigins(Arrays.asList("https://j10a706.p.ssafy.io")); // 프론트 페이지 origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 //        configuration.setExposedHeaders(Arrays.asList("*"));
@@ -76,6 +72,7 @@ public class SecurityConfig {
 //        configuration.addAllowedOriginPattern("*");
 //        configuration.addAllowedHeader("*");
 //        configuration.addAllowedMethod("*");
+
 
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -54,6 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
+        System.out.println("requestUri = " + requestUri);
 //        Authentication authentication = exclusiveUris.contains(requestUri) ? authenticationForGuests : attemptAuthenticate(request);
         Authentication authentication;
         if (exclusiveRequestMatchers.stream().anyMatch(matcher -> matcher.matches(request))) {

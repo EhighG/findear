@@ -31,6 +31,19 @@ public class MemberQueryController {
 //                        memberQueryService.checkDuplicate(phoneNumber)));
     }
 
+//    @GetMapping("/duplicate")
+//    public ResponseEntity<?> checkDuplicate(@RequestParam String phoneNumber) {
+//        return ResponseEntity
+//                .ok()
+//                .body(new SuccessResponse(HttpStatus.OK.value(), "변경사항 적용 테스트테스트테스트\n\n\n",
+//                        memberQueryService.checkDuplicate(phoneNumber)));
+//
+////        return ResponseEntity
+////                .ok()
+////                .body(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공하였습니다.",
+////                        memberQueryService.checkDuplicate(phoneNumber)));
+//    }
+
     @GetMapping("/{targetMemberId}")
     public ResponseEntity<?> findById(@PathVariable Long targetMemberId,
                                       @AuthenticationPrincipal Long requestMemberId) {

@@ -53,7 +53,7 @@ public class MemberCommandService {
         return savedMember.getPhoneNumber();
     }
 
-    public void changeToManager(Long memberId, AgencyDto agencyDto) {
+    public ModifyMemberResDto changeToManager(Long memberId, AgencyDto agencyDto) {
         Member member = memberQueryService.internalFindById(memberId);
 
         // 이미 관리자일 때 예외처리
@@ -66,6 +66,7 @@ public class MemberCommandService {
         Agency agency = sameAgency.isPresent() ? sameAgency.get() : agencyCommandRepository.save(agencyDto.toEntity());
 
         member.setAgencyAndRole(agency, Role.MANAGER);
+        return ModifyMemberResDto.of(member);
     }
 
     public LoginResDto login(LoginReqDto loginReqDto) {
@@ -89,7 +90,7 @@ public class MemberCommandService {
      * 입력 가능한 파라미터들 값을 미리 내려준 후, 모두 들어있는 값을 받는다.
      * @return
      */
-    public BriefMemberDto modifyMember(Long memberId, ModifyMemberReqDto modifyMemberReqDto) {
+    public ModifyMemberResDto modifyMember(Long memberId, ModifyMemberReqDto modifyMemberReqDto) {
         if (!memberId.equals(modifyMemberReqDto.getMemberId())) {
             throw new RuntimeException("다른 유저 정보수정; 403 처리");
         }
@@ -110,7 +111,8 @@ public class MemberCommandService {
         }
         // 나머지 member 정보 변경 : 일단은 전화번호만
         member.changePhoneNumber(modifyMemberReqDto.getPhoneNumber());
-        return new BriefMemberDto(member.getId(), member.getPhoneNumber(), member.getRole());
+//        return new BriefMemberDto(member.getId(), member.getPhoneNumber(), member.getRole());
+        return ModifyMemberResDto.of(member);
     }
 
     public void deleteMember(Long requestMemberId, Long targetMemberId) {

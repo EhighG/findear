@@ -30,6 +30,7 @@ public class AcquiredBoardCommandService {
         Board savedBoard = boardCommandRepository.save(Board.builder()
                 .productName(postAcquiredBoardReqDto.getProductName())
                 .member(manager)
+                .thumbnailUrl(postAcquiredBoardReqDto.getImgUrls().get(0))
                 .build());
 
         List<ImgFile> imgFiles = new ArrayList<>();

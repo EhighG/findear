@@ -28,7 +28,7 @@ public class LostBoardQueryService {
     private final CategoryRepository categoryRepository;
     private final int PAGE_SIZE = 10;
 
-    public List<LostBoardListResDto> findAllByMemberId(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
+    public List<LostBoardListResDto> findAll(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
         List<LostBoard> lostBoards = lostBoardQueryRepository.findAll();
         Stream<LostBoard> stream = lostBoards.stream();
 

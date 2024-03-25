@@ -39,7 +39,7 @@ public class LostBoardQueryController {
                                        @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        lostBoardQueryService.findAllByMemberId(memberId, categoryId, sDate, eDate, keyword, pageNo)));
+                        lostBoardQueryService.findAll(memberId, categoryId, sDate, eDate, keyword, pageNo)));
     }
 
     @GetMapping("/{boardId}")

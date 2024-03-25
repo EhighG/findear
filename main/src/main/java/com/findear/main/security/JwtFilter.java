@@ -23,7 +23,7 @@ import java.util.*;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final String ACCESS_TOKEN = "access-token";
-    private final String REFRESH_TOKEN = "refresh-token";:
+    private final String REFRESH_TOKEN = "refresh-token";
     private final JwtAuthenticationProvider authenticationProvider;
 
     private final Authentication authenticationForGuests;

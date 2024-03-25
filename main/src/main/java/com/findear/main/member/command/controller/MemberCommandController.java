@@ -1,10 +1,7 @@
 package com.findear.main.member.command.controller;
 
 import com.findear.main.common.response.SuccessResponse;
-import com.findear.main.member.command.dto.BriefMemberDto;
-import com.findear.main.member.command.dto.LoginReqDto;
-import com.findear.main.member.command.dto.ModifyMemberReqDto;
-import com.findear.main.member.command.dto.RegisterReqDto;
+import com.findear.main.member.command.dto.*;
 import com.findear.main.member.common.dto.*;
 import com.findear.main.member.command.service.MemberCommandService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +29,9 @@ public class MemberCommandController {
 
     @PatchMapping("/{memberId}/role")
     public ResponseEntity<?> changeToManager(@PathVariable Long memberId,
-                                             @RequestBody AgencyDto agencyDto) {
+                                             @RequestBody RegisterAgencyReqDto registerAgencyReqDto) {
         return ResponseEntity.ok(new SuccessResponse(HttpStatus.OK.value(), "변경되었습니다.",
-                memberCommandService.changeToManager(memberId, agencyDto)));
+                memberCommandService.changeToManager(memberId, registerAgencyReqDto)));
     }
 
     @PostMapping("/login")

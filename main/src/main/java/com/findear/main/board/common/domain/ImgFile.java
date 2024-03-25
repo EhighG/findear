@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "tbl_img_file")
-public class imgFile {
+public class ImgFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +22,13 @@ public class imgFile {
 
     private String imgUrl;
 
-    public imgFile(Long id, String imgUrl) {
+    public ImgFile(Long id, String imgUrl) {
         this.id = id;
+        this.imgUrl = imgUrl;
+    }
+
+    public ImgFile(Board board, String imgUrl) {
+        this.board = board;
         this.imgUrl = imgUrl;
     }
 }

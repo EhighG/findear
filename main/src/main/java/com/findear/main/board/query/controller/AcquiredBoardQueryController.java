@@ -1,21 +1,17 @@
 package com.findear.main.board.query.controller;
 
 import com.findear.main.board.common.domain.AcquiredBoardDto;
-import com.findear.main.board.common.domain.BoardDto;
-import com.findear.main.board.common.domain.imgFile;
 import com.findear.main.board.query.dto.FindAcquiredBoardsResDto;
 import com.findear.main.common.response.SuccessResponse;
 import com.findear.main.member.command.dto.BriefMemberDto;
 import com.findear.main.member.command.dto.LoginResAgencyDto;
 import com.findear.main.member.common.domain.Role;
-import com.findear.main.member.common.dto.MemberDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -2,14 +2,13 @@ package com.findear.main.board.query.controller;
 
 import com.findear.main.board.common.domain.BoardDto;
 import com.findear.main.board.common.domain.LostBoardDto;
-import com.findear.main.board.common.domain.imgFile;
-import com.findear.main.board.query.dto.FindLostBoardsResDto;
+import com.findear.main.board.common.domain.ImgFile;
+import com.findear.main.board.query.dto.LostBoardListResDto;
 import com.findear.main.board.query.service.LostBoardQueryService;
 import com.findear.main.common.response.SuccessResponse;
 import com.findear.main.member.command.dto.BriefMemberDto;
 import com.findear.main.member.common.domain.Role;
 import com.findear.main.member.common.dto.MemberDto;
-import com.findear.main.member.query.dto.FindMemberListResDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,24 +33,24 @@ public class LostBoardQueryController {
     @GetMapping
     public ResponseEntity<?> findLosts(@RequestParam(required = false) Long memberId,
                                        @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
-//        return ResponseEntity
-//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성곻했습니다.",
-//                        lostBoardQueryService.findLostBoards(memberId, pageNo)));
-        // dummy
-        List<FindLostBoardsResDto> dummy = new ArrayList<>();
-        for (int i = 1; i <= 40; i++) {
-            dummy.add(FindLostBoardsResDto.builder()
-                    .boardId((long) i)
-                    .productName("ProductName " + i)
-                    .category("CategoryName " + i)
-                    .thumbnailUrl("sampleImgUrl " + i)
-                    .lostAt("2024-03-" + String.format("%02d", i))
-                    .writer(new BriefMemberDto(1L, "010-9999-9999"))
-                    .build());
-        }
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        dummy));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성곻했습니다.",
+                        lostBoardQueryService.findAllByMemberId(memberId, pageNo)));
+//        // dummy
+//        List<LostBoardListResDto> dummy = new ArrayList<>();
+//        for (int i = 1; i <= 40; i++) {
+//            dummy.add(LostBoardListResDto.builder()
+//                    .boardId((long) i)
+//                    .productName("ProductName " + i)
+//                    .category("CategoryName " + i)
+//                    .thumbnailUrl("sampleImgUrl " + i)
+//                    .lostAt("2024-03-" + String.format("%02d", i))
+//                    .writer(new BriefMemberDto(1L, "010-9999-9999"))
+//                    .build());
+//        }
+//        return ResponseEntity
+//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
+//                        dummy));
     }
 
     @GetMapping("/{boardId}")
@@ -67,12 +66,12 @@ public class LostBoardQueryController {
                                 .role(Role.NORMAL)
                                 .build()
                         )
-                        .imgFileList(Arrays.asList(new imgFile(1L, "smapleUrl 1"), new imgFile(2L, "smapleUrl 2")))
+                        .imgFileList(Arrays.asList(new ImgFile(1L, "smapleUrl 1"), new ImgFile(2L, "smapleUrl 2")))
                         .color("빨강")
                         .description("description 1")
                         .registeredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                         .build())
-                .lostAt(LocalDate.now())
+                .lostAt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .suspiciousPlace("역삼역 3번출구")
                 .xPos(52.12314f)
                 .yPos(52.12312f)

@@ -3,16 +3,19 @@ package com.findear.main.board.common.domain;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@AllArgsConstructor
+@Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "tbl_board")
 public class Board {
@@ -33,7 +36,7 @@ public class Board {
     private List<Scrap> scrapList = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
-    private List<imgFile> imgFileList = new ArrayList<>();
+    private List<ImgFile> imgFileList = new ArrayList<>();
 
     private String color;
 
@@ -54,9 +57,14 @@ public class Board {
 
     private Boolean deleteYn;
 
+    @CreatedDate
     private LocalDateTime registeredAt;
 
     private String thumbnailUrl;
 
     private String categoryName;
+
+    public void updateImgFiles(List<ImgFile> imgFiles) {
+        this.imgFileList = imgFiles;
+    }
 }

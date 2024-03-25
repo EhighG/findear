@@ -6,7 +6,6 @@ import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class BoardDto {
 
     private List<Scrap> scrapList = new ArrayList<>();
 
-    private List<imgFile> imgFileList = new ArrayList<>();
+    private List<ImgFile> imgFileList = new ArrayList<>();
 
     private String color;
 
@@ -50,4 +49,29 @@ public class BoardDto {
     private String thumbnailUrl;
 
     private String categoryName;
+
+    public Board toEntity() {
+        return Board.builder()
+                .id(id)
+                .color(color)
+                .member(member != null ? member.toEntity() : null)
+                .productName(productName)
+                .description(description)
+                .thumbnailUrl(thumbnailUrl)
+                .categoryName(categoryName)
+                .build();
+    }
+
+    public static BoardDto of(Board board) {
+        Member dbMember = board.getMember();
+        return BoardDto.builder()
+                .id(board.getId())
+                .color(board.getColor())
+                .member(MemberDto.of(dbMember))
+                .productName(board.getProductName())
+                .description(board.getDescription())
+                .thumbnailUrl(board.getThumbnailUrl())
+                .categoryName(board.getCategoryName())
+                .build();
+    }
 }

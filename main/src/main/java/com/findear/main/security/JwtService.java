@@ -17,11 +17,14 @@ import java.util.function.Function;
 public class JwtService {
 
     private final String SECRET;
+    private final int TOKEN_DURATION_SEC;
 
     public static final String TOKEN_TYPE = "bearer";
 
-    public JwtService(@Value("${jwt-secret}") String secret) {
+    public JwtService(@Value("${jwt-secret}") String secret,
+                      @Value("${jwt-duration}") int tokenDuration) {
         SECRET = secret;
+        TOKEN_DURATION_SEC = tokenDuration;
     }
 
 
@@ -63,7 +66,7 @@ public class JwtService {
                 .setClaims(new HashMap<>())
                 .setSubject(memberId.toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60)) // 1시간
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_DURATION_SEC)) // 1시간
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 

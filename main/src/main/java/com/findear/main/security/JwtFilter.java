@@ -23,7 +23,7 @@ import java.util.*;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final String ACCESS_TOKEN = "access-token";
-    private final String REFRESH_TOKEN = "refresh-token";
+    private final String REFRESH_TOKEN = "refresh-token";:
     private final JwtAuthenticationProvider authenticationProvider;
 
     private final Authentication authenticationForGuests;
@@ -40,13 +40,13 @@ public class JwtFilter extends OncePerRequestFilter {
     private void setExclusiveRequestMatchers() {
         exclusiveRequestMatchers = new ArrayList<>();
         // only pattern
-        List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password",
-                "/members/nicknames/duplicate", "/members/duplicate", "/actuator/**", "/error");
+        List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password", "/members/duplicate", "/actuator/**", "/error", "/assets/**");
         for (String uri : exclusiveUris) {
             exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
         }
         // pattern, http method
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/members", HttpMethod.POST.name()));
+        exclusiveRequestMatchers.add(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/acquisitions", HttpMethod.GET.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/losts", HttpMethod.GET.name()));
     }
@@ -54,7 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
-//        Authentication authentication = exclusiveUris.contains(requestUri) ? authenticationForGuests : attemptAuthenticate(request);
         Authentication authentication;
         if (exclusiveRequestMatchers.stream().anyMatch(matcher -> matcher.matches(request))) {
             authentication = authenticationForGuests;

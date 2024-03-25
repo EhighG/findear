@@ -33,8 +33,8 @@ public class MemberCommandController {
     @PatchMapping("/{memberId}/role")
     public ResponseEntity<?> changeToManager(@PathVariable Long memberId,
                                              @RequestBody AgencyDto agencyDto) {
-        memberCommandService.changeToManager(memberId, agencyDto);
-        return ResponseEntity.ok(new SuccessResponse(HttpStatus.OK.value(), "변경되었습니다."));
+        return ResponseEntity.ok(new SuccessResponse(HttpStatus.OK.value(), "변경되었습니다.",
+                memberCommandService.changeToManager(memberId, agencyDto)));
     }
 
     @PostMapping("/login")
@@ -55,12 +55,10 @@ public class MemberCommandController {
     public ResponseEntity<?> modifyMember(@AuthenticationPrincipal Long memberId,
                                           @RequestBody ModifyMemberReqDto modifyMemberReqDto) {
 
-        BriefMemberDto briefMemberDto = memberCommandService.modifyMember(memberId, modifyMemberReqDto);
-
         return ResponseEntity
                 .ok()
                 .body(new SuccessResponse(HttpStatus.OK.value(), "변경되었습니다.",
-                        briefMemberDto));
+                        memberCommandService.modifyMember(memberId, modifyMemberReqDto)));
     }
 
     @PatchMapping("/{targetMemberId}/delete")

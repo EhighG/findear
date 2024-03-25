@@ -72,7 +72,8 @@ public class MemberQueryService {
     public List<FindMemberListResDto> findMembers(String keyword) {
         List<Member> members = memberQueryRepository.findAll();
         return members.stream()
-                .filter(member -> member.getPhoneNumber().contains(keyword))
+                .filter(member -> member.getPhoneNumber().contains(keyword)
+                && (member.getWithdrawalYn() == null || !member.getWithdrawalYn()))
                 .map(FindMemberListResDto::of)
                 .collect(Collectors.toList());
     }
@@ -108,8 +109,8 @@ public class MemberQueryService {
         return MemberDto.of(member);
     }
 
-    private void validMemberNotDeleted(Member member) {
-        if (member.getWithdrawalYn() != null && !member.getWithdrawalYn()) {
+    public void validMemberNotDeleted(Member member) {
+        if (member.getWithdrawalYn() != null && member.getWithdrawalYn()) {
             throw new UsernameNotFoundException("회원정보가 존재하지 않습니다.");
         }
     }

@@ -2,6 +2,7 @@ package com.findear.main.board.query.service;
 
 
 import com.findear.main.board.common.domain.LostBoard;
+import com.findear.main.board.query.dto.LostBoardDetailResDto;
 import com.findear.main.board.query.dto.LostBoardListResDto;
 import com.findear.main.board.query.repository.CategoryRepository;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
@@ -62,5 +63,12 @@ public class LostBoardQueryService {
         int sIdx = eIdx - PAGE_SIZE - 10000;
         if (sIdx >= filtered.size()) return null;
         return filtered.subList(sIdx, Math.min(eIdx, filtered.size()));
+    }
+
+    public LostBoardDetailResDto findByBoardId(Long boardId) {
+        LostBoard lostBoard = lostBoardQueryRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
+
+        return LostBoardDetailResDto.of(lostBoard);
     }
 }

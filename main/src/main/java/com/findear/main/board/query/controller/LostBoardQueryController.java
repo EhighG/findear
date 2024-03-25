@@ -40,47 +40,11 @@ public class LostBoardQueryController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
                         lostBoardQueryService.findAllByMemberId(memberId, categoryId, sDate, eDate, keyword, pageNo)));
-//        // dummy
-//        List<LostBoardListResDto> dummy = new ArrayList<>();
-//        for (int i = 1; i <= 40; i++) {
-//            dummy.add(LostBoardListResDto.builder()
-//                    .boardId((long) i)
-//                    .productName("ProductName " + i)
-//                    .category("CategoryName " + i)
-//                    .thumbnailUrl("sampleImgUrl " + i)
-//                    .lostAt("2024-03-" + String.format("%02d", i))
-//                    .writer(new BriefMemberDto(1L, "010-9999-9999"))
-//                    .build());
-//        }
-//        return ResponseEntity
-//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-//                        dummy));
     }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<?> findById(@PathVariable Long boardId) {
-        LostBoardDto dummy = LostBoardDto.builder()
-                .id(1L)
-                .board(BoardDto.builder()
-                        .id(1L)
-                        .productName("productName 1")
-                        .member(MemberDto.builder()
-                                .id(1L)
-                                .phoneNumber("010-9999-9999")
-                                .role(Role.NORMAL)
-                                .build()
-                        )
-                        .imgFileList(Arrays.asList(new ImgFile(1L, "smapleUrl 1"), new ImgFile(2L, "smapleUrl 2")))
-                        .color("빨강")
-                        .description("description 1")
-                        .registeredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                        .build())
-                .lostAt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .suspiciousPlace("역삼역 3번출구")
-                .xPos(52.12314f)
-                .yPos(52.12312f)
-                .build();
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "요청에 성공했습니다.", dummy));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", lostBoardQueryService.findByBoardId(boardId)));
     }
 }

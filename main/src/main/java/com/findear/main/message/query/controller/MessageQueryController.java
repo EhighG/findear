@@ -27,7 +27,7 @@ public class MessageQueryController {
     private final MessageQueryService messageQueryService;
 
     @GetMapping()
-    public ResponseEntity<?> showMessageRoomList(@RequestBody ShowMessageListReqDto showMessageListReqDto) {
+    public ResponseEntity<?> showMessageRoomList(ShowMessageListReqDto showMessageListReqDto) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));

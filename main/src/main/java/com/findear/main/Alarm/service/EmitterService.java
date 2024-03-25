@@ -76,8 +76,10 @@ public class EmitterService {
     private void sendToClient(Long memberId, Object data, String comment) {
 
         SseEmitter emitter = emitterRepository.get(memberId);
+        System.out.println("sendToClient 입성");
         if(emitter != null) {
             try {
+                System.out.println("sendToClient 발송");
                 emitter.send(SseEmitter.event()
                         .id(String.valueOf(memberId))
                         .name("sse")

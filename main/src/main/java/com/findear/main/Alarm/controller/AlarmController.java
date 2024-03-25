@@ -21,6 +21,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/alarm")
 @RestController
 public class AlarmController {
 
@@ -55,7 +56,7 @@ public class AlarmController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "알림 리스트를 조회하였습니다.", result));
     }
 
-    @GetMapping("/alarm/{alarmId}")
+    @GetMapping("/{alarmId}")
     public ResponseEntity<?> showAlarm(@PathVariable Long alarmId) {
 
         HttpHeaders headers = new HttpHeaders();

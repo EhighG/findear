@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LostQueryRepository extends JpaRepository<Board, Long> {
+public interface LostBoardQueryRepository extends JpaRepository<Board, Long> {
 
 }

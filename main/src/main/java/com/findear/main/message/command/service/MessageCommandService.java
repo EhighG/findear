@@ -1,7 +1,7 @@
 package com.findear.main.message.command.service;
 
 import com.findear.main.board.common.domain.Board;
-import com.findear.main.board.query.repository.BoardQueryRepository;
+import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.repository.MemberQueryRepository;
 import com.findear.main.message.command.dto.SendMessageReqDto;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class MessageCommandService {
 
     private final MessageCommandRepository messageCommandRepository;
-    private final BoardQueryRepository boardQueryRepository;
+    private final LostBoardQueryRepository boardQueryRepository;
     private final MessageRoomCommandRepository messageRoomCommandRepository;
     private final MessageRoomQueryRepository messageRoomQueryRepository;
     private final MemberQueryRepository memberQueryRepository;

@@ -1,6 +1,6 @@
 package com.findear.main.board.command.controller;
 
-import com.findear.main.board.command.service.LostCommandService;
+import com.findear.main.board.command.service.LostBoardCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/board")
+@RequestMapping("/losts")
 @RestController
-public class LostCommandController {
+public class LostBoardCommandController {
 
-    private final LostCommandService lostCommandService;
+    private final LostBoardCommandService lostBoardCommandService;
 
 
 }

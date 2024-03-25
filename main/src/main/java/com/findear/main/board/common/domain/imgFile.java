@@ -22,4 +22,8 @@ public class imgFile {
 
     private String imgUrl;
 
+    public imgFile(Long id, String imgUrl) {
+        this.id = id;
+        this.imgUrl = imgUrl;
+    }
 }

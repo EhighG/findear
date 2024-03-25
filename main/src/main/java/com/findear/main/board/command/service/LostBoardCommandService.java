@@ -1,6 +1,6 @@
 package com.findear.main.board.command.service;
 
-import com.findear.main.board.command.repository.LostCommandRepository;
+import com.findear.main.board.command.repository.LostBoardCommandRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class LostCommandService {
+public class LostBoardCommandService {
 
-    private final LostCommandRepository lostCommandRepository;
+    private final LostBoardCommandRepository lostBoardCommandRepository;
 
 }

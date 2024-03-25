@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,13 +25,14 @@ public class MessageCommandController {
 
     private final MessageCommandService messageCommandService;
 
+    @PostMapping
     public ResponseEntity<?> sendMessage(@RequestBody SendMessageReqDto sendMessageReqDto) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
         sendMessageReqDto.setMemberId(MemberQueryService.getAuthenticatedMemberId());
-        MemberQueryService.getAuthenticatedMemberId();
+
         messageCommandService.sendMessage(sendMessageReqDto);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "쪽지를 보냈습니다.", null));

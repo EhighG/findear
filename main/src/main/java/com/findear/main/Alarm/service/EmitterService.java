@@ -30,11 +30,11 @@ public class EmitterService {
     private static final Long DEFAULT_TIMEOUT = 300_000L;
     private static final long RECONNECTION_TIMEOUT = 3000L;
 
-    public SseEmitter subscribe(Long roomUserNo) {
+    public SseEmitter subscribe(Long memberId) {
 
-        SseEmitter emitter = createEmitter(roomUserNo);
+        SseEmitter emitter = createEmitter(memberId);
 
-        sendToClient(roomUserNo, "roomUserNo : " + roomUserNo + "과의 알람 연결 성공", "sse 접속 성공");
+        sendToClient(memberId, "memberId : " + memberId + "과의 알람 연결 성공", "sse 접속 성공");
 
         return emitter;
     }

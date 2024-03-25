@@ -24,13 +24,24 @@ public class PoliceAcquiredDataController {
 
     private final PoliceAcquiredDataService policeAcquiredDataService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> searchAllDatas() {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
         List<PoliceAcquiredData> result = policeAcquiredDataService.searchAllDatas();
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> search(@RequestParam("page") int page, @RequestParam("size") int size) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        List<PoliceAcquiredData> result = policeAcquiredDataService.search(page, size);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
     }

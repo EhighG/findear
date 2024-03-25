@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/members/login", "/members/emails/**", "/members/find-password", "/actuator/**", "/members/duplicate", "/error", "/assets/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 );
         http

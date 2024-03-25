@@ -14,7 +14,7 @@ import java.util.List;
 public class AgencyDto {
     private Long id;
     private String name;
-    private List<Member> memberList = new ArrayList<>();
+//    private List<Member> memberList = new ArrayList<>();
     private String address;
     private Float xPos;
     private Float yPos;
@@ -23,7 +23,7 @@ public class AgencyDto {
         return AgencyDto.builder()
                 .id(agency.getId())
                 .name(agency.getName())
-                .memberList(agency.getMemberList())
+//                .memberList(agency.getMemberList())
                 .address(agency.getAddress())
                 .xPos(agency.getXPos())
                 .yPos(agency.getYPos())
@@ -34,7 +34,7 @@ public class AgencyDto {
         return Agency.builder()
                 .id(id)
                 .name(name)
-                .memberList(memberList)
+//                .memberList(memberList)
                 .address(address)
                 .xPos(xPos)
                 .yPos(yPos)

@@ -31,6 +31,9 @@ public class Agency {
     private String address;
 
     public void addMember(Member member) {
+        if (memberList == null) {
+            memberList = new ArrayList<>();
+        }
         memberList.add(member);
     }
 

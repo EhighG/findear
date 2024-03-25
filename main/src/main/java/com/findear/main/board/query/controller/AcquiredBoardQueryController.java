@@ -22,6 +22,7 @@ public class AcquiredBoardQueryController {
 
     @GetMapping
     public ResponseEntity<?> findAcquiredBoards(@RequestParam(required=false) Long categoryId,
+                                                @RequestParam(required = false) Long memberId,
                                                 @RequestParam(required = false) String sDate,
                                                 @RequestParam(required = false) String eDate,
                                                 @RequestParam(required = false) String keyword,

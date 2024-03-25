@@ -15,6 +15,7 @@ public interface LostBoardQueryRepository extends JpaRepository<LostBoard, Long>
 //    @Query("select lb from LostBoard lb join fetch Board b where lb.board.id = :boardId")
     Optional<LostBoard> findByBoardId(Long boardId);
 
-//    @Query("select lb from LostBoard lb join fetch Board b")
-//    List<LostBoard> findAll();
+    // delete_yn 기본값 적용 시 where 조건 바꾸기
+    @Query("select lb from LostBoard lb join fetch lb.board left join fetch lb.board.imgFileList where lb.board.deleteYn is null")
+    List<LostBoard> findAll();
 }

@@ -31,11 +31,15 @@ public class LostBoardQueryController {
     private final LostBoardQueryService lostBoardQueryService;
 
     @GetMapping
-    public ResponseEntity<?> findLosts(@RequestParam(required = false) Long memberId,
+    public ResponseEntity<?> findLosts(@RequestParam(required=false) Long categoryId,
+                                       @RequestParam(required = false) Long memberId,
+                                       @RequestParam(required = false) String sDate,
+                                       @RequestParam(required = false) String eDate,
+                                       @RequestParam(required = false) String keyword,
                                        @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성곻했습니다.",
-                        lostBoardQueryService.findAllByMemberId(memberId, pageNo)));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
+                        lostBoardQueryService.findAllByMemberId(memberId, categoryId, sDate, eDate, keyword, pageNo)));
 //        // dummy
 //        List<LostBoardListResDto> dummy = new ArrayList<>();
 //        for (int i = 1; i <= 40; i++) {

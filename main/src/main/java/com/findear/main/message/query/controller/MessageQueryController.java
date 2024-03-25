@@ -5,6 +5,7 @@ import com.findear.main.member.query.service.MemberQueryService;
 import com.findear.main.message.query.dto.ShowMessageListReqDto;
 import com.findear.main.message.query.dto.ShowMessageListResDto;
 import com.findear.main.message.query.dto.ShowMessageRoomDetailReqDto;
+import com.findear.main.message.query.dto.ShowMessageRoomDetailResDto;
 import com.findear.main.message.query.service.MessageQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class MessageQueryController {
         showMessageListReqDto.setMemberId(MemberQueryService.getAuthenticatedMemberId());
         showMessageListReqDto.setMessageRoomId(messageRoomId);
 
-        List<ShowMessageListResDto> result = messageQueryService.showMessageRoomDetail(showMessageListReqDto);
+        ShowMessageRoomDetailResDto result = messageQueryService.showMessageRoomDetail(showMessageListReqDto);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "쪽지방 리스트를 조회하였습니다.", result));
     }

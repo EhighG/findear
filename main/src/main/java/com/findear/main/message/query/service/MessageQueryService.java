@@ -1,17 +1,17 @@
 package com.findear.main.message.query.service;
 
 
+import com.findear.main.message.common.domain.Message;
 import com.findear.main.message.common.domain.MessageRoom;
 import com.findear.main.message.common.exception.MessageException;
-import com.findear.main.message.query.dto.ShowMessageListReqDto;
-import com.findear.main.message.query.dto.ShowMessageListResDto;
-import com.findear.main.message.query.dto.ShowMessageRoomDetailReqDto;
+import com.findear.main.message.query.dto.*;
 import com.findear.main.message.query.repository.MessageRoomQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -35,9 +35,9 @@ public class MessageQueryService {
                             .thumbnailUrl(mr.getBoard().getThumbnailUrl())
                             .productName(mr.getBoard().getProductName())
                             .description(mr.getBoard().getDescription())
-                            .title(mr.getMessageList().get(mr.getMessageList().size()).getTitle())
-                            .content(mr.getMessageList().get(mr.getMessageList().size()).getContent())
-                            .sendAt(mr.getMessageList().get(mr.getMessageList().size()).getSendAt()).build()).toList();
+                            .title(mr.getMessageList().get(mr.getMessageList().size()-1).getTitle())
+                            .content(mr.getMessageList().get(mr.getMessageList().size()-1).getContent())
+                            .sendAt(mr.getMessageList().get(mr.getMessageList().size()-1).getSendAt()).build()).toList();
 
             return result;
 
@@ -47,11 +47,36 @@ public class MessageQueryService {
         }
     }
 
-    public List<ShowMessageListResDto> showMessageRoomDetail(ShowMessageRoomDetailReqDto showMessageListReqDto) {
+    public ShowMessageRoomDetailResDto showMessageRoomDetail(ShowMessageRoomDetailReqDto showMessageListReqDto) {
 
         try {
 
-            return null;
+            MessageRoom findMessageRoom = messageRoomQueryRepository.findByIdWithBoardAndMessage(showMessageListReqDto.getMessageRoomId());
+
+            ShowMessageRoomDetailResDto result = ShowMessageRoomDetailResDto.builder()
+                    .board(ShowMessageRoomDetailBoardDto.builder()
+                            .boardId(findMessageRoom.getBoard().getId())
+                            .thumbnailUrl(findMessageRoom.getBoard().getThumbnailUrl())
+                            .productName(findMessageRoom.getBoard().getProductName())
+                            .description(findMessageRoom.getBoard().getDescription()).build())
+                    .build();
+
+            for(Message m : findMessageRoom.getMessageList()) {
+
+                if(result.getMessage() == null) {
+                    result.setMessage(new ArrayList<>());
+                }
+
+                result.getMessage().add(MessageDto.builder()
+                        .messageId(m.getId())
+                        .messageRoomId(m.getMessageRoom().getId())
+                        .title(m.getTitle())
+                        .content(m.getContent())
+                        .sendAt(m.getSendAt()).build());
+            }
+
+            return result;
+
         } catch (Exception e) {
             throw new MessageException(e.getMessage());
         }

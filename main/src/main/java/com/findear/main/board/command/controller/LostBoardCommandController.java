@@ -1,6 +1,6 @@
-package com.findear.main.board.query.controller;
+package com.findear.main.board.command.controller;
 
-import com.findear.main.board.query.service.BoardQueryService;
+import com.findear.main.board.command.service.LostCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/board")
 @RestController
-public class BoardQueryController {
+public class LostCommandController {
 
-    private final BoardQueryService boardQueryService;
+    private final LostCommandService lostCommandService;
+
 
 }

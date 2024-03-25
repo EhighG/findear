@@ -26,7 +26,7 @@ public class LostBoardQueryService {
 
     private final LostBoardQueryRepository lostBoardQueryRepository;
     private final CategoryRepository categoryRepository;
-    private final int PAGE_SIZE = 3;
+    private final int PAGE_SIZE = 10;
 
     public List<LostBoardListResDto> findAllByMemberId(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
         List<LostBoard> lostBoards = lostBoardQueryRepository.findAll();
@@ -59,8 +59,8 @@ public class LostBoardQueryService {
                 .toList();
 
         // paging
-        int eIdx = PAGE_SIZE * pageNo + 10000;
-        int sIdx = eIdx - PAGE_SIZE - 10000;
+        int eIdx = PAGE_SIZE * pageNo;
+        int sIdx = eIdx - PAGE_SIZE;
         if (sIdx >= filtered.size()) return null;
         return filtered.subList(sIdx, Math.min(eIdx, filtered.size()));
     }

@@ -15,7 +15,7 @@ import { registLosts } from "@/entities";
 import { CustomButton, KakaoMap, SelectBox, useMemberStore } from "@/shared";
 
 const LostItemRegist = () => {
-  // const categoryList = ["가방", "핸드폰"];
+  const categoryList = ["가방", "핸드폰"];
   const colorList = ["빨간색", "파란색"];
 
   const { member } = useMemberStore();
@@ -71,6 +71,30 @@ const LostItemRegist = () => {
         setSuspiciousPlace(data.address);
       },
     }).open();
+  };
+
+  const renderCategoryInputForm = () => {
+    const buttons: JSX.Element[][] = [];
+
+    let j = -1;
+
+    for (var i = 0; i < categoryList.length; i++) {
+      if (i % 4 == 0) {
+        j++;
+      }
+      buttons[i][j] = (
+        <button className="main-nav-button">
+          <CloudDownloadIcon fontSize="large" />
+          {categoryList[i]}
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex flex-col justify-center">
+        <div className="flex flex-row justify-center"></div>
+      </div>
+    );
   };
 
   const renderImageInputForm = () => {
@@ -145,8 +169,8 @@ const LostItemRegist = () => {
     1: {
       question: "어떤 종류의 물건인가요?",
       inputForm: (
-        <div>
-          <div className="flex flex-row">
+        <div className="flex flex-col justify-center">
+          <div className="flex flex-row justify-center">
             <button className="main-nav-button">
               <CloudDownloadIcon fontSize="large" />
               카테고리
@@ -164,7 +188,7 @@ const LostItemRegist = () => {
               카테고리
             </button>
           </div>
-          <div className="flex flex-row">
+          <div className="flex flex-row justify-center">
             <button className="main-nav-button">
               <CloudDownloadIcon fontSize="large" />
               카테고리

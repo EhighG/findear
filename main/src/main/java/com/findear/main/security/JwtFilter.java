@@ -46,6 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         // pattern, http method
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/members", HttpMethod.POST.name()));
+        exclusiveRequestMatchers.add(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/acquisitions", HttpMethod.GET.name()));
         exclusiveRequestMatchers.add(new AntPathRequestMatcher("/losts", HttpMethod.GET.name()));
     }

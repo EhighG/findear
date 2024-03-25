@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
@@ -17,7 +18,8 @@ public class FindMemberResDto {
     @Setter
     private String phoneNumber;
     private Role role;
-    private LocalDateTime joinedAt;
+//    private LocalDateTime joinedAt;
+    private String joinedAt;
     private AgencyDto agency;
 
     public static FindMemberResDto of(Member member) {
@@ -26,7 +28,7 @@ public class FindMemberResDto {
                 .memberId(member.getId())
                 .phoneNumber(member.getPhoneNumber())
                 .role(member.getRole())
-                .joinedAt(member.getJoinedAt())
+                .joinedAt(member.getJoinedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .agency(agency != null ? AgencyDto.builder()
                         .id(agency.getId())
                         .name(agency.getName())

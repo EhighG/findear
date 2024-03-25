@@ -53,7 +53,7 @@ public class MemberCommandService {
         return savedMember.getPhoneNumber();
     }
 
-    public ModifyMemberResDto changeToManager(Long memberId, AgencyDto agencyDto) {
+    public ModifyMemberResDto changeToManager(Long memberId, RegisterAgencyReqDto registerAgencyReqDto) {
         Member member = memberQueryService.internalFindById(memberId);
 
         // 이미 관리자일 때 예외처리
@@ -61,9 +61,11 @@ public class MemberCommandService {
             throw new IllegalArgumentException("invalid / 회원정보 수정에서 처리돼야함");
         }
         // agency가 이미 존재할 때, 기존 것에 연결처리
-        Optional<Agency> sameAgency = agencyQueryRepository.findByAddressAndName(agencyDto.getAddress(), agencyDto.getName());
+        Optional<Agency> sameAgency = agencyQueryRepository.findByAddressAndName(registerAgencyReqDto.getAddress(), registerAgencyReqDto.getName());
 
-        Agency agency = sameAgency.isPresent() ? sameAgency.get() : agencyCommandRepository.save(agencyDto.toEntity());
+//        Agency inputAgency = registerAgencyReqDto.toEntity();
+
+        Agency agency = sameAgency.isPresent() ? sameAgency.get() : agencyCommandRepository.save(registerAgencyReqDto.toEntity());
 
         member.setAgencyAndRole(agency, Role.MANAGER);
         return ModifyMemberResDto.of(member);

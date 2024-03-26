@@ -35,6 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter,
+                                           JwtExceptionFilter jwtExceptionFilter,
                                            JwtAuthenticationEntryPoint entryPoint) throws Exception {
 
         http
@@ -54,6 +55,7 @@ public class SecurityConfig {
         http
                 .httpBasic(Customizer.withDefaults());
         http
+                .addFilterBefore(jwtExceptionFilter, JwtFilter.class)
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint));
 
         return http.build();

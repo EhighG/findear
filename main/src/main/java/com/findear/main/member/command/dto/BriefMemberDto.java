@@ -14,4 +14,9 @@ public class BriefMemberDto {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+
+    public BriefMemberDto(Long memberId, String phoneNumber) {
+        this.memberId = memberId;
+        this.phoneNumber = phoneNumber;
+    }
 }

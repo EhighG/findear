@@ -23,8 +23,8 @@ public class AcquiredBoardCommandController {
     public ResponseEntity<?> register(@AuthenticationPrincipal Long memberId,
                                       @RequestBody PostAcquiredBoardReqDto postAcquiredBoardReqDto) {
         postAcquiredBoardReqDto.setMemberId(memberId);
-        acquiredBoardCommandService.register(postAcquiredBoardReqDto);
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다."));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.",
+                        acquiredBoardCommandService.register(postAcquiredBoardReqDto)));
     }
 }

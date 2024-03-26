@@ -25,7 +25,6 @@ public class LostBoardCommandController {
     public ResponseEntity<?> register(@AuthenticationPrincipal Long memberId,
             @RequestBody PostLostBoardReqDto postLostBoardReqDto) {
         postLostBoardReqDto.setMemberId(memberId);
-//        lostBoardCommandService.register(postLostBoardReqDto);
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.", lostBoardCommandService.register(postLostBoardReqDto)));
     }

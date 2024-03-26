@@ -35,61 +35,45 @@ public class AcquiredBoardQueryController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
                         acquiredBoardQueryService.findAll(memberId, categoryId, sDate, eDate, keyword, pageNo)));
-//        List<AcquiredBoardListResDto> dummy = new ArrayList<>();
-//        for (int i = 1; i <= 20; i++) {
-//            AcquiredBoardListResDto acquiredBoardListResDto = AcquiredBoardListResDto.builder()
-//                    .boardId((long) i)
-//                    .acquiredAt(LocalDateTime.now())
-//                    .productName("productName " + i)
-//                    .category("category " + i)
-//                    .thumbnailUrl("thumbnail url " + i)
-//                    .agency(LoginResAgencyDto.builder()
-//                            .id((long) i)
-//                            .name("agencyName " + i)
-//                            .address("address " + i)
-//                            .build())
-//                    .build();
-//            dummy.add(acquiredBoardListResDto);
-//        }
-//        return ResponseEntity
-//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", dummy));
     }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<?> findById(@PathVariable Long boardId) {
-        AcquiredBoardDto acquiredBoardDto = AcquiredBoardDto.builder()
-                .acquisitionId(1L)
-                .boardId(2L)
-//                .board(BoardDto.builder()
-//                        .id(1L)
-//                        .productName("productName 1")
-//                        .member(MemberDto.builder()
-//                                .id(1L)
-//                                .phoneNumber("010-9999-9999")
-//                                .role(Role.NORMAL)
-//                                .build()
-//                        )
-//                        .imgFileList(Arrays.asList(new imgFile(1L, "smapleUrl 1"), new imgFile(2L, "smapleUrl 2")))
-//                        .color("빨강")
-//                        .description("description 1")
-//                        .registeredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-//                        .build())
-                .member(
-                        new BriefMemberDto(1L, "010-9999-9999", Role.NORMAL)
-                )
-                .productName("productName 1")
-                .imgUrlList(Arrays.asList("smapleUrl 1", "smapleUrl 2"))
-                .color("빨강")
-                .description("description 1")
-                .registeredAt(LocalDate.now())
-                .categoryName("category 1")
-                .address("address " + 1)
-                .name("name " + 1)
-                .acquiredAt(LocalDate.now())
-                .xPos(12.13f)
-                .yPos(12.13f)
-                .build();
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardDto));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardQueryService.findById(boardId)));
+//        AcquiredBoardDto acquiredBoardDto = AcquiredBoardDto.builder()
+//                .acquisitionId(1L)
+//                .boardId(2L)
+////                .board(BoardDto.builder()
+////                        .id(1L)
+////                        .productName("productName 1")
+////                        .member(MemberDto.builder()
+////                                .id(1L)
+////                                .phoneNumber("010-9999-9999")
+////                                .role(Role.NORMAL)
+////                                .build()
+////                        )
+////                        .imgFileList(Arrays.asList(new imgFile(1L, "smapleUrl 1"), new imgFile(2L, "smapleUrl 2")))
+////                        .color("빨강")
+////                        .description("description 1")
+////                        .registeredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+////                        .build())
+//                .member(
+//                        new BriefMemberDto(1L, "010-9999-9999", Role.NORMAL)
+//                )
+//                .productName("productName 1")
+//                .imgUrlList(Arrays.asList("smapleUrl 1", "smapleUrl 2"))
+//                .color("빨강")
+//                .description("description 1")
+//                .registeredAt(LocalDate.now())
+//                .categoryName("category 1")
+//                .address("address " + 1)
+//                .name("name " + 1)
+//                .acquiredAt(LocalDate.now())
+//                .xPos(12.13f)
+//                .yPos(12.13f)
+//                .build();
+//        return ResponseEntity
+//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardDto));
     }
 }

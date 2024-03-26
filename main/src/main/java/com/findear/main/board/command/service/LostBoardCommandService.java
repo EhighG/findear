@@ -38,6 +38,7 @@ public class LostBoardCommandService {
                 .thumbnailUrl(postLostBoardReqDto.getImgUrls().isEmpty() ?
                         null : postLostBoardReqDto.getImgUrls().get(0))
                 .categoryName(postLostBoardReqDto.getCategory())
+                .deleteYn(false)
                 .build();
         Board savedBoard = boardCommandRepository.save(boardDto.toEntity());
         // 이미지 등록

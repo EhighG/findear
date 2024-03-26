@@ -6,21 +6,10 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class PostAcquiredBoardReqDto {
-
-    @Setter
     private String productName;
-    @Setter
     private List<String> imgUrls;
-    @Setter
     private Long memberId;
-//    private String description;
-//    private String categoryName;
-//    private String color;
-//    private String address;
-//    private String agencyName;
-//    private Float xPos;
-//    private Float yPos;
 }

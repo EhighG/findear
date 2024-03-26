@@ -31,6 +31,7 @@ public class AcquiredBoardCommandService {
                 .productName(postAcquiredBoardReqDto.getProductName())
                 .member(manager)
                 .thumbnailUrl(postAcquiredBoardReqDto.getImgUrls().get(0))
+                .deleteYn(false)
                 .build());
 
         List<ImgFile> imgFiles = new ArrayList<>();

@@ -12,10 +12,10 @@ import java.util.Optional;
 @Repository
 public interface LostBoardQueryRepository extends JpaRepository<LostBoard, Long> {
 
-    @Query("select lb from LostBoard lb join fetch lb.board left join fetch lb.board.imgFileList where lb.board.id = :boardId and lb.board.deleteYn is null")
+    @Query("select lb from LostBoard lb join fetch lb.board left join fetch lb.board.imgFileList where lb.board.id = :boardId and lb.board.deleteYn = false")
     Optional<LostBoard> findByBoardId(Long boardId);
 
     // delete_yn 기본값 적용 시 where 조건 바꾸기
-    @Query("select lb from LostBoard lb join fetch lb.board left join fetch lb.board.imgFileList where lb.board.deleteYn is null")
+    @Query("select lb from LostBoard lb join fetch lb.board left join fetch lb.board.imgFileList where lb.board.deleteYn = false")
     List<LostBoard> findAll();
 }

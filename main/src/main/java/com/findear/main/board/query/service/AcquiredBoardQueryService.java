@@ -1,6 +1,7 @@
 package com.findear.main.board.query.service;
 
 import com.findear.main.board.common.domain.AcquiredBoard;
+import com.findear.main.board.query.dto.AcquiredBoardDetailResDto;
 import com.findear.main.board.query.dto.AcquiredBoardListResDto;
 import com.findear.main.board.query.dto.LostBoardListResDto;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
@@ -60,5 +61,12 @@ public class AcquiredBoardQueryService {
         int sIdx = eIdx - PAGE_SIZE;
         if (sIdx >= filtered.size()) return null;
         return filtered.subList(sIdx, Math.min(eIdx, filtered.size()));
+    }
+
+    public AcquiredBoardDetailResDto findById(Long boardId) {
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
+
+        return AcquiredBoardDetailResDto.of(acquiredBoard);
     }
 }

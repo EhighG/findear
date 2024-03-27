@@ -41,7 +41,7 @@ public class AcquiredBoardQueryService {
         if (sDate != null || eDate != null) {
             stream = stream.filter(
                     acquired -> !acquired.getAcquiredAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(eDate).minusMonths(6))
-                            && !acquired.getAcquiredAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now().plusMonths(6))
+                            && !acquired.getAcquiredAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now())
             );
         }
         if (keyword != null) {

@@ -17,7 +17,7 @@ public class CommonControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleAllException(Exception e) {
-
+        e.printStackTrace();
         log.info("공용 exception 발생");
 
         return ResponseEntity.badRequest().body(new FailResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));

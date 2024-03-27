@@ -19,6 +19,7 @@ import java.util.List;
 @Builder
 public class DetailBoardDto {
     private Long id;
+    private Boolean isLost;
     private String productName;
     private String categoryName;
     private BriefMemberDto member;
@@ -32,6 +33,7 @@ public class DetailBoardDto {
         List<ImgFile> imgFiles = board.getImgFileList();
         return DetailBoardDto.builder()
                 .id(board.getId())
+                .isLost(board.getIsLost())
                 .productName(board.getProductName())
                 .categoryName(board.getCategoryName())
                 .member(new BriefMemberDto(dbMember.getId(), dbMember.getPhoneNumber(), dbMember.getRole()))

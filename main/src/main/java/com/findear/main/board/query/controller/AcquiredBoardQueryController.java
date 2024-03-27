@@ -26,7 +26,7 @@ public class AcquiredBoardQueryController {
     private final AcquiredBoardQueryService acquiredBoardQueryService;
 
     @GetMapping
-    public ResponseEntity<?> findAll(@RequestParam(required=false) Long categoryId,
+    public ResponseEntity<?> findAll(@RequestParam(required=false) String category,
                                                 @RequestParam(required = false) Long memberId,
                                                 @RequestParam(required = false) String sDate,
                                                 @RequestParam(required = false) String eDate,
@@ -34,46 +34,23 @@ public class AcquiredBoardQueryController {
                                                 @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        acquiredBoardQueryService.findAll(memberId, categoryId, sDate, eDate, keyword, pageNo)));
+                        acquiredBoardQueryService.findAll(memberId, category, sDate, eDate, keyword, pageNo)));
     }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<?> findById(@PathVariable Long boardId) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardQueryService.findById(boardId)));
-//        AcquiredBoardDto acquiredBoardDto = AcquiredBoardDto.builder()
-//                .acquisitionId(1L)
-//                .boardId(2L)
-////                .board(BoardDto.builder()
-////                        .id(1L)
-////                        .productName("productName 1")
-////                        .member(MemberDto.builder()
-////                                .id(1L)
-////                                .phoneNumber("010-9999-9999")
-////                                .role(Role.NORMAL)
-////                                .build()
-////                        )
-////                        .imgFileList(Arrays.asList(new imgFile(1L, "smapleUrl 1"), new imgFile(2L, "smapleUrl 2")))
-////                        .color("빨강")
-////                        .description("description 1")
-////                        .registeredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-////                        .build())
-//                .member(
-//                        new BriefMemberDto(1L, "010-9999-9999", Role.NORMAL)
-//                )
-//                .productName("productName 1")
-//                .imgUrlList(Arrays.asList("smapleUrl 1", "smapleUrl 2"))
-//                .color("빨강")
-//                .description("description 1")
-//                .registeredAt(LocalDate.now())
-//                .categoryName("category 1")
-//                .address("address " + 1)
-//                .name("name " + 1)
-//                .acquiredAt(LocalDate.now())
-//                .xPos(12.13f)
-//                .yPos(12.13f)
-//                .build();
-//        return ResponseEntity
-//                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardDto));
+    }
+
+    @GetMapping("/lost112")
+    public ResponseEntity<?> findAllInLost112(@RequestParam(required=false) String category,
+                                              @RequestParam(required = false) String sDate,
+                                              @RequestParam(required = false) String eDate,
+                                              @RequestParam(required = false) String keyword,
+                                              @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
+                        acquiredBoardQueryService.findAllInLost112(category, sDate, eDate, keyword, pageNo)));
     }
 }

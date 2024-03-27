@@ -17,6 +17,9 @@ public class BoardDto {
 
     private Long id;
 
+    private Boolean isLost;
+    private String aiDescription;
+
     private MemberDto member;
 
     private List<MessageRoom> messageRoomList = new ArrayList<>();
@@ -59,6 +62,8 @@ public class BoardDto {
                 .description(description)
                 .thumbnailUrl(thumbnailUrl)
                 .categoryName(categoryName)
+                .isLost(isLost)
+                .aiDescription(aiDescription)
                 .build();
     }
 
@@ -72,6 +77,8 @@ public class BoardDto {
                 .description(board.getDescription())
                 .thumbnailUrl(board.getThumbnailUrl())
                 .categoryName(board.getCategoryName())
+                .isLost(board.getIsLost())
+                .aiDescription(board.getAiDescription())
                 .build();
     }
 }

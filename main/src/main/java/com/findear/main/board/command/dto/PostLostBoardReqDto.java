@@ -1,6 +1,5 @@
 package com.findear.main.board.command.dto;
 
-import com.findear.main.board.common.domain.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

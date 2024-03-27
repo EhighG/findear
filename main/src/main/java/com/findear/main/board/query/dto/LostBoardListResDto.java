@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 public class LostBoardListResDto {
     private Long boardId;
     private String productName;
+    private Boolean isLost;
     private String category;
     private String thumbnailUrl;
     private String lostAt;
@@ -25,6 +26,7 @@ public class LostBoardListResDto {
                                String suspiciousPlace) {
         this.boardId = boardId;
         this.productName = productName;
+        this.isLost = true;
         this.category = category;
         this.thumbnailUrl = thumbnailUrl;
         this.lostAt = lostAt;

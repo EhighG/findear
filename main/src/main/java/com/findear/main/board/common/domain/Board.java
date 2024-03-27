@@ -25,6 +25,9 @@ public class Board {
     @Column(name = "board_id")
     private Long id;
 
+    private Boolean isLost;
+    private String aiDescription;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;

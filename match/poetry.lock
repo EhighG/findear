@@ -80,6 +80,20 @@ files = [
 ]
 
 [[package]]
+name = "numpyencoder"
+version = "0.3.0"
+description = "Python JSON encoder for handling Numpy data types."
+optional = false
+python-versions = "*"
+files = [
+    {file = "numpyencoder-0.3.0-py3-none-any.whl", hash = "sha256:e3f7cec9b40fc026ec4ea9fc2d0ef69d4f5f171edec8f51b4cf1c5144545495b"},
+    {file = "numpyencoder-0.3.0.tar.gz", hash = "sha256:79da1c662bcdc6260a3944426e1dc38c248a236b9b73faf26a9084f73932f870"},
+]
+
+[package.dependencies]
+numpy = ">=1.14.3"
+
+[[package]]
 name = "pandas"
 version = "2.2.1"
 description = "Powerful data structures for data analysis, time series, and statistics"
@@ -118,11 +132,7 @@ files = [
 ]
 
 [package.dependencies]
-numpy = [
-    {version = ">=1.22.4,<2", markers = "python_version < \"3.11\""},
-    {version = ">=1.23.2,<2", markers = "python_version == \"3.11\""},
-    {version = ">=1.26.0,<2", markers = "python_version >= \"3.12\""},
-]
+numpy = {version = ">=1.26.0,<2", markers = "python_version >= \"3.12\""}
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
 tzdata = ">=2022.7"
@@ -218,4 +228,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "0a0939a0ec6979e3e9d0c41f7001b057e31f449ac307beb5077b7728d2815409"
+content-hash = "fc5dadee170b310e01cf7be0a2bda7dc74f67eda1f3fabbc3d1f622f3a64766f"

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.naming.AuthenticationException;
+
 @Slf4j
 @RestControllerAdvice
 public class CommonControllerAdvice {
@@ -20,6 +22,15 @@ public class CommonControllerAdvice {
 
         return ResponseEntity.badRequest().body(new FailResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
     }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthException(AuthenticationException e) {
+        System.out.println("e.getMessage() = " + e.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+    }
+
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {

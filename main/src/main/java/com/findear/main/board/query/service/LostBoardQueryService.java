@@ -5,18 +5,14 @@ import com.findear.main.board.common.domain.LostBoard;
 import com.findear.main.board.query.dto.LostBoardDetailResDto;
 import com.findear.main.board.query.dto.LostBoardListResDto;
 import com.findear.main.board.query.dto.LostBoardListResponse;
-import com.findear.main.board.query.repository.CategoryRepository;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
-import com.findear.main.member.query.dto.FindMemberListResDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -26,10 +22,9 @@ import java.util.stream.Stream;
 public class LostBoardQueryService {
 
     private final LostBoardQueryRepository lostBoardQueryRepository;
-    private final CategoryRepository categoryRepository;
     private final int PAGE_SIZE = 10;
 
-    public LostBoardListResponse findAll(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
+    public LostBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo) {
         List<LostBoard> lostBoards = lostBoardQueryRepository.findAll();
         Stream<LostBoard> stream = lostBoards.stream();
 
@@ -37,12 +32,8 @@ public class LostBoardQueryService {
         if (memberId != null) {
             stream = stream.filter(lost -> lost.getBoard().getMember().getId().equals(memberId));
         }
-        if (categoryId != null) {
-            String categoryName = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException("invalid board category ID"))
-                    .getCategoryName();
-
-            stream = stream.filter(lost -> lost.getBoard().getCategoryName().equals(categoryName));
+        if (category != null) {
+            stream = stream.filter(lost -> lost.getBoard().getCategoryName().equals(category));
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(

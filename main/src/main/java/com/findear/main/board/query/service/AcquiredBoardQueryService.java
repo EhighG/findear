@@ -3,23 +3,15 @@ package com.findear.main.board.query.service;
 import com.findear.main.board.common.domain.AcquiredBoard;
 import com.findear.main.board.query.dto.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
-import com.findear.main.board.query.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UrlPathHelper;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -29,11 +21,10 @@ import java.util.stream.Stream;
 public class AcquiredBoardQueryService {
 
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
-    private final CategoryRepository categoryRepository;
     private final String BATCH_SERVER_URL = "http://j10a706.p.ssafy.io/batch/search";
     private final int PAGE_SIZE = 10;
 
-    public AcquiredBoardListResponse findAll(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
+    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo) {
         List<AcquiredBoard> acquiredBoards = acquiredBoardQueryRepository.findAll();
         Stream<AcquiredBoard> stream = acquiredBoards.stream();
 
@@ -41,12 +32,8 @@ public class AcquiredBoardQueryService {
         if (memberId != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getMember().getId().equals(memberId));
         }
-        if (categoryId != null) {
-            String categoryName = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException("invalid board category ID"))
-                    .getCategoryName();
-
-            stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().equals(categoryName));
+        if (category != null) {
+            stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().equals(category));
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(
@@ -80,7 +67,7 @@ public class AcquiredBoardQueryService {
         return AcquiredBoardDetailResDto.of(acquiredBoard);
     }
 
-    public List<?> findAllInLost112(Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
+    public List<?> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo) {
         if (sDate != null && eDate == null) {
             eDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         } else if (sDate == null && eDate != null) {

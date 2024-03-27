@@ -26,7 +26,7 @@ public class AcquiredBoardQueryController {
     private final AcquiredBoardQueryService acquiredBoardQueryService;
 
     @GetMapping
-    public ResponseEntity<?> findAll(@RequestParam(required=false) Long categoryId,
+    public ResponseEntity<?> findAll(@RequestParam(required=false) String category,
                                                 @RequestParam(required = false) Long memberId,
                                                 @RequestParam(required = false) String sDate,
                                                 @RequestParam(required = false) String eDate,
@@ -34,7 +34,7 @@ public class AcquiredBoardQueryController {
                                                 @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        acquiredBoardQueryService.findAll(memberId, categoryId, sDate, eDate, keyword, pageNo)));
+                        acquiredBoardQueryService.findAll(memberId, category, sDate, eDate, keyword, pageNo)));
     }
 
     @GetMapping("/{boardId}")
@@ -44,13 +44,13 @@ public class AcquiredBoardQueryController {
     }
 
     @GetMapping("/lost112")
-    public ResponseEntity<?> findAllInLost112(@RequestParam(required=false) Long categoryId,
+    public ResponseEntity<?> findAllInLost112(@RequestParam(required=false) String category,
                                               @RequestParam(required = false) String sDate,
                                               @RequestParam(required = false) String eDate,
                                               @RequestParam(required = false) String keyword,
                                               @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        acquiredBoardQueryService.findAllInLost112(categoryId, sDate, eDate, keyword, pageNo)));
+                        acquiredBoardQueryService.findAllInLost112(category, sDate, eDate, keyword, pageNo)));
     }
 }

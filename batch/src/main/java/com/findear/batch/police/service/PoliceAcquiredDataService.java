@@ -142,6 +142,21 @@ public class PoliceAcquiredDataService {
                     sourceAsMap.get("mainPrdtClNm").toString(),
                     sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
             );
+        } else if(sourceAsMap.get("depPlace") == null) {
+
+            return new PoliceAcquiredData(
+
+                    Long.parseLong(sourceAsMap.get("id").toString()),
+                    sourceAsMap.get("atcId").toString(),
+                    sourceAsMap.get("fdFilePathImg").toString(),
+                    sourceAsMap.get("fdPrdtNm").toString(),
+                    sourceAsMap.get("fdSbjt").toString(),
+                    sourceAsMap.get("clrNm").toString(),
+                    sourceAsMap.get("fdYmd").toString(),
+                    sourceAsMap.get("prdtClNm").toString(),
+                    sourceAsMap.get("mainPrdtClNm").toString(),
+                    sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
+            );
         }
         else {
 
@@ -162,88 +177,6 @@ public class PoliceAcquiredDataService {
         }
 
     }
-
-//    public List<PoliceAcquiredData> searchAllDatas() {
-//
-//        try {
-//
-//            List<PoliceAcquiredData> allDatas = new ArrayList<>();
-//            String searchAfter = null;
-//            int pageSize = 200; // 페이지당 가져올 문서 수
-//
-//            while (true) {
-//                SearchRequest searchRequest = new SearchRequest("police_acquired_data"); // Elasticsearch 인덱스 이름
-//                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-//                searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-//                searchSourceBuilder.size(pageSize);
-//
-//                if (searchAfter != null) {
-//                    searchSourceBuilder.sort("_doc");
-//                    searchSourceBuilder.searchAfter(new Object[]{searchAfter});
-//                }
-//
-//                searchRequest.source(searchSourceBuilder);
-//
-//                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-//
-//                SearchHit[] hits = searchResponse.getHits().getHits();
-//                if (hits.length == 0) {
-//                    break;
-//                }
-//
-//                for (SearchHit hit : hits) {
-//                    allDatas.add(convertToPoliceData(hit));
-//                }
-//
-//                // 다음 페이지를 가져오기 위해 검색 결과의 마지막 문서의 sort key 값을 설정
-//                SearchHit lastHit = hits[hits.length - 1];
-//                Object[] sortValues = lastHit.getSortValues();
-//                if (sortValues != null && sortValues.length > 0) {
-//                    searchAfter = sortValues[0].toString(); // 첫 번째 sort key 값을 사용
-//                } else {
-//                    // sort key가 없는 경우 _id를 사용하여 다음 페이지를 설정
-//                    searchAfter = lastHit.getId();
-//                }
-//
-//                System.out.println("searchAfter = " + searchAfter);
-//            }
-//
-//            return allDatas;
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return null;
-//
-//    }
-//
-//    // 여기에서 SearchHit을 PoliceAcquiredData 객체로 변환하는 코드를 작성
-//    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
-//
-//        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-//
-//        PoliceAcquiredData policeAcquiredData;
-//        if(sourceAsMap.get("subPrdtClNm") != null) {
-//
-//            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
-//                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
-//                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
-//                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
-//                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
-//                    sourceAsMap.get("mainPrdtClNm").toString(), sourceAsMap.get("subPrdtClNm").toString());
-//        } else {
-//            policeAcquiredData = new PoliceAcquiredData(Long.parseLong(sourceAsMap.get("id").toString()),
-//                    sourceAsMap.get("atcId").toString(), sourceAsMap.get("depPlace").toString(),
-//                    sourceAsMap.get("fdFilePathImg").toString(), sourceAsMap.get("fdPrdtNm").toString(),
-//                    sourceAsMap.get("fdSbjt").toString(), sourceAsMap.get("clrNm").toString(),
-//                    sourceAsMap.get("fdYmd").toString(), sourceAsMap.get("prdtClNm").toString(),
-//                    sourceAsMap.get("mainPrdtClNm").toString());
-//        }
-//
-//        return policeAcquiredData;
-//    }
-
 
     public Page<PoliceAcquiredData> searchByPage(int page, int size) {
 
@@ -499,10 +432,18 @@ public class PoliceAcquiredDataService {
         }
     }
 
-    public List<PoliceAcquiredData> search(int page, int size) {
+    public List<PoliceAcquiredData> search(int page, int size, String category,
+                                           String startDate, String endDate) {
 
         try {
 
+//            if(category != null) {
+//
+//                if(startDate != null)
+//            }
+//            List<PoliceAcquiredData> datas =
+//
+//
             List<Long> searchIds = new ArrayList<>();
             int start = size * page - size + 1;
             int end = size * page;
@@ -510,6 +451,9 @@ public class PoliceAcquiredDataService {
             for(int i = start; i <= end; i++) {
                 searchIds.add((long) i);
             }
+
+            Long totalCount = policeAcquiredDataRepository.count();
+            System.out.println("전체 갯수 : " + totalCount);
 
             List<PoliceAcquiredData> resultList = (List<PoliceAcquiredData>) policeAcquiredDataRepository.findAllById(searchIds);
 

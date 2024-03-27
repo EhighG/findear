@@ -36,12 +36,14 @@ public class PoliceAcquiredDataController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> search(@RequestParam("page") int page, @RequestParam("size") int size) {
+    public ResponseEntity<?> search(@RequestParam("page") int page, @RequestParam("size") int size,
+                                    @RequestParam("category") String category, @RequestParam("startDate") String startDate,
+                                    @RequestParam("endDate") String endDate) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        List<PoliceAcquiredData> result = policeAcquiredDataService.search(page, size);
+        List<PoliceAcquiredData> result = policeAcquiredDataService.search(page, size, category, startDate, endDate);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
     }

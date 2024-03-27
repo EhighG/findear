@@ -11,6 +11,8 @@ asgiref = "3.7.2"
 sqlparse = "0.4.4"
 tzdata = "2024.1"
 django = "4.2.11"
+pandas = "^2.2.1"
+numpyencoder = "^0.3.0"
 
 
 [build-system]

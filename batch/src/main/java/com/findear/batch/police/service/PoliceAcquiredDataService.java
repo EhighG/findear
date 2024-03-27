@@ -9,6 +9,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -32,6 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -55,6 +57,64 @@ public class PoliceAcquiredDataService {
 
         policeAcquiredDataRepository.deleteAll();
     }
+
+
+    public List<PoliceAcquiredData> search(int page, int size, String category,
+                                           String startDate, String endDate) {
+        try {
+            List<PoliceAcquiredData> allDatas = new ArrayList<>();
+            int pageSize = 200; // 페이지당 가져올 문서 수
+
+            SearchRequest searchRequest = new SearchRequest("police_acquired_data");
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+            // category가 제공되었을 경우
+            if (category != null && !category.isEmpty()) {
+                boolQueryBuilder.must(QueryBuilders.matchQuery("mainPrdtClNm", category));
+            }
+
+            // startDate와 endDate가 제공되었을 경우
+            if (startDate != null && !startDate.isEmpty()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date startD = dateFormat.parse(startDate);
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(startD.getTime()));
+            } else {
+                // startDate가 없는 경우 기본값으로 2015-01-01을 설정
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date startD = dateFormat.parse("2015-01-01");
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(startD.getTime()));
+            }
+
+            // endDate가 제공되었을 경우
+            if (endDate != null && !endDate.isEmpty()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date endD = dateFormat.parse(endDate);
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").lte(endD.getTime()));
+            } else {
+                // endDate가 없는 경우 현재 날짜를 기본값으로 사용
+                Date endD = new Date();
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").lte(endD.getTime()));
+            }
+
+            searchSourceBuilder.query(boolQueryBuilder);
+            searchSourceBuilder.size(pageSize);
+            searchSourceBuilder.fetchSource(new String[]{"id", "atcId", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "prdtClNm", "mainPrdtClNm", "subPrdtClNm"}, null);
+
+            searchRequest.source(searchSourceBuilder);
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                allDatas.add(convertToPoliceData(hit));
+            }
+
+            return allDatas;
+        } catch (Exception e) {
+            throw new PoliceException(e.getMessage());
+        }
+    }
+
 
     public List<PoliceAcquiredData> searchAllDatas() {
         try {
@@ -432,35 +492,4 @@ public class PoliceAcquiredDataService {
         }
     }
 
-    public List<PoliceAcquiredData> search(int page, int size, String category,
-                                           String startDate, String endDate) {
-
-        try {
-
-//            if(category != null) {
-//
-//                if(startDate != null)
-//            }
-//            List<PoliceAcquiredData> datas =
-//
-//
-            List<Long> searchIds = new ArrayList<>();
-            int start = size * page - size + 1;
-            int end = size * page;
-
-            for(int i = start; i <= end; i++) {
-                searchIds.add((long) i);
-            }
-
-            Long totalCount = policeAcquiredDataRepository.count();
-            System.out.println("전체 갯수 : " + totalCount);
-
-            List<PoliceAcquiredData> resultList = (List<PoliceAcquiredData>) policeAcquiredDataRepository.findAllById(searchIds);
-
-            return resultList;
-
-        } catch (Exception e) {
-            throw new PoliceException(e.getMessage());
-        }
-    }
 }

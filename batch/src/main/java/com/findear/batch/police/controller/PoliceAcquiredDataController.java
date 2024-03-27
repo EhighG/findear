@@ -35,10 +35,18 @@ public class PoliceAcquiredDataController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "ㅎㅇ", null));
+    }
+
     @GetMapping("")
     public ResponseEntity<?> search(@RequestParam("page") int page, @RequestParam("size") int size,
-                                    @RequestParam("category") String category, @RequestParam("startDate") String startDate,
-                                    @RequestParam("endDate") String endDate) {
+                                    @RequestParam(value = "category", required = false) String category, @RequestParam(value = "startDate", required = false) String startDate,
+                                    @RequestParam(value = "endDate", required = false) String endDate) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));

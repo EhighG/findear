@@ -18,29 +18,31 @@ public class PoliceJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final PoliceDataSaveTasklet policeDataSaveTasklet;
+    private final PoliceDataMatcingTasklet PoliceDataMatcingTasklet;
 
     @Bean
     public Job PoliceJob(){
 
         Job policeJob = jobBuilderFactory.get("policeJob")
-                .start(SaveStep())
-                .next(MatchingStep())
+                .start(policeSaveStep())
+                .next(policeMatchingStep())
                 .build();
 
         return policeJob;
     }
 
     @Bean
-    public Step SaveStep(){
-        return stepBuilderFactory.get("saveStep")
-                .tasklet(new PoliceDataSaveTasklet())
+    public Step policeSaveStep(){
+        return stepBuilderFactory.get("policeSaveStep")
+                .tasklet(policeDataSaveTasklet)
                 .build();
     }
 
     @Bean
-    public Step MatchingStep(){
-        return stepBuilderFactory.get("matchingStep")
-                .tasklet(new PoliceDataMatcingTasklet())
+    public Step policeMatchingStep(){
+        return stepBuilderFactory.get("policeMatchingStep")
+                .tasklet(PoliceDataMatcingTasklet)
                 .build();
     }
 

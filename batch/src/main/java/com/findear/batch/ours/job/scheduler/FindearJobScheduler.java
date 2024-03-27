@@ -1,5 +1,6 @@
-package com.findear.batch.police.job.scheduler;
+package com.findear.batch.ours.job.scheduler;
 
+import com.findear.batch.ours.job.config.FindearJobConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
@@ -9,7 +10,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,15 +19,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
-public class JobScheduler {
+public class FindearJobScheduler {
 
     private final JobLauncher jobLauncher;
+    private final FindearJobConfig findearJobConfig;
 
-    private final Job policeJob;
-
-    @Scheduled(cron = "* * 2 * * *")
+    @Scheduled(cron = "* * 0/2 * * *")
     public void jobSchduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
+
+        Job findearJob = findearJobConfig.FindearJob();
 
         System.out.println("스케쥴 실행");
 
@@ -38,11 +39,11 @@ public class JobScheduler {
 
         String time1 = format1.format(time);
 
-        jobParametersMap.put("date",new JobParameter(time1));
+        jobParametersMap.put("date", new JobParameter(time1));
 
         JobParameters parameters = new JobParameters(jobParametersMap);
 
-        JobExecution jobExecution = jobLauncher.run(policeJob, parameters);
+        JobExecution jobExecution = jobLauncher.run(findearJob, parameters);
 
         while (jobExecution.isRunning()) {
             log.info("...");

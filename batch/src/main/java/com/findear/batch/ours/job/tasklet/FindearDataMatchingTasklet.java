@@ -1,4 +1,4 @@
-package com.findear.batch.police.job.tasklet;
+package com.findear.batch.ours.job.tasklet;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class PoliceDataMatcingTasklet implements Tasklet, StepExecutionListener {
+public class FindearDataMatchingTasklet implements Tasklet, StepExecutionListener {
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 

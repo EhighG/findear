@@ -4,6 +4,7 @@ package com.findear.main.board.query.service;
 import com.findear.main.board.common.domain.LostBoard;
 import com.findear.main.board.query.dto.LostBoardDetailResDto;
 import com.findear.main.board.query.dto.LostBoardListResDto;
+import com.findear.main.board.query.dto.LostBoardListResponse;
 import com.findear.main.board.query.repository.CategoryRepository;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.query.dto.FindMemberListResDto;
@@ -28,7 +29,7 @@ public class LostBoardQueryService {
     private final CategoryRepository categoryRepository;
     private final int PAGE_SIZE = 10;
 
-    public List<LostBoardListResDto> findAll(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
+    public LostBoardListResponse findAll(Long memberId, Long categoryId, String sDate, String eDate, String keyword, int pageNo) {
         List<LostBoard> lostBoards = lostBoardQueryRepository.findAll();
         Stream<LostBoard> stream = lostBoards.stream();
 
@@ -62,7 +63,7 @@ public class LostBoardQueryService {
         int eIdx = PAGE_SIZE * pageNo;
         int sIdx = eIdx - PAGE_SIZE;
         if (sIdx >= filtered.size()) return null;
-        return filtered.subList(sIdx, Math.min(eIdx, filtered.size()));
+        return new LostBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / PAGE_SIZE + 1);
     }
 
     public LostBoardDetailResDto findByBoardId(Long boardId) {

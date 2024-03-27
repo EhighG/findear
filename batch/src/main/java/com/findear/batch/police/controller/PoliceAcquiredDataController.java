@@ -43,6 +43,7 @@ public class PoliceAcquiredDataController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "ㅎㅇ", null));
     }
 
+
     @GetMapping("")
     public ResponseEntity<?> search(@RequestParam("page") int page, @RequestParam("size") int size,
                                     @RequestParam(value = "category", required = false) String category, @RequestParam(value = "startDate", required = false) String startDate,

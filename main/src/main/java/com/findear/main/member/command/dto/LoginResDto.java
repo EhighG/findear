@@ -5,9 +5,11 @@ import com.findear.main.member.common.domain.Agency;
 import com.findear.main.member.common.dto.AgencyDto;
 import com.findear.main.member.common.dto.MemberDto;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@NoArgsConstructor
 public class LoginResDto {
 
     @Setter
@@ -17,9 +19,13 @@ public class LoginResDto {
     private String refreshToken;
 
     private BriefMemberDto member;
-    @Setter
+
     private LoginResAgencyDto agency;
 
+    public LoginResDto(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
 
     public void setMemberAndAgency(MemberDto memberDto) {
         this.member = new BriefMemberDto(memberDto.getId(), memberDto.getPhoneNumber(), memberDto.getRole());

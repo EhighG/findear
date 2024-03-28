@@ -28,15 +28,15 @@ public class JwtAuthenticationProvider {
         return JwtAuthenticationToken.authenticated(memberDto.getId(), accessToken,
                 Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
     }
-
-    /**
-     * param : unauthenticated 이고, refreshToken만 담고 있는 객체
-     * return : authenticated이고, memberId가 추가된 객체
-     */
-    public Authentication authenticationRefreshToken(String refreshToken) {
-        MemberDto memberDto = memberQueryService.verifyRefreshToken(refreshToken);
-
-        return JwtAuthenticationToken.authenticated(memberDto.getId(), refreshToken,
-                Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
-    }
+//
+//    /**
+//     * param : unauthenticated 이고, refreshToken만 담고 있는 객체
+//     * return : authenticated이고, memberId가 추가된 객체
+//     */
+//    public Authentication authenticationRefreshToken(String refreshToken, Long memberId) {
+//        MemberDto memberDto = memberQueryService.verifyRefreshToken(refreshToken, memberId);
+//
+//        return JwtAuthenticationToken.authenticated(memberId, refreshToken,
+//                Arrays.asList(new SimpleGrantedAuthority(memberDto.getRole().getValue())));
+//    }
 }

@@ -19,7 +19,7 @@ public class RefreshTokenRepository {
     public void save(Long memberId, String refreshToken) {
         ValueOperations<Long, String> valueOperations = redisTemplate.opsForValue();
         valueOperations.set(memberId, refreshToken);
-        redisTemplate.expire(memberId, 59, TimeUnit.MINUTES);
+        redisTemplate.expire(memberId, (60 * 24) - 1, TimeUnit.MINUTES);
     }
 
     public void deleteRefreshToken(Long memberId) {

@@ -8,11 +8,13 @@ import com.findear.main.member.common.domain.Role;
 import com.findear.main.member.common.dto.*;
 import com.findear.main.member.query.repository.AgencyQueryRepository;
 import com.findear.main.member.command.repository.MemberCommandRepository;
+import com.findear.main.member.query.repository.MemberQueryRepository;
 import com.findear.main.member.query.service.MemberQueryService;
 import com.findear.main.security.RefreshTokenRepository;
 import com.findear.main.security.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -33,25 +36,27 @@ public class MemberCommandService {
     private final RefreshTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final NaverOAuthProvider naverOAuthProvider;
+    private final MemberQueryRepository memberQueryRepository;
 
-    /**
-     * @param registerReqDto - phoneNumber, password
-     * @return phoneNumber
-     * @throws IllegalArgumentException - phoneNumber 중복
-     */
-    public String register(RegisterReqDto registerReqDto) {
-        if (memberQueryService.checkDuplicate(registerReqDto.getPhoneNumber())) {
-            throw new IllegalArgumentException("회원정보가 이미 있습니다.");
-        }
-        Member registerMember = Member.builder()
-                .phoneNumber(registerReqDto.getPhoneNumber())
-                .password(passwordEncoder.encode(registerReqDto.getPassword()))
-                .role(Role.NORMAL)
-                .build();
-        Member savedMember = memberCommandRepository.save(registerMember);
-
-        return savedMember.getPhoneNumber();
-    }
+//    /**
+//     * @param registerMemberDto - phoneNumber, password
+//     * @return phoneNumber
+//     * @throws IllegalArgumentException - phoneNumber 중복
+//     */
+//    public String register(RegisterMemberDto registerMemberDto) {
+//        if (memberQueryService.checkDuplicate(registerMemberDto.getPhoneNumber())) {
+//            throw new IllegalArgumentException("회원정보가 이미 있습니다.");
+//        }
+//        Member registerMember = Member.builder()
+//                .phoneNumber(registerMemberDto.getPhoneNumber())
+//                .password(passwordEncoder.encode(registerMemberDto.getPassword()))
+//                .role(Role.NORMAL)
+//                .build();
+//        Member savedMember = memberCommandRepository.save(registerMember);
+//
+//        return savedMember.getPhoneNumber();
+//    }
 
     public ModifyMemberResDto changeToManager(Long memberId, RegisterAgencyReqDto registerAgencyReqDto) {
         Member member = memberQueryService.internalFindById(memberId);
@@ -71,16 +76,41 @@ public class MemberCommandService {
         return ModifyMemberResDto.of(member);
     }
 
-    public LoginResDto login(LoginReqDto loginReqDto) {
-        MemberDto memberDto = memberQueryService.findByPhoneNumber(loginReqDto.getPhoneNumber());
+//    public LoginResDto login(LoginReqDto loginReqDto) {
+//        MemberDto memberDto = memberQueryService.findByPhoneNumber(loginReqDto.getPhoneNumber());
+//
+//        memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
+//
+//        verifyPassword(loginReqDto.getPassword(), memberDto);
+//
+//        LoginResDto loginResDto = new LoginResDto();
+//        loginResDto.setMemberAndAgency(memberDto);
+//        makeTokens(memberDto.getId(), loginResDto);
+//        return loginResDto;
+//    }
 
-        memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
+    public LoginResDto login(String authCode, String state) {
+        NaverAccessTokenResponse accessTokenResponse = naverOAuthProvider.getAccessToken(authCode, state);
+        String naverRefreshToken = accessTokenResponse.getRefreshToken();
 
-        verifyPassword(loginReqDto.getPassword(), memberDto);
+        NaverMemberInfoDto memberInfo = naverOAuthProvider.getMemberInfo(accessTokenResponse.getAccessToken());
 
+        Optional<Member> memberOptional = memberQueryRepository.findByPhoneNumber(memberInfo.getPhoneNumber());
+        Member member;
+        // 회원정보 등록 or 업데이트
+        if (memberOptional.isEmpty()) {
+            // 회원정보 등록
+            RegisterReqDto registerReqDto = new RegisterReqDto(memberInfo.getUid(), memberInfo.getPhoneNumber(), naverRefreshToken);
+            member = memberCommandRepository.save(registerReqDto.toEntity());
+        } else {
+            // 업데이트
+            member = memberOptional.get();
+            member.updateNaverInfo(memberInfo.getUid(), memberInfo.getPhoneNumber(), naverRefreshToken);
+        }
+        // 자체 access/refresh token 발행
         LoginResDto loginResDto = new LoginResDto();
-        loginResDto.setMemberAndAgency(memberDto);
-        makeTokens(memberDto, loginResDto);
+        makeTokens(member.getId(), loginResDto);
+        loginResDto.setMemberAndAgency(MemberDto.of(member));
         return loginResDto;
     }
 
@@ -130,14 +160,53 @@ public class MemberCommandService {
 //        return members.stream().filter((member) -> member.getPhoneNumber().contains(keyword)).collect(Collectors.toList());
 //    }
 
-    public Map<String, String> refreshAccessToken(String refreshToken) {
-        // refreshToken 검증은 마친 상태
-        Long memberId = jwtService.getMemberId(refreshToken);
-        String accessToken = jwtService.createAccessToken(memberId);
-        Map<String, String> result = new HashMap<>();
-        result.put("tokenType", JwtService.TOKEN_TYPE);
-        result.put("accessToken", accessToken);
-        return result;
+    /**
+     * cases :
+     * 1. accessToken 만료, refreshToken은 있는 경우 -> redis 확인 후 재발급
+     * 2. accessToken, refreshToken 둘 다 없고, 네이버 refreshToken은 있는 경우 -> 네이버에서 회원정보 업데이트 후, 재발급
+     * 3. 네이버 refreshToken까지, 셋 다 없는 경우 -> 에러 반환해서 네이버 로그인/인가부터 다시 하게
+     */
+    public LoginResDto refreshAccessToken(String refreshToken, Long memberId) {
+        Optional<Member> memberOptional = memberQueryRepository.findById(memberId);
+        Member member = memberOptional
+                .orElseThrow(() -> new AuthenticationServiceException("잘못된 member ID"));
+        Optional<String> storedTokenOptional = tokenRepository.findByMemberId(memberId);
+
+        if (jwtService.isExpired(refreshToken) || storedTokenOptional.isEmpty()) {
+            /*
+            DB에서 naver Refresh token 꺼내와서,
+            accessToken 재발급 받아오고,
+            그걸로 회원정보 받아오고, 업데이트
+            후, 자체 access/refresh token 생성해서
+            redis 저장 후, 반환
+             */
+            String naverRefreshToken = member.getNaverRefreshToken();
+            if (naverRefreshToken == null) {
+                log.info("DB에 refreshToken이 없음. 재로그인 필요");
+                throw new AuthenticationServiceException("DB에 refreshToken이 없음. 재로그인 필요");
+            }
+            NaverAccessTokenResponse accessTokenResponse = naverOAuthProvider.refreshAccessToken(naverRefreshToken);
+            NaverMemberInfoDto memberInfo = naverOAuthProvider.getMemberInfo(accessTokenResponse.getAccessToken());
+            member.updateNaverInfo(memberInfo.getUid(), memberInfo.getPhoneNumber(), naverRefreshToken);
+
+            String localAccessToken = jwtService.createAccessToken(memberId);
+            String localRefreshToken = jwtService.createRefreshToken(memberId);
+
+            tokenRepository.save(memberId, localRefreshToken);
+            LoginResDto loginResDto = new LoginResDto(localAccessToken, localRefreshToken);
+            loginResDto.setMemberAndAgency(MemberDto.of(member));
+            return loginResDto;
+        }
+        String storedRefreshToken = storedTokenOptional.get();
+        if (!storedRefreshToken.equals(refreshToken)) {
+            throw new AuthenticationServiceException("잘못된 refreshToken");
+        }
+        // refreshToken 이 잘 있는 경우
+        String newAccessToken = jwtService.createAccessToken(memberId);
+        LoginResDto loginResDto = new LoginResDto();
+        loginResDto.setMemberAndAgency(MemberDto.of(member));
+        loginResDto.setAccessToken(newAccessToken);
+        return loginResDto;
     }
 
     private Agency saveAgency(Agency agency) {
@@ -170,10 +239,10 @@ public class MemberCommandService {
         }
     }
 
-    private LoginResDto makeTokens(MemberDto memberDto, LoginResDto loginResDto) {
-        String accessToken = jwtService.createAccessToken(memberDto.getId());
-        String refreshToken = jwtService.createRefreshToken(memberDto.getId());
-        tokenRepository.save(memberDto.getId(), refreshToken);
+    private LoginResDto makeTokens(Long memberId, LoginResDto loginResDto) {
+        String accessToken = jwtService.createAccessToken(memberId);
+        String refreshToken = jwtService.createRefreshToken(memberId);
+        tokenRepository.save(memberId, refreshToken);
 
         loginResDto.setAccessToken(accessToken);
         loginResDto.setRefreshToken(refreshToken);

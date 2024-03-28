@@ -41,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
         exclusiveRequestMatchers = new ArrayList<>();
         // only pattern
         List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password", "/members/duplicate", "/actuator/**", "/error", "/assets/**"
-        ,"/acquisitions/lost112");
+        ,"/acquisitions/lost112", "/members/token/refresh", "/favicon.ico");
         for (String uri : exclusiveUris) {
             exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
         }
@@ -78,8 +78,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (!StringUtils.isEmpty(accessToken)) {
             return authenticationProvider.authenticateAccessToken(accessToken);
         } else {
-            String refreshToken = request.getHeader(REFRESH_TOKEN);
-            return authenticationProvider.authenticationRefreshToken(refreshToken);
+            throw new IllegalArgumentException("AccessToken이 필요합니다.");
         }
     }
 }

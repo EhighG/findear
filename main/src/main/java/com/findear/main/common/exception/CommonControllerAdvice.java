@@ -26,9 +26,10 @@ public class CommonControllerAdvice {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<?> handleAuthException(AuthenticationException e) {
         System.out.println("e.getMessage() = " + e.getMessage());
-        return ResponseEntity
-                .badRequest()
-                .body(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+//        return ResponseEntity
+//                .badRequest()
+//                .body(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+        return new ResponseEntity<>(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
 

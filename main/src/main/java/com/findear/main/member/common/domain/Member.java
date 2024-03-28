@@ -27,6 +27,8 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+    private String naverUid;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<MessageRoom> messageRoomList = new ArrayList<>();
 
@@ -47,7 +49,6 @@ public class Member {
     @Column(nullable = false)
     private Role role;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -59,6 +60,7 @@ public class Member {
     private LocalDateTime withdrawalAt;
 
     private Boolean withdrawalYn;
+    private String naverRefreshToken;
 
     public void setAgencyAndRole(Agency agency, Role role) {
         this.agency = agency;
@@ -85,6 +87,12 @@ public class Member {
     public void withdraw() {
         this.withdrawalYn = true;
         this.withdrawalAt = LocalDateTime.now();
+    }
+
+    public void updateNaverInfo(String naverUid, String phoneNumber, String naverRefreshToken) {
+        this.naverUid = naverUid;
+        this.phoneNumber = phoneNumber;
+        this.naverRefreshToken = naverRefreshToken;
     }
 }
 

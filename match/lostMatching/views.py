@@ -12,6 +12,9 @@ from . import matching
 
 # Create your views here.
 
+def health(request):
+    return JsonResponse({"STATUS":"UP"}, status = 200)
+
 def lost_matching(request):
     if request.method == 'POST':
         # try:

@@ -40,6 +40,7 @@ public class MemberCommandService {
     private final MemberQueryRepository memberQueryRepository;
     private final String NAVER_STATE = "test";
 
+
 //    /**
 //     * @param registerMemberDto - phoneNumber, password
 //     * @return phoneNumber

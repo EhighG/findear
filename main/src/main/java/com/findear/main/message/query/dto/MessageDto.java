@@ -13,6 +13,6 @@ public class MessageDto {
     private Long messageRoomId;
     private String title;
     private String content;
-    private LocalDateTime sendAt;
+    private String sendAt;
     private Long senderId;
 }

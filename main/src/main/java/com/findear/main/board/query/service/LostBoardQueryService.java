@@ -44,8 +44,7 @@ public class LostBoardQueryService {
             );
         }
         if (keyword != null) {
-            stream = stream.filter(lost -> lost.getBoard().getProductName().contains(keyword)
-            || lost.getBoard().getDescription().contains(keyword));
+            stream = stream.filter(lost -> lost.getBoard().getProductName().contains(keyword));
         }
 
         List<LostBoardListResDto> filtered = stream

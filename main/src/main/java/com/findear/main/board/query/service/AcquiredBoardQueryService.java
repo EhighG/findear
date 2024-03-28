@@ -5,6 +5,7 @@ import com.findear.main.board.query.dto.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -73,6 +75,7 @@ public class AcquiredBoardQueryService {
     }
 
     public List<?> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo) {
+        log.info("service 메소드 들어옴");
         if (sDate != null && eDate == null) {
             eDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         } else if (sDate == null && eDate != null) {
@@ -95,19 +98,26 @@ public class AcquiredBoardQueryService {
 //        }
         builder = builder.queryParam("page", pageNo)
                 .queryParam("size", PAGE_SIZE);
+        log.info("조회 파라미터(쿼리스트링) 세팅 끝");
 
 //        PoliceAcquiredDto[] lost112Res = restTemplate.getForObject(builder.toUriString(), PoliceAcquiredDto[].class);
 //        List<PoliceAcquiredDto> result = Arrays.asList(lost112Res);
 //        return result;
         ResponseEntity<String> response = restTemplate.getForEntity(BATCH_SERVER_URL + "/test", String.class);
+        log.info(BATCH_SERVER_URL + " 로 요청 & 응답 받아옴");
         if (response.getStatusCode().is3xxRedirection()) {
             String redirectUrl = response.getHeaders()
                     .getLocation().toString();
+
+            log.info("리다이렉트 하라는 응답 받음 / url = " + redirectUrl);
+
             ResponseEntity<String> redirectResponse = restTemplate.getForEntity(redirectUrl, String.class);
-            System.out.println("redirectResponse.getBody() = " + redirectResponse.getBody());
+            log.info(redirectUrl + " 로 요청 & 응답 받아옴");
+
+            log.info("redirectResponse.getBody() = " + redirectResponse.getBody() + "\n // 배치서버의 응답");
 
         } else {
-            System.out.println("response.getBody() = " + response.getBody());
+            log.info("첫 요청에 redirect가 아닌, 응답 바로 받아온 경우 / response.getBody() = " + response.getBody() + "\n // 배치서버의 응답");
         }
 
 //        try {

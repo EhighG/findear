@@ -30,10 +30,10 @@ public class Message {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String sendAt;
+    private LocalDateTime sendAt;
 
     @Builder
-    public Message(MessageRoom messageRoom, String title, Long senderId, String content, String sendAt) {
+    public Message(MessageRoom messageRoom, String title, Long senderId, String content, LocalDateTime sendAt) {
         this.messageRoom = messageRoom;
         this.title = title;
         this.senderId = senderId;

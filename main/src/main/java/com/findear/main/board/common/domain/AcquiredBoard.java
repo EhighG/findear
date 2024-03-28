@@ -41,4 +41,7 @@ public class AcquiredBoard {
 
     private Float yPos;
 
+    public void updateAutoFilledColumn(Board board) {
+        this.board.updateAutofillColumn(board);
+    }
 }

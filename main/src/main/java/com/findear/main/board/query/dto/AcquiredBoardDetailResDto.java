@@ -34,6 +34,7 @@ public class AcquiredBoardDetailResDto {
                         .id(board.getId())
                         .productName(board.getProductName())
                         .categoryName(board.getCategoryName())
+                        .isLost(false)
                         .member(new BriefMemberDto(dbMember.getId(), dbMember.getPhoneNumber(), dbMember.getRole()))
                         .imgUrls(imgFiles.stream().map(ImgFile::getImgUrl).toList())
                         .color(board.getColor())

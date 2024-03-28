@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 @Builder
 public class AcquiredBoardListResDto {
     private Long boardId;
+    private Boolean isLost;
     private String productName;
     private String category;
     private String thumbnailUrl;
@@ -33,6 +34,7 @@ public class AcquiredBoardListResDto {
 
         return AcquiredBoardListResDto.builder()
                 .boardId(board.getId())
+                .isLost(false)
                 .productName(board.getProductName())
                 .category(board.getCategoryName())
                 .thumbnailUrl(board.getThumbnailUrl())

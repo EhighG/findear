@@ -25,6 +25,9 @@ public class Board {
     @Column(name = "board_id")
     private Long id;
 
+    private Boolean isLost;
+    private String aiDescription;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -66,5 +69,11 @@ public class Board {
 
     public void updateImgFiles(List<ImgFile> imgFiles) {
         this.imgFileList = imgFiles;
+    }
+
+    public void updateAutofillColumn(Board board) {
+        this.categoryName = board.getCategoryName();
+        this.color = board.getColor();
+        this.aiDescription = board.getAiDescription();
     }
 }

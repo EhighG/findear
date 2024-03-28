@@ -34,6 +34,7 @@ public class LostBoardDetailResDto {
                         .id(board.getId())
                         .productName(board.getProductName())
                         .categoryName(board.getCategoryName())
+                        .isLost(true)
                         .member(new BriefMemberDto(dbMember.getId(), dbMember.getPhoneNumber(), dbMember.getRole()))
                         .imgUrls(imgFiles.stream().map(ImgFile::getImgUrl).toList())
                         .color(board.getColor())

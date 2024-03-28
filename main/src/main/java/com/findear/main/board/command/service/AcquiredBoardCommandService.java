@@ -1,5 +1,6 @@
 package com.findear.main.board.command.service;
 
+import com.findear.main.board.command.dto.NotFilledBoardDto;
 import com.findear.main.board.command.dto.PostAcquiredBoardReqDto;
 import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
 import com.findear.main.board.command.repository.BoardCommandRepository;
@@ -25,6 +26,8 @@ public class AcquiredBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
 
+    public static String MODEL_SERVER_URL = "";
+
     public Long register(PostAcquiredBoardReqDto postAcquiredBoardReqDto) {
         Member manager = memberQueryService.internalFindById(postAcquiredBoardReqDto.getMemberId());
         Board savedBoard = boardCommandRepository.save(Board.builder()
@@ -32,6 +35,7 @@ public class AcquiredBoardCommandService {
                 .member(manager)
                 .thumbnailUrl(postAcquiredBoardReqDto.getImgUrls().get(0))
                 .deleteYn(false)
+                .isLost(false)
                 .build());
 
         List<ImgFile> imgFiles = new ArrayList<>();
@@ -51,14 +55,27 @@ public class AcquiredBoardCommandService {
                 .build();
         AcquiredBoard savedAcquiredBoard = acquiredBoardCommandRepository.save(acquiredBoard);
 
-        sendAutoFillRequest(savedBoard.getId(), savedAcquiredBoard.getId());
+//        sendAutoFillRequest(savedAcquiredBoard);
 
         return savedBoard.getId();
     }
 
-    private void sendAutoFillRequest(Long boardId, Long acquiredBoardId) {
-        /*
-         파이썬 서버에 요청 보내기(자동완성 컬럼들 update)
-         */
-    }
+//    private AcquiredBoard sendAutoFillRequest(AcquiredBoard notFilledBoard) {
+//        WebClient client = WebClient.builder()
+//                .baseUrl(MODEL_SERVER_URL)
+//                .build();
+//
+//        NotFilledBoardDto notFilledBoardDto = NotFilledBoardDto.of(notFilledBoard);
+//
+//        AcquiredBoard filledBoard = client
+//                .post()
+//                .uri("/autofill")
+//                .bodyValue(notFilledBoardDto)
+//                .retrieve()
+//                .bodyToMono(AcquiredBoard.class)
+//                .block();
+//
+//        // updateAutoFilledColumn() 작성 중
+//        notFilledBoard.updateAutoFilledColumn(filledBoard.getBoard());
+//    }
 }

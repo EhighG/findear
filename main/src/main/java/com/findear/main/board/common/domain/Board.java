@@ -70,4 +70,10 @@ public class Board {
     public void updateImgFiles(List<ImgFile> imgFiles) {
         this.imgFileList = imgFiles;
     }
+
+    public void updateAutofillColumn(Board board) {
+        this.categoryName = board.getCategoryName();
+        this.color = board.getColor();
+        this.aiDescription = board.getAiDescription();
+    }
 }

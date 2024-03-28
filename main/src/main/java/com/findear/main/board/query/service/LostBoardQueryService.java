@@ -24,6 +24,8 @@ public class LostBoardQueryService {
     private final LostBoardQueryRepository lostBoardQueryRepository;
     private final int PAGE_SIZE = 10;
 
+    private final String DEFAULT_SDATE_STRING = "2015-01-01";
+
     public LostBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo) {
         List<LostBoard> lostBoards = lostBoardQueryRepository.findAll();
         Stream<LostBoard> stream = lostBoards.stream();
@@ -37,8 +39,8 @@ public class LostBoardQueryService {
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(
-                    lost -> !lost.getLostAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(eDate).minusMonths(6))
-                            && !lost.getLostAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now().plusMonths(6))
+                    lost -> !lost.getLostAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(DEFAULT_SDATE_STRING))
+                            && !lost.getLostAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now())
             );
         }
         if (keyword != null) {

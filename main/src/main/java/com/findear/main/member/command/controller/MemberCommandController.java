@@ -36,12 +36,12 @@ public class MemberCommandController {
                 memberCommandService.changeToManager(memberId, registerAgencyReqDto)));
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
-//        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
-//                "로그인에 성공하였습니다.",
-//                memberCommandService.login(loginReqDto)));
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
+                "로그인에 성공하였습니다.",
+                memberCommandService.localLogin(loginReqDto)));
+    }
 
     // 소셜 로그인 / authCode를 갖고 요청
     @GetMapping("/login")

@@ -78,18 +78,18 @@ public class MemberCommandService {
         return ModifyMemberResDto.of(member);
     }
 
-//    public LoginResDto login(LoginReqDto loginReqDto) {
-//        MemberDto memberDto = memberQueryService.findByPhoneNumber(loginReqDto.getPhoneNumber());
-//
-//        memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
-//
-//        verifyPassword(loginReqDto.getPassword(), memberDto);
-//
-//        LoginResDto loginResDto = new LoginResDto();
-//        loginResDto.setMemberAndAgency(memberDto);
-//        makeTokens(memberDto.getId(), loginResDto);
-//        return loginResDto;
-//    }
+    public LoginResDto localLogin(LoginReqDto loginReqDto) {
+        MemberDto memberDto = memberQueryService.findByPhoneNumber(loginReqDto.getPhoneNumber());
+
+        memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
+
+        verifyPassword(loginReqDto.getPassword(), memberDto);
+
+        LoginResDto loginResDto = new LoginResDto();
+        loginResDto.setMemberAndAgency(memberDto);
+        makeTokens(memberDto.getId(), loginResDto);
+        return loginResDto;
+    }
 
     public LoginResDto login(String authCode) {
         NaverAccessTokenResponse accessTokenResponse = naverOAuthProvider.getAccessToken(authCode, NAVER_STATE);

@@ -37,6 +37,5 @@ public class MessageCommandController {
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "쪽지를 보냈습니다.", null));
 
-
     }
 }

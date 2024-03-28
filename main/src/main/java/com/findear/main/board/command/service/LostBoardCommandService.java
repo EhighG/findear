@@ -1,6 +1,7 @@
 package com.findear.main.board.command.service;
 
 import com.findear.main.board.command.dto.MatchingFindearDatasReqDto;
+import com.findear.main.board.command.dto.MatchingFindearDatasToAiResDto;
 import com.findear.main.board.command.dto.PostLostBoardReqDto;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
@@ -35,7 +36,7 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
-    public Long register(PostLostBoardReqDto postLostBoardReqDto) {
+    public List<MatchingFindearDatasToAiResDto> register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()
@@ -89,7 +90,7 @@ public class LostBoardCommandService {
 
         HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
 
-        String serverURL = "http://localhost:8082/findear/matching";
+        String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -97,6 +98,24 @@ public class LostBoardCommandService {
 
         System.out.println("response : " + response.getBody());
 
-        return saveResult.getBoard().getId();
+        List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
+
+        List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
+
+        for(Map<String, Object> res : resultList) {
+
+            System.out.println("lostBoardId : " + res.get("lostBoardId"));
+            System.out.println("acquiredBoardId : " + res.get("acquiredBoardId"));
+            System.out.println("simulerityRate : " + res.get("simulerityRate"));
+
+            MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                    .lostBoardId(res.get("lostBoardId"))
+                    .acquiredBoardId(res.get("acquiredBoardId"))
+                    .simulerityRate(res.get("simulerityRate")).build();
+
+            result.add(matchingFindearDatasToAiResDto);
+        }
+
+        return result;
     }
 }

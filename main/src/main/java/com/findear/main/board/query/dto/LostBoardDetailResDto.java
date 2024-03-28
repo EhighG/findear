@@ -38,7 +38,6 @@ public class LostBoardDetailResDto {
                         .member(new BriefMemberDto(dbMember.getId(), dbMember.getPhoneNumber(), dbMember.getRole()))
                         .imgUrls(imgFiles.stream().map(ImgFile::getImgUrl).toList())
                         .color(board.getColor())
-                        .description(board.getDescription())
                         .registeredAt(board.getRegisteredAt().format(DateTimeFormatter.ISO_LOCAL_DATE))
                         .build())
                 .lostAt(lostBoard.getLostAt().format(DateTimeFormatter.ISO_LOCAL_DATE))

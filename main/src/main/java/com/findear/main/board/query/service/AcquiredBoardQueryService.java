@@ -51,9 +51,7 @@ public class AcquiredBoardQueryService {
         if (keyword != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getProductName().contains(keyword)
                     || acquired.getAddress().contains(keyword)
-                    || acquired.getName().contains(keyword)
-                    || (acquired.getBoard().getDescription() != null
-                    ? acquired.getBoard().getDescription() : "").contains(keyword));
+                    || acquired.getName().contains(keyword));
         }
 
         List<AcquiredBoardListResDto> filtered = stream

@@ -15,7 +15,7 @@ public class MatchingFindearDatasReqDto {
 
     private String categoryName;
 
-    private String description;
+    private String aiDescription;
 
     private String lostAt;
 

@@ -76,8 +76,8 @@ public class LostBoardCommandService {
                 .productName(saveResult.getBoard().getProductName())
                 .color(saveResult.getBoard().getColor())
                 .categoryName(saveResult.getBoard().getCategoryName())
-                .description(saveResult.getBoard().getDescription())
-                .description(saveResult.getLostAt().toString())
+                .aiDescription(saveResult.getBoard().getAiDescription())
+                .lostAt(saveResult.getLostAt().toString())
                 .xPos(saveResult.getXPos())
                 .yPos(saveResult.getYPos())
                 .build();

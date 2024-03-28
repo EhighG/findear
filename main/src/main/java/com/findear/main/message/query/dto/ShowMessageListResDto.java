@@ -23,6 +23,6 @@ public class ShowMessageListResDto {
 
     private String content;
 
-    private LocalDateTime sendAt;
+    private String sendAt;
 
 }

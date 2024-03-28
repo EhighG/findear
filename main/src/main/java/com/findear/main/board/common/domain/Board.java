@@ -26,6 +26,8 @@ public class Board {
     private Long id;
 
     private Boolean isLost;
+
+    @Column(columnDefinition = "TEXT")
     private String aiDescription;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,9 +52,6 @@ public class Board {
     private LostBoard lostBoard;
 
     private String productName;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

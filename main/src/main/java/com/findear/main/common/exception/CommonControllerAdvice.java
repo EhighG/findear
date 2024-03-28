@@ -43,7 +43,7 @@ public class CommonControllerAdvice {
     @ExceptionHandler(MessageException.class)
     public ResponseEntity<?> handleMessageException(Exception e) {
 
-        log.info("messageException 발생");
+        log.info(e.getMessage());
 
         return ResponseEntity.badRequest().body(new FailResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
     }

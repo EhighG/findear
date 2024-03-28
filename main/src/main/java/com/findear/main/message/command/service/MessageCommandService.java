@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -54,7 +56,9 @@ public class MessageCommandService {
             Message newMessage = Message.builder()
                     .messageRoom(findMessageRoom)
                     .title(sendMessageReqDto.getTitle())
-                    .content(sendMessageReqDto.getContent()).build();
+                    .senderId(sendMessageReqDto.getMemberId())
+                    .content(sendMessageReqDto.getContent())
+                    .sendAt(LocalDateTime.now()).build();
 
             messageCommandRepository.save(newMessage);
 

@@ -44,8 +44,8 @@ public class MemberCommandController {
 //    }
 
     // 소셜 로그인 / authCode를 갖고 요청
-    @GetMapping("/login")
-    public ResponseEntity<?> naverLogin(@RequestParam(required = false) String code,
+    @GetMapping("/code")
+    public ResponseEntity<?> redirectReqWithCode(@RequestParam(required = false) String code,
                                         @RequestParam(name = "error", required = false) String errorCode,
                                         @RequestParam(name = "error_description", required = false) String errorDescription,
                                         @RequestParam(required = false) String state) {
@@ -53,13 +53,17 @@ public class MemberCommandController {
         if (errorCode != null) {
             result.put("errorCode", errorCode);
             result.put("errorDescription", errorDescription);
-            return ResponseEntity
-                    .badRequest()
-                    .body(result);
+            return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
         }
         // code가 잘 왔다면
         return ResponseEntity
-                .ok(memberCommandService.login(code, state));
+                .ok().build();
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestParam String code) {
+        return ResponseEntity
+                .ok(memberCommandService.login(code));
     }
 
     @PostMapping("/logout")

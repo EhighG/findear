@@ -159,8 +159,9 @@ def findear_matching(lostBoard, acquiredBoardList):
     print(df_sorted)
     
     # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
+    lostBoardId = lostBoard["lostBoardId"]
     result_data = [
-        {"acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
+        {"lostBoardId": int(lostBoardId), "acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
         for index, row in df_sorted.loc[:, ['id', 'mean_value']].iterrows()
     ]
     

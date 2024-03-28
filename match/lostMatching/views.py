@@ -45,11 +45,10 @@ def findear_matching(request):
         except json.JSONDecodeError:
             return JsonResponse({'error':'invalid json'}, status=400)
         result = process_findear_item_data(body)
-        result = [{"lostBoardId" : body["lostBoard"]["lostBoardId"]}] + result
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    
-    return JsonResponse({ 'message':'success', 'result':result }, status = 200)
+    return JsonResponse({ 'message':'해당 분실물과 findear 데이터와의 매칭이 완료되었습니다', 'result':result }, status = 200)
 
 def process_findear_item_data(items_info):
     # 코드 실행 시작 시간 측정

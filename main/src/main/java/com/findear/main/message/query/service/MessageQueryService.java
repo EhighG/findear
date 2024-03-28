@@ -28,9 +28,6 @@ public class MessageQueryService {
 
             List<MessageRoom> messageRoomList = messageRoomQueryRepository.findAllByMemberIdWithBoardAndMessage(showMessageListReqDto.getMemberId());
 
-            log.info("메시지 방 조회");
-            log.info("메시지 방 크기 : " + messageRoomList.size());
-
             if(messageRoomList.isEmpty()) {
 
                 throw new MessageException("존재하는 메시지 방이 없습니다.");
@@ -44,7 +41,7 @@ public class MessageQueryService {
                             .productName(mr.getBoard().getProductName())
                             .title(mr.getMessageList().get(mr.getMessageList().size()-1).getTitle())
                             .content(mr.getMessageList().get(mr.getMessageList().size()-1).getContent())
-                            .sendAt(mr.getMessageList().get(mr.getMessageList().size()-1).getSendAt()).build())
+                            .sendAt(mr.getMessageList().get(mr.getMessageList().size()-1).getSendAt().toString()).build())
                             .toList();
 
             return result;
@@ -79,7 +76,7 @@ public class MessageQueryService {
                         .messageRoomId(m.getMessageRoom().getId())
                         .title(m.getTitle())
                         .content(m.getContent())
-                        .sendAt(m.getSendAt())
+                        .sendAt(m.getSendAt().toString())
                         .senderId(m.getSenderId()).build());
             }
 

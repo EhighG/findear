@@ -81,7 +81,7 @@ public class MemberCommandService {
 
         memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
 
-        verifyPassword(loginReqDto.getPassword(), memberDto);
+//        verifyPassword(loginReqDto.getPassword(), memberDto);
 
         LoginResDto loginResDto = new LoginResDto();
         loginResDto.setMemberAndAgency(memberDto);

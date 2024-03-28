@@ -2,13 +2,15 @@ package com.findear.main.member.command.controller;
 
 import com.findear.main.common.response.SuccessResponse;
 import com.findear.main.member.command.dto.*;
-import com.findear.main.member.common.dto.*;
 import com.findear.main.member.command.service.MemberCommandService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RequestMapping("/members")
 @RestController
@@ -20,12 +22,12 @@ public class MemberCommandController {
         this.memberCommandService = memberCommandService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> register(@RequestBody RegisterReqDto registerReqDto) {
-        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
-                "가입되었습니다.",
-                memberCommandService.register(registerReqDto)));
-    }
+//    @PostMapping
+//    public ResponseEntity<?> register(@RequestBody RegisterMemberDto registerMemberDto) {
+//        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
+//                "가입되었습니다.",
+//                memberCommandService.register(registerMemberDto)));
+//    }
 
     @PatchMapping("/{memberId}/role")
     public ResponseEntity<?> changeToManager(@PathVariable Long memberId,
@@ -34,11 +36,30 @@ public class MemberCommandController {
                 memberCommandService.changeToManager(memberId, registerAgencyReqDto)));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
-        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
-                "로그인에 성공하였습니다.",
-                memberCommandService.login(loginReqDto)));
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
+//        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
+//                "로그인에 성공하였습니다.",
+//                memberCommandService.login(loginReqDto)));
+//    }
+
+    // 소셜 로그인 / authCode를 갖고 요청
+    @GetMapping("/login")
+    public ResponseEntity<?> naverLogin(@RequestParam(required = false) String code,
+                                        @RequestParam(name = "error", required = false) String errorCode,
+                                        @RequestParam(name = "error_description", required = false) String errorDescription,
+                                        @RequestParam(required = false) String state) {
+        Map<String, String> result = new HashMap<>();
+        if (errorCode != null) {
+            result.put("errorCode", errorCode);
+            result.put("errorDescription", errorDescription);
+            return ResponseEntity
+                    .badRequest()
+                    .body(result);
+        }
+        // code가 잘 왔다면
+        return ResponseEntity
+                .ok(memberCommandService.login(code, state));
     }
 
     @PostMapping("/logout")
@@ -68,10 +89,10 @@ public class MemberCommandController {
     }
 
     @PostMapping("/token/refresh")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, @RequestBody Long memberId) {
         String refreshToken = request.getHeader("refresh-token");
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
                 "발급되었습니다.",
-                memberCommandService.refreshAccessToken(refreshToken)));
+                memberCommandService.refreshAccessToken(refreshToken, memberId)));
     }
 }

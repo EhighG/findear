@@ -44,6 +44,7 @@ public class MemberDto {
     private LocalDateTime withdrawalAt;
 
     private Boolean withdrawalYn;
+    private String naverRefreshToken;
 
     public static MemberDto of(Member member) {
         return MemberDto.builder()
@@ -59,6 +60,7 @@ public class MemberDto {
                 .withdrawalAt(member.getWithdrawalAt())
                 .withdrawalYn(member.getWithdrawalYn())
                 .role(member.getRole())
+                .naverRefreshToken(member.getNaverRefreshToken())
                 .build();
     }
 
@@ -76,6 +78,7 @@ public class MemberDto {
                 .withdrawalAt(withdrawalAt)
                 .withdrawalYn(withdrawalYn)
                 .role(role)
+                .naverRefreshToken(naverRefreshToken)
                 .build();
     }
 }

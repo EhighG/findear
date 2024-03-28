@@ -38,6 +38,8 @@ public class MemberCommandService {
     private final JwtService jwtService;
     private final NaverOAuthProvider naverOAuthProvider;
     private final MemberQueryRepository memberQueryRepository;
+    private final String NAVER_STATE = "test";
+
 
 //    /**
 //     * @param registerMemberDto - phoneNumber, password
@@ -89,8 +91,8 @@ public class MemberCommandService {
 //        return loginResDto;
 //    }
 
-    public LoginResDto login(String authCode, String state) {
-        NaverAccessTokenResponse accessTokenResponse = naverOAuthProvider.getAccessToken(authCode, state);
+    public LoginResDto login(String authCode) {
+        NaverAccessTokenResponse accessTokenResponse = naverOAuthProvider.getAccessToken(authCode, NAVER_STATE);
         String naverRefreshToken = accessTokenResponse.getRefreshToken();
 
         NaverMemberInfoDto memberInfo = naverOAuthProvider.getMemberInfo(accessTokenResponse.getAccessToken());

@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .addFilterAt(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/members/login", "/members/emails/**", "/members/find-password", "/actuator/**", "/members/duplicate", "/error", "/assets/**",
-                        "/alarm/**", "/acquisitions/lost112", "/members/token/refresh", "/favicon.ico").permitAll()
+                        "/alarm/**", "/acquisitions/lost112", "/members/token/refresh", "/favicon.ico", "/members/code").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

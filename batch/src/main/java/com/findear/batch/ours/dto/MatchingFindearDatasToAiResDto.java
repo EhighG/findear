@@ -1,16 +1,16 @@
 package com.findear.batch.ours.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class MatchingFindearDatasToAiResDto {
 
-    private Long matchingId;
+    private Object lostBoardId;
 
-    private Long lostBoardId;
+    private Object acquiredBoardId;
 
-    private Long acquiredBoardId;
-
-    private Float simulerityRate;
+    private Object simulerityRate;
 
 }

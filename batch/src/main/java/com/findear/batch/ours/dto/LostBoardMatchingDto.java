@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -19,7 +20,7 @@ public class LostBoardMatchingDto {
 
     private String description;
 
-    private String lostAt;
+    private LocalDate lostAt;
 
     private Float xPos;
 

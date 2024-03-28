@@ -26,6 +26,10 @@ ext {
 }
 
 dependencies {
+
+	//firebase 의존성
+//	implementation 'com.google.firebase:firebase-admin:7.1.1'
+
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	runtimeOnly 'com.mysql:mysql-connector-j'

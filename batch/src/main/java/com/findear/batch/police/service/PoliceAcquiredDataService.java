@@ -60,7 +60,7 @@ public class PoliceAcquiredDataService {
 
 
     public List<PoliceAcquiredData> search(int page, int size, String category,
-                                           String startDate, String endDate) {
+                                           String startDate, String endDate, String keyword) {
         try {
             List<PoliceAcquiredData> allDatas = new ArrayList<>();
             int pageSize = 200; // 페이지당 가져올 문서 수
@@ -96,6 +96,11 @@ public class PoliceAcquiredDataService {
                 // endDate가 없는 경우 현재 날짜를 기본값으로 사용
                 Date endD = new Date();
                 boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").lte(endD.getTime()));
+            }
+
+            // keyword가 제공되었을 경우
+            if (keyword != null && !keyword.isEmpty()) {
+                boolQueryBuilder.must(QueryBuilders.matchQuery("fdSbjt", keyword));
             }
 
             searchSourceBuilder.query(boolQueryBuilder);
@@ -252,12 +257,12 @@ public class PoliceAcquiredDataService {
             deleteDatas();
             log.info("데이터 삭제 성공");
 
-            String startDate = "20150101";
+            String startDate = "20200101";
             LocalDateTime today = LocalDateTime.now();
             String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             log.info(todaysDate + "까지 데이터 저장");
 
-            String numOfRows = "50000";
+            String numOfRows = "30000";
 
             BufferedReader rd;
 
@@ -441,18 +446,45 @@ public class PoliceAcquiredDataService {
                     String[] array;
                     String fdSbjt = "";
                     String clrNm = "";
+
+
                     // 색상 컬럼 분류 로직
                     if(rowData[4] != null) {
                         fdSbjt = rowData[4];
-                        array = fdSbjt.split("\\(");
+                        System.out.println("설명 : " + fdSbjt);
 
-                        if(array.length < 2) {
+                        // '색'이란 단어를 기준으로 문자열 분할
+                        String[] parts = rowData[4].split("색");
+
+                        if(parts.length == 1) {
+                            System.out.println("색이란 단어가 없음");
                             clrNm = null;
                         }
                         else {
-                            clrNm = array[1];
+
+                            // 분할된 문자열 중 마지막 부분을 선택하여 '색상' 추출
+                            String lastPart = parts[parts.length - 2];
+                            System.out.println("lastPart : " + lastPart);
+
+                            List<Integer> indexs = new ArrayList<>();
+                            for(int j=0; j<lastPart.length(); j++) {
+                                if(lastPart.charAt(j) == '(') {
+                                    indexs.add(j);
+                                }
+                            }
+
+                            if(indexs.size() < 2) {
+
+                                clrNm = null;
+                            } else {
+
+                                String color = lastPart.substring(indexs.get(indexs.size()-2) + 1, indexs.get(indexs.size()-1));
+                                System.out.println("color : " + color);
+                                clrNm = color;
+                            }
                         }
                     }
+
 
                     // 대분류, 소분류 컬럼 분류 로직
                     String prdtClNm = rowData[6];

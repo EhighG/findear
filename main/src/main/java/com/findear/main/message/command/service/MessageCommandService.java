@@ -54,6 +54,7 @@ public class MessageCommandService {
             Message newMessage = Message.builder()
                     .messageRoom(findMessageRoom)
                     .title(sendMessageReqDto.getTitle())
+                    .senderId(sendMessageReqDto.getMemberId())
                     .content(sendMessageReqDto.getContent()).build();
 
             messageCommandRepository.save(newMessage);

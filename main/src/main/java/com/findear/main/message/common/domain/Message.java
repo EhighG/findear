@@ -25,15 +25,18 @@ public class Message {
 
     private String title;
 
+    private Long senderId;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDateTime sendAt;
 
     @Builder
-    public Message(MessageRoom messageRoom, String title, String content) {
+    public Message(MessageRoom messageRoom, String title, Long senderId, String content) {
         this.messageRoom = messageRoom;
         this.title = title;
+        this.senderId = senderId;
         this.content = content;
         this.sendAt = LocalDateTime.now();
     }

@@ -44,7 +44,7 @@ public class MemberCommandController {
 //    }
 
     // 소셜 로그인 / authCode를 갖고 요청
-    @GetMapping("/code")
+    @GetMapping("/login")
     public ResponseEntity<?> redirectReqWithCode(@RequestParam(required = false) String code,
                                         @RequestParam(name = "error", required = false) String errorCode,
                                         @RequestParam(name = "error_description", required = false) String errorDescription,
@@ -60,7 +60,7 @@ public class MemberCommandController {
                 .ok().build();
     }
 
-    @GetMapping("/login")
+    @GetMapping("/after-login")
     public ResponseEntity<?> login(@RequestParam String code) {
         return ResponseEntity
                 .ok(memberCommandService.login(code));

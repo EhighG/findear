@@ -72,7 +72,8 @@ public class MessageQueryService {
                         .messageRoomId(m.getMessageRoom().getId())
                         .title(m.getTitle())
                         .content(m.getContent())
-                        .sendAt(m.getSendAt()).build());
+                        .sendAt(m.getSendAt())
+                        .senderId(m.getSenderId()).build());
             }
 
             return result;

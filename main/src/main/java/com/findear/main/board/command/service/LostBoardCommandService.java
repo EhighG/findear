@@ -1,5 +1,6 @@
 package com.findear.main.board.command.service;
 
+import com.findear.main.board.command.dto.MatchingFindearDatasReqDto;
 import com.findear.main.board.command.dto.PostLostBoardReqDto;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
@@ -11,12 +12,18 @@ import com.findear.main.member.query.service.MemberQueryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,7 +35,6 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
-
     public Long register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
@@ -40,10 +46,12 @@ public class LostBoardCommandService {
                 .thumbnailUrl(postLostBoardReqDto.getImgUrls().isEmpty() ?
                         null : postLostBoardReqDto.getImgUrls().get(0))
                 .categoryName(postLostBoardReqDto.getCategory())
-                .deleteYn(false)
                 .isLost(true)
+                .deleteYn(false)
                 .build();
         Board savedBoard = boardCommandRepository.save(boardDto.toEntity());
+
+        log.info("이미지 등록");
         // 이미지 등록
         List<ImgFile> imgFiles = new ArrayList<>();
         for (String imgUrl : postLostBoardReqDto.getImgUrls()) {
@@ -62,6 +70,33 @@ public class LostBoardCommandService {
                 .build();
 
         LostBoard saveResult = lostBoardCommandRepository.save(lostBoardDto.toEntity());
+
+        MatchingFindearDatasReqDto matchingFindearDatasReqDto = MatchingFindearDatasReqDto.builder()
+                .boardId(saveResult.getBoard().getId())
+                .productName(saveResult.getBoard().getProductName())
+                .color(saveResult.getBoard().getColor())
+                .categoryName(saveResult.getBoard().getCategoryName())
+                .description(saveResult.getBoard().getDescription())
+                .description(saveResult.getLostAt().toString())
+                .xPos(saveResult.getXPos())
+                .yPos(saveResult.getYPos())
+                .build();
+
+        log.info("batch 서버로 요청 로직");
+        // batch 서버로 요청
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
+
+        String serverURL = "http://localhost:8082/findear/matching";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
+
+        System.out.println("response : " + response.getBody());
+
         return saveResult.getBoard().getId();
     }
 }

@@ -14,4 +14,5 @@ public class MessageDto {
     private String title;
     private String content;
     private LocalDateTime sendAt;
+    private Long senderId;
 }

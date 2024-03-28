@@ -12,11 +12,14 @@ import java.util.List;
 @AllArgsConstructor
 public class NotFilledBoardDto {
     private String productName;
-    private List<String> imgUrls;
+//    private List<String> imgUrls;
+    private String imgUrl;
 
     public static NotFilledBoardDto of(AcquiredBoard acquiredBoard) {
         Board board = acquiredBoard.getBoard();
+//        return new NotFilledBoardDto(board.getProductName(),
+//                board.getImgFileList().stream().map(ImgFile::getImgUrl).toList());
         return new NotFilledBoardDto(board.getProductName(),
-                board.getImgFileList().stream().map(ImgFile::getImgUrl).toList());
+                board.getImgFileList().get(0).getImgUrl());
     }
 }

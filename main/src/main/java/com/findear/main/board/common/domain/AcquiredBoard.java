@@ -1,5 +1,6 @@
 package com.findear.main.board.common.domain;
 
+import com.findear.main.board.command.dto.AiGeneratedColumnDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -41,7 +42,7 @@ public class AcquiredBoard {
 
     private Float yPos;
 
-    public void updateAutoFilledColumn(Board board) {
-        this.board.updateAutofillColumn(board);
+    public void updateAutoFilledColumn(AiGeneratedColumnDto aiGeneratedColumnDto) {
+        this.board.updateAutofillColumn(aiGeneratedColumnDto);
     }
 }

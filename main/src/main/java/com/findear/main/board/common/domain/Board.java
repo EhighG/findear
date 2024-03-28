@@ -1,5 +1,6 @@
 package com.findear.main.board.common.domain;
 
+import com.findear.main.board.command.dto.AiGeneratedColumnDto;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
@@ -70,9 +71,9 @@ public class Board {
         this.imgFileList = imgFiles;
     }
 
-    public void updateAutofillColumn(Board board) {
-        this.categoryName = board.getCategoryName();
-        this.color = board.getColor();
-        this.aiDescription = board.getAiDescription();
+    public void updateAutofillColumn(AiGeneratedColumnDto aiGeneratedColumnDto) {
+        this.categoryName = aiGeneratedColumnDto.getCategory();
+        this.color = aiGeneratedColumnDto.getColor();
+        this.aiDescription = aiGeneratedColumnDto.getDescription();
     }
 }

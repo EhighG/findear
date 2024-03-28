@@ -1,5 +1,6 @@
 package com.findear.main.board.command.service;
 
+import com.findear.main.board.command.dto.ModelServerResponseDto;
 import com.findear.main.board.command.dto.NotFilledBoardDto;
 import com.findear.main.board.command.dto.PostAcquiredBoardReqDto;
 import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
@@ -11,11 +12,15 @@ import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.service.MemberQueryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -26,7 +31,7 @@ public class AcquiredBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
 
-    public static String MODEL_SERVER_URL = "";
+    public static String MODEL_SERVER_URL = "https://j10a706.p.ssafy.io/";
 
     public Long register(PostAcquiredBoardReqDto postAcquiredBoardReqDto) {
         Member manager = memberQueryService.internalFindById(postAcquiredBoardReqDto.getMemberId());
@@ -55,27 +60,34 @@ public class AcquiredBoardCommandService {
                 .build();
         AcquiredBoard savedAcquiredBoard = acquiredBoardCommandRepository.save(acquiredBoard);
 
-//        sendAutoFillRequest(savedAcquiredBoard);
+        // 비동기 처리됨
+        sendAutoFillRequest(savedAcquiredBoard)
+                .subscribe(
+                        response -> fillColumns(savedAcquiredBoard, response),
+                        error -> log.info("습득물 컬럼 자동 업데이트 실패. \nerror = " + error)
+                );
 
         return savedBoard.getId();
     }
 
-//    private AcquiredBoard sendAutoFillRequest(AcquiredBoard notFilledBoard) {
-//        WebClient client = WebClient.builder()
-//                .baseUrl(MODEL_SERVER_URL)
-//                .build();
-//
-//        NotFilledBoardDto notFilledBoardDto = NotFilledBoardDto.of(notFilledBoard);
-//
-//        AcquiredBoard filledBoard = client
-//                .post()
-//                .uri("/autofill")
-//                .bodyValue(notFilledBoardDto)
-//                .retrieve()
-//                .bodyToMono(AcquiredBoard.class)
-//                .block();
-//
-//        // updateAutoFilledColumn() 작성 중
-//        notFilledBoard.updateAutoFilledColumn(filledBoard.getBoard());
-//    }
+    private Mono<ModelServerResponseDto> sendAutoFillRequest(AcquiredBoard notFilledBoard) {
+        WebClient client = WebClient.builder()
+                .baseUrl(MODEL_SERVER_URL)
+                .build();
+
+        NotFilledBoardDto notFilledBoardDto = NotFilledBoardDto.of(notFilledBoard);
+
+        return client
+                .post()
+                .uri("/process")
+                .bodyValue(notFilledBoardDto)
+                .retrieve()
+                .bodyToMono(ModelServerResponseDto.class);
+    }
+
+    private void fillColumns(AcquiredBoard notFilledBoard, ModelServerResponseDto modelServerResponseDto) {
+        log.info("modelServerResponse = " + modelServerResponseDto);
+        notFilledBoard.updateAutoFilledColumn(modelServerResponseDto.getResult());
+        boardCommandRepository.save(notFilledBoard.getBoard());
+    }
 }

@@ -41,24 +41,23 @@ public class MemberCommandService {
     private final String NAVER_STATE = "test";
 
 
-//    /**
-//     * @param registerMemberDto - phoneNumber, password
-//     * @return phoneNumber
-//     * @throws IllegalArgumentException - phoneNumber 중복
-//     */
-//    public String register(RegisterMemberDto registerMemberDto) {
-//        if (memberQueryService.checkDuplicate(registerMemberDto.getPhoneNumber())) {
-//            throw new IllegalArgumentException("회원정보가 이미 있습니다.");
-//        }
-//        Member registerMember = Member.builder()
-//                .phoneNumber(registerMemberDto.getPhoneNumber())
-//                .password(passwordEncoder.encode(registerMemberDto.getPassword()))
-//                .role(Role.NORMAL)
-//                .build();
-//        Member savedMember = memberCommandRepository.save(registerMember);
-//
-//        return savedMember.getPhoneNumber();
-//    }
+    /**
+     * @param registerReqDto - phoneNumber, password
+     * @return phoneNumber
+     * @throws IllegalArgumentException - phoneNumber 중복
+     */
+    public String register(RegisterReqDto registerReqDto) {
+        if (memberQueryService.checkDuplicate(registerReqDto.getPhoneNumber())) {
+            throw new IllegalArgumentException("회원정보가 이미 있습니다.");
+        }
+        Member registerMember = Member.builder()
+                .phoneNumber(registerReqDto.getPhoneNumber())
+                .role(Role.NORMAL)
+                .build();
+        Member savedMember = memberCommandRepository.save(registerMember);
+
+        return savedMember.getPhoneNumber();
+    }
 
     public ModifyMemberResDto changeToManager(Long memberId, RegisterAgencyReqDto registerAgencyReqDto) {
         Member member = memberQueryService.internalFindById(memberId);
@@ -83,7 +82,7 @@ public class MemberCommandService {
 
         memberQueryService.validMemberNotDeleted(memberDto.toEntity()); // 향후, deleted면 회원 복구 로직으로 변경
 
-        verifyPassword(loginReqDto.getPassword(), memberDto);
+//        verifyPassword(loginReqDto.getPassword(), memberDto);
 
         LoginResDto loginResDto = new LoginResDto();
         loginResDto.setMemberAndAgency(memberDto);

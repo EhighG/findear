@@ -22,6 +22,8 @@ public class RegisterReqDto {
         this.role = Role.NORMAL;
     }
 
+
+
     public Member toEntity() {
         return Member.builder()
                 .naverUid(naverUid)

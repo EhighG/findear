@@ -22,12 +22,12 @@ public class MemberCommandController {
         this.memberCommandService = memberCommandService;
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> register(@RequestBody RegisterMemberDto registerMemberDto) {
-//        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
-//                "가입되었습니다.",
-//                memberCommandService.register(registerMemberDto)));
-//    }
+    @PostMapping
+    public ResponseEntity<?> register(@RequestBody RegisterReqDto registerReqDto) {
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
+                "가입되었습니다.",
+                memberCommandService.register(registerReqDto)));
+    }
 
     @PatchMapping("/{memberId}/role")
     public ResponseEntity<?> changeToManager(@PathVariable Long memberId,

@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
+
     public Long register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 

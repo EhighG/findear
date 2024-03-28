@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -23,6 +27,7 @@ public class AcquiredBoardQueryService {
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
     private final String BATCH_SERVER_URL = "http://j10a706.p.ssafy.io/batch/search";
     private final int PAGE_SIZE = 10;
+    private final String DEFAULT_SDATE_STRING = "2015-01-01";
 
     public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo) {
         List<AcquiredBoard> acquiredBoards = acquiredBoardQueryRepository.findAll();
@@ -37,7 +42,7 @@ public class AcquiredBoardQueryService {
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(
-                    acquired -> !acquired.getAcquiredAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(eDate).minusMonths(6))
+                    acquired -> !acquired.getAcquiredAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(DEFAULT_SDATE_STRING))
                             && !acquired.getAcquiredAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now())
             );
         }

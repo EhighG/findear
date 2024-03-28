@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 import time
 import re
+from . import matching
 
 # Create your views here.
 
@@ -40,27 +41,37 @@ def findear_matching(request):
             body = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({'error':'invalid json'}, status=400)
-        # print(body["acquiredBoardList"])
-        data = process_findear_item_data(body)
-        # print(data)
+        result = process_findear_item_data(body)
+        result = [{"lostBoardId" : body["lostBoard"]["lostBoardId"]}] + result
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    
-    return JsonResponse({ 'message':'success', 'result':data }, status = 200)
+    return JsonResponse({ 'message':'success', 'result':result }, status = 200)
 
 def process_findear_item_data(items_info):
-    # 받은 데이터를 이용하여 DataFrame 생성
-    df = pd.DataFrame([items_info["acquiredBoardList"]])
+    # 코드 실행 시작 시간 측정
+    start_time = time.time()
     
-    print(df)
-
+    lostBoard = items_info["lostBoard"]
+    acquiredBoardList = items_info["acquiredBoardList"]
+    
+    # # 받은 데이터를 이용하여 DataFrame 생성
+    # df = pd.DataFrame(items_info["acquiredBoardList"])
+    
     # 데이터 처리 수행
-    processed_data = analyze_findear_data(df)
+    processed_data = matching.findear_matching(lostBoard, acquiredBoardList)
+    # processed_data = analyze_findear_data(df)
     
-    # json.dumps(processed_data, cls=NumpyEncoder, ensure_ascii=False)
+    # 코드 실행 종료 시간 측정
+    end_time = time.time()
 
+    # 시작 시간과 종료 시간의 차이를 계산하여 실행 시간 출력
+    execution_time = end_time - start_time
+    print(f"실행 시간: {execution_time} 초")
+    
     return processed_data
 
+# 삭제 예정
 def analyze_findear_data(data):
     # 데이터 분석 수행
     data_list = [
@@ -111,8 +122,6 @@ def process_execute(product_name, image_url):
         api_key=os.environ.get("OPENAI_API_KEY"),
     )
     
-    # product_name = "스마트 워치"
-
     question_text = f"""
     분실물에 대한 여러 정보를 제공하려고 해.
     물품명은 '{product_name}'야.
@@ -127,8 +136,6 @@ def process_execute(product_name, image_url):
         "description" : ["키워드1", "키워드2", ... ]
     }}
     """
-
-    # image_url = "https://www.lost112.go.kr/lostnfs/images/uploadImg/thumbnail/20240320/r_20240320091324553.jpg"
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",

@@ -1,5 +1,6 @@
 package com.findear.main.board.command.controller;
 
+import com.findear.main.board.command.dto.MatchingFindearDatasToAiResDto;
 import com.findear.main.board.command.dto.PostLostBoardReqDto;
 import com.findear.main.board.command.service.LostBoardCommandService;
 import com.findear.main.common.response.SuccessResponse;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/losts")
@@ -25,7 +28,10 @@ public class LostBoardCommandController {
     public ResponseEntity<?> register(@AuthenticationPrincipal Long memberId,
             @RequestBody PostLostBoardReqDto postLostBoardReqDto) {
         postLostBoardReqDto.setMemberId(memberId);
+
+        List<MatchingFindearDatasToAiResDto> result = lostBoardCommandService.register(postLostBoardReqDto);
+
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.", lostBoardCommandService.register(postLostBoardReqDto)));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.", result));
     }
 }

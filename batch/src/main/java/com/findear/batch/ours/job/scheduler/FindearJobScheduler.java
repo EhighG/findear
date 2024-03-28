@@ -24,7 +24,7 @@ public class FindearJobScheduler {
     private final JobLauncher jobLauncher;
     private final FindearJobConfig findearJobConfig;
 
-    @Scheduled(cron = "* * 0/2 * * *")
+    @Scheduled(cron = "* * 4 * * *")
     public void jobSchduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 

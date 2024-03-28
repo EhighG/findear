@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,7 +23,7 @@ public class LostBoard {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    private String lostAt;
+    private LocalDate lostAt;
 
     private String suspiciousPlace;
 

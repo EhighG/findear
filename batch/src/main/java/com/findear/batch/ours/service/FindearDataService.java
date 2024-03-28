@@ -21,6 +21,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +61,7 @@ public class FindearDataService {
                 // 카테고리가 같고, 분실 일자 이후에 등록된 게시글 전송
                 List<AcquiredBoard> acquiredBoardList = acquiredBoardRepository
                         .findAllWithBoardByCategoryAndAfterLostAt(lostBoardMatchingDto.getCategoryName(),
-                                lostBoardMatchingDto.getLostAt());
+                                lostBoardMatchingDto.getLostAt().atStartOfDay());
 
                 // request dto 생성
                 MatchingFindearDatasToAiReqDto matchingFindearDatasToAiReqDto = MatchingFindearDatasToAiReqDto
@@ -105,17 +108,25 @@ public class FindearDataService {
 
         try {
 
+            Long id = 1L;
+
             log.info("분실물 매칭 service");
                 // request dto 생성
                 MatchingFindearDatasToAiReqDto matchingFindearDatasToAiReqDto = MatchingFindearDatasToAiReqDto
                         .builder().lostBoard(lostBoardMatchingDto).acquiredBoardList(new ArrayList<>()).build();
 
+            log.info("request dto 생성 완료");
+
+            LocalDateTime lostDate = lostBoardMatchingDto.getLostAt().atStartOfDay();
+            System.out.println(lostDate);
+
             // 카테고리가 같고, 분실 일자 이후에 등록된 게시글 전송
             List<AcquiredBoard> acquiredBoardList = acquiredBoardRepository
-                    .findAllWithBoardByCategoryAndAfterLostAt(lostBoardMatchingDto.getCategoryName(),
-                            lostBoardMatchingDto.getLostAt());
+                    .findAllWithBoardByCategoryAndAfterLostAt(lostBoardMatchingDto.getCategoryName(), lostDate);
 
+            log.info("카테고리가 같고, 분실 일자 이후에 등록된 게시글 전송");
             for(AcquiredBoard ab : acquiredBoardList) {
+
                 matchingFindearDatasToAiReqDto.getAcquiredBoardList()
                         .add(AcquiredBoardMatchingDto.builder()
                                 .productName(ab.getBoard().getProductName())
@@ -128,6 +139,7 @@ public class FindearDataService {
                                 .build());
             }
 
+            log.info("ai 서버로 요청");
             // ai 서버로 요청
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
@@ -141,10 +153,30 @@ public class FindearDataService {
             ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
 
             System.out.println("response : " + response.getBody());
+            System.out.println("body : " + response.getBody().get("result"));
 
-            return null;
+            List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
+
+            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
+
+            for(Map<String, Object> res : resultList) {
+
+                System.out.println("lostBoardId : " + res.get("lostBoardId"));
+                System.out.println("acquiredBoardId : " + res.get("acquiredBoardId"));
+                System.out.println("simulerityRate : " + res.get("simulerityRate"));
+
+                MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                        .lostBoardId(res.get("lostBoardId"))
+                        .acquiredBoardId(res.get("acquiredBoardId"))
+                        .simulerityRate(res.get("simulerityRate")).build();
+
+                result.add(matchingFindearDatasToAiResDto);
+            }
+
+            return result;
 
         } catch (Exception e) {
+
             throw new FindearException(e.getMessage());
         }
     }

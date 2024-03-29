@@ -113,16 +113,20 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     tmplst = []
 
-    for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
-        dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
-        # print(dist)
-        tmplst.append([dist])
+    if -90 < lostBoard['ypos'] < 90 and -180 < lostBoard['xpos'] < 180:  # 분실물 위경도 범위 확인
+        for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
+            if -90 < y < 90 and -180 < x < 180:  # 습득물 위경도 범위 확인
+                dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
+                # print(dist)
+                tmplst.append([dist])
+            else:
+                tmplst.append([1000])
 
-    minmaxScaler = MinMaxScaler().fit([[0],[20]])
-    X_train_minmax = minmaxScaler.transform(tmplst)
-    nplst = 1- np.array(X_train_minmax).squeeze()
-    # print(nplst)
-    score['place'] = nplst
+        minmaxScaler = MinMaxScaler().fit([[0],[20]])
+        X_train_minmax = minmaxScaler.transform(tmplst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
+        # print(nplst)
+        score['place'] = nplst
 
     # # matching by text
 

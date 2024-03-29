@@ -51,8 +51,6 @@ public class PoliceAcquiredDataService {
     @Value("${my.secret-key}")
     private String secretKey;
 
-//    private Long id = 1L;
-
     public void deleteDatas() {
 
         policeAcquiredDataRepository.deleteAll();

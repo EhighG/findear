@@ -29,10 +29,11 @@ public class AcquiredBoardQueryService {
 
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
     private final String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch/search";
-    private final int PAGE_SIZE = 10;
     private final String DEFAULT_SDATE_STRING = "2015-01-01";
+    private final RestTemplate restTemplate;
 
-    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo) {
+    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo,
+                                             int pageSize) {
         List<AcquiredBoard> acquiredBoards = acquiredBoardQueryRepository.findAll();
         Stream<AcquiredBoard> stream = acquiredBoards.stream();
 
@@ -60,10 +61,10 @@ public class AcquiredBoardQueryService {
                 .toList();
 
         // paging
-        int eIdx = PAGE_SIZE * pageNo;
-        int sIdx = eIdx - PAGE_SIZE;
+        int eIdx = pageSize * pageNo;
+        int sIdx = eIdx - pageSize;
         if (sIdx >= filtered.size()) return null;
-        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / PAGE_SIZE + 1);
+        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / pageSize + 1);
     }
 
     public AcquiredBoardDetailResDto findById(Long boardId) {
@@ -73,7 +74,8 @@ public class AcquiredBoardQueryService {
         return AcquiredBoardDetailResDto.of(acquiredBoard);
     }
 
-    public List<Lost112AcquiredBoardDto> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo) {
+    public List<Lost112AcquiredBoardDto> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo,
+                                                          int pageSize) {
         log.info("service 메소드 들어옴");
         if (sDate != null && eDate == null) {
             eDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -82,7 +84,7 @@ public class AcquiredBoardQueryService {
                     .format(DateTimeFormatter.ISO_LOCAL_DATE);
         }
         // request to batch server
-        RestTemplate restTemplate = new RestTemplate();
+//        RestTemplate restTemplate = new RestTemplate();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BATCH_SERVER_URL);
         if (category != null) {
@@ -96,12 +98,17 @@ public class AcquiredBoardQueryService {
             builder = builder.queryParam("keyword", keyword);
         }
         builder = builder.queryParam("page", pageNo)
-                .queryParam("size", PAGE_SIZE);
+                .queryParam("size", pageSize);
         log.info("조회 파라미터(쿼리스트링) 세팅 끝");
 
         BatchServerResponseDto responseDto = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
 
         return responseDto.getResult();
-
     }
+
+    public Integer getLost112TotalPageNum(int pageSize) {
+        Integer totalRowNum = (Integer) restTemplate.getForObject(BATCH_SERVER_URL + "/total", ResponseEntity.class).getBody();
+        return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
+    }
+
 }

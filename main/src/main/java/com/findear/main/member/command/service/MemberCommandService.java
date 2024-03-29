@@ -42,6 +42,7 @@ public class MemberCommandService {
 
 
     /**
+     * @param registerReqDto - phoneNumber, password
      * @return phoneNumber
      * @throws IllegalArgumentException - phoneNumber 중복
      */

@@ -5,8 +5,6 @@ import numpy as np
 import fasttext
 from sklearn.preprocessing import MinMaxScaler
 import haversine.haversine as hv
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from kiwipiepy import Kiwi
 import re
 from dotenv import load_dotenv

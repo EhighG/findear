@@ -40,6 +40,7 @@ def analyze_lost_data(data):
     # 데이터 분석 수행
     return data
 
+# findear 매칭 요청 처리 함수
 def findear_matching(request):
     logger.warning(json.loads(request.body))
     if request.method == 'POST':
@@ -57,6 +58,7 @@ def findear_matching(request):
    
     return JsonResponse({ 'message':'해당 분실물과 findear 데이터와의 매칭이 완료되었습니다', 'result':result }, status = 200)
 
+# findear 매칭 실행 함수
 def process_findear_item_data(items_info):
     # 코드 실행 시작 시간 측정
     start_time = time.time()
@@ -64,12 +66,8 @@ def process_findear_item_data(items_info):
     lostBoard = items_info["lostBoard"]
     acquiredBoardList = items_info.get("acquiredBoardList")
     
-    # # 받은 데이터를 이용하여 DataFrame 생성
-    # df = pd.DataFrame(items_info["acquiredBoardList"])
-    
     # 데이터 처리 수행
     processed_data = matching.findear_matching(lostBoard, acquiredBoardList)
-    # processed_data = analyze_findear_data(df)
     
     # 코드 실행 종료 시간 측정
     end_time = time.time()
@@ -79,28 +77,6 @@ def process_findear_item_data(items_info):
     print(f"실행 시간: {execution_time} 초")
     
     return processed_data
-
-# 삭제 예정
-def analyze_findear_data(data):
-    # 데이터 분석 수행
-    data_list = [
-		{
-			"lostBoardId" : 1,
-			"acquiredBoardId" : 1,
-			"simulerityRate" : 0.9
-		},
-		{
-			"lostBoardId" : 1,
-			"acquiredBoardId" : 2,
-			"simulerityRate" : 0.8
-		},
-		{
-			"lostBoardId" : 1,
-			"acquiredBoardId" : 5,
-			"simulerityRate" : 0.9
-		}
-	]
-    return data_list
 
 # 게시글 이미지 정보 추출
 def image_process(request):

@@ -106,15 +106,16 @@ def image_process(request):
             body = json.loads(request.body)
         except json.JSONDecodeError:  # body 데이터가 json이 아닐 경우
             return JsonResponse({'error':'invalid json'}, status=400)
-        if body.get("productName") and body.get("imgUrls"):  
+        if body.get("productName") and body.get("imgUrl"):  
             product_name = body["productName"]
-            image_url = body["imgUrls"][0]
+            image_url = body["imgUrl"]
             result = process_execute(product_name, image_url)
         else:  # 적절한 body 데이터가 아닐 경우
             return JsonResponse({'error': 'Incorrect request body'}, status=400)
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
-            
+    if not result:  
+        return JsonResponse({'message':'GPT api failed'}, status = 404)
     return JsonResponse({ 'message':'success', 'result':result }, status = 200)
     
 
@@ -142,28 +143,32 @@ def process_execute(product_name, image_url):
         "description" : ["키워드1", "키워드2", ... ]
     }}
     """
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant designed to output JSON. Give only JSON"},
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": question_text},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": image_url,
-                            "detail": "low"
-                        }
-                    },
-                ],
-            }
-        ],
-        max_tokens=300,
-    )
-
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant designed to output JSON. Give only JSON"},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": question_text},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": image_url,
+                                "detail": "low"
+                            }
+                        },
+                    ],
+                }
+            ],
+            max_tokens=300,
+        )
+    except Exception as e:  # 모델에서 에러 날 경우 예외처리
+        error_message = f"GPT 모델에 요청 중 오류: {str(e)}"
+        result = False
+        print(error_message)
+        return result
     # gpt 답변 중 내용만 추출
     gpt_content = response.choices[0].message.content
     # usage_token = response['usage']['total_tokens']
@@ -173,6 +178,7 @@ def process_execute(product_name, image_url):
     match = re.search(r'{(.+)}', gpt_content, re.DOTALL)
     result_data = json.loads(match.group(0))
     print(result_data)
+    print(type(result_data))
 
     # 코드 실행 종료 시간 측정
     end_time = time.time()

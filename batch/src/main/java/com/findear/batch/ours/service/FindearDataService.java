@@ -112,17 +112,12 @@ public class FindearDataService {
 
         try {
 
-            System.out.println("분실물 데이터:");
-            System.out.println("xpos : " + lostBoardMatchingDto.getXPos());
-            System.out.println("ypos : " + lostBoardMatchingDto.getYPos());
-
             log.info("분실물 매칭 service");
             // request dto 생성
             MatchingFindearDatasToAiReqDto matchingFindearDatasToAiReqDto = MatchingFindearDatasToAiReqDto
                     .builder().lostBoard(lostBoardMatchingDto).acquiredBoardList(new ArrayList<>()).build();
 
             log.info("request dto 생성 완료");
-//            LocalDateTime lostDate = lostBoardMatchingDto.getLostAt().atStartOfDay();
 
             LocalDate dateTime = LocalDate.parse(lostBoardMatchingDto.getLostAt(), DateTimeFormatter.ISO_DATE);
 
@@ -133,19 +128,9 @@ public class FindearDataService {
             log.info("카테고리가 같고, 분실 일자 이후에 등록된 게시글 전송");
             for(AcquiredBoard ab : acquiredBoardList) {
 
-                System.out.println("습득물 데이터 : ");
-                System.out.println(ab.getBoard().getId());
-                System.out.println(ab.getBoard().getColor());
-                System.out.println(ab.getBoard().getProductName());
-                System.out.println(ab.getBoard().getCategoryName());
-                System.out.println(ab.getBoard().getAiDescription());
-                System.out.println(ab.getBoard().getRegisteredAt());
-                System.out.println(ab.getXPos());
-                System.out.println(ab.getYPos());
-
                 matchingFindearDatasToAiReqDto.getAcquiredBoardList()
                         .add(AcquiredBoardMatchingDto.builder()
-                                .acquiredBoardId(ab.getId().toString())
+                                .acquiredBoardId(ab.getBoard().getId().toString())
                                 .productName(ab.getBoard().getProductName())
                                 .color(ab.getBoard().getColor())
                                 .categoryName(ab.getBoard().getCategoryName())
@@ -156,43 +141,18 @@ public class FindearDataService {
                                 .build());
             }
 
-            Map<String, Object> requestMap = new HashMap<>();
-            requestMap.put("lostBoard", matchingFindearDatasToAiReqDto.getLostBoard());
-            requestMap.put("acquiredBoardList", matchingFindearDatasToAiReqDto.getAcquiredBoardList());
-
-
-//            // RestTemplate 객체 생성
-//            RestTemplate restTemplate = new RestTemplate();
-//
-//// HTTP 요청 설정: DTO 객체를 직렬화하여 요청을 보냄
-//            ResponseEntity<String> response = restTemplate.postForEntity(
-//                    "https://j10a706.p.ssafy.io/match/matching/findear",
-//                    requestMap,
-//                    String.class);
-//
-//            log.info("url 요청");
-//
-//// HTTP POST 요청에 대한 응답 확인
-//            System.out.println("status : " + response.getStatusCode());
-//            System.out.println("body : " + response.getBody());
-
-
             log.info("ai 서버로 요청");
             // ai 서버로 요청
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-            HttpEntity<?> requestEntity = new HttpEntity<>(requestMap, headers);
+            HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasToAiReqDto, headers);
 
-            System.out.println("요청 데이터 : " + requestEntity.getBody());
             String serverURL = "https://j10a706.p.ssafy.io/match/matching/findear";
 
-            System.out.println("url 요청 성공");
             RestTemplate restTemplate = new RestTemplate();
 
             ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
-
-            System.out.println("body : " + response.getBody().get("result"));
 
             List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
 
@@ -200,20 +160,15 @@ public class FindearDataService {
 
             for(Map<String, Object> res : resultList) {
 
-                System.out.println("lostBoardId : " + res.get("lostBoardId"));
-                System.out.println("acquiredBoardId : " + res.get("acquiredBoardId"));
-                System.out.println("simulerityRate : " + res.get("simulerityRate"));
-
                 MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
                         .lostBoardId(res.get("lostBoardId"))
                         .acquiredBoardId(res.get("acquiredBoardId"))
-                        .simulerityRate(res.get("simulerityRate")).build();
+                        .similarityRate(res.get("similarityRate")).build();
 
                 result.add(matchingFindearDatasToAiResDto);
             }
 
             return result;
-//            return null;
 
         } catch (Exception e) {
 

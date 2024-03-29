@@ -44,7 +44,11 @@ def findear_matching(request):
             body = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({'error':'invalid json'}, status=400)
-        result = process_findear_item_data(body)
+        acquiredBoardList = body.get("acquiredBoardList")
+        if acquiredBoardList:
+            result = process_findear_item_data(body)
+        else:  # 습득물 리스트가 없을 경우
+            return JsonResponse({'message':'해당 분실물과 매칭 가능한 findear 데이터가 없습니다.'}, status = 200)
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    
@@ -55,7 +59,7 @@ def process_findear_item_data(items_info):
     start_time = time.time()
     
     lostBoard = items_info["lostBoard"]
-    acquiredBoardList = items_info["acquiredBoardList"]
+    acquiredBoardList = items_info.get("acquiredBoardList")
     
     # # 받은 데이터를 이용하여 DataFrame 생성
     # df = pd.DataFrame(items_info["acquiredBoardList"])

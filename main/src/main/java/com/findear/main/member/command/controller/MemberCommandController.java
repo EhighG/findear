@@ -43,7 +43,7 @@ public class MemberCommandController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(new SuccessResponse(HttpStatus.OK.value(),
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
                 "로그인에 성공하였습니다.",
                 memberCommandService.localLogin(loginReqDto)));
     }
@@ -65,6 +65,7 @@ public class MemberCommandController {
 //        // code가 잘 왔다면
 //        return ResponseEntity
 //                .ok().body(code);
+        response.setHeader("Cache-Control", "no-store");
         response.sendRedirect("https://j10a706.p.ssafy.io/members/login?code=" + code);
     }
 

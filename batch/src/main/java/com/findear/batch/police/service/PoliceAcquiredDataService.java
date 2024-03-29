@@ -76,24 +76,23 @@ public class PoliceAcquiredDataService {
             }
 
             // startDate와 endDate가 제공되었을 경우
-            if (startDate != null && !startDate.isEmpty()) {
+            if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date startD = dateFormat.parse(startDate);
+                Date endD = dateFormat.parse(endDate);
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(startD.getTime()).lte(endD.getTime()));
+            } else if (startDate != null && !startDate.isEmpty()) {
+                // startDate만 제공되는 경우
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date startD = dateFormat.parse(startDate);
                 boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(startD.getTime()));
-            } else {
-                // startDate가 없는 경우 기본값으로 2015-01-01을 설정
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                Date startD = dateFormat.parse("2015-01-01");
-                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(startD.getTime()));
-            }
-
-            // endDate가 제공되었을 경우
-            if (endDate != null && !endDate.isEmpty()) {
+            } else if (endDate != null && !endDate.isEmpty()) {
+                // endDate만 제공되는 경우
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date endD = dateFormat.parse(endDate);
                 boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").lte(endD.getTime()));
             } else {
-                // endDate가 없는 경우 현재 날짜를 기본값으로 사용
+                // startDate와 endDate가 모두 없는 경우 기본값으로 현재 날짜를 사용
                 Date endD = new Date();
                 boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").lte(endD.getTime()));
             }
@@ -105,6 +104,7 @@ public class PoliceAcquiredDataService {
 
             searchSourceBuilder.query(boolQueryBuilder);
             searchSourceBuilder.size(pageSize);
+            searchSourceBuilder.from((page - 1) * size); // 페이지 번호와 사이즈에 따라 검색 시작 위치 설정
             searchSourceBuilder.fetchSource(new String[]{"id", "atcId", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "prdtClNm", "mainPrdtClNm", "subPrdtClNm"}, null);
 
             searchRequest.source(searchSourceBuilder);
@@ -114,7 +114,9 @@ public class PoliceAcquiredDataService {
                 allDatas.add(convertToPoliceData(hit));
             }
 
-            return allDatas;
+            // 페이지네이션된 결과를 반환
+            return allDatas.subList(0, Math.min(size, allDatas.size())); // 리스트를 size만큼 자르기
+
         } catch (Exception e) {
             throw new PoliceException(e.getMessage());
         }

@@ -12,7 +12,8 @@ import re
 from dotenv import load_dotenv
 import os
 import time
-
+import logging
+logger = logging.getLogger(__name__)
 # 코드 실행 시작 시간 측정
 start_time = time.time()
 
@@ -56,6 +57,8 @@ def findear_matching(lostBoard, acquiredBoardList):
     df['xPos'] = df['xPos'].astype(float)
     df['yPos'] = df['yPos'].astype(float)
 
+    logger.warning(df)
+    logger.warning(lostBoard)
     # # make whole count table
     score = pd.DataFrame()
     score['id'] = df['acquiredBoardId']

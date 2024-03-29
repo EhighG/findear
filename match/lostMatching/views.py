@@ -9,7 +9,9 @@ import os
 import time
 import re
 from . import matching
+import logging
 
+logger = logging.getLogger(__name__)
 # Create your views here.
 
 def health(request):
@@ -39,9 +41,10 @@ def analyze_lost_data(data):
     return data
 
 def findear_matching(request):
+    logger.warning(json.loads(request.body))
     if request.method == 'POST':
         try:
-            body = json.loads(request.body)
+            body = json.loads(request.body.decode('uft-8'))
         except json.JSONDecodeError:
             return JsonResponse({'error':'invalid json'}, status=400)
         acquiredBoardList = body.get("acquiredBoardList")

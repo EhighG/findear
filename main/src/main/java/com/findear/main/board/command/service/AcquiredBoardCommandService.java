@@ -31,7 +31,7 @@ public class AcquiredBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
 
-    public static String MODEL_SERVER_URL = "https://j10a706.p.ssafy.io/";
+    public static String MATCH_SERVER_URL = "https://j10a706.p.ssafy.io/match";
 
     public Long register(PostAcquiredBoardReqDto postAcquiredBoardReqDto) {
         Member manager = memberQueryService.internalFindById(postAcquiredBoardReqDto.getMemberId());
@@ -72,17 +72,19 @@ public class AcquiredBoardCommandService {
 
     private Mono<ModelServerResponseDto> sendAutoFillRequest(AcquiredBoard notFilledBoard) {
         WebClient client = WebClient.builder()
-                .baseUrl(MODEL_SERVER_URL)
+                .baseUrl(MATCH_SERVER_URL)
                 .build();
 
         NotFilledBoardDto notFilledBoardDto = NotFilledBoardDto.of(notFilledBoard);
 
-        return client
+        WebClient.RequestHeadersSpec<?> requestHeadersSpec = client
                 .post()
                 .uri("/process")
-                .bodyValue(notFilledBoardDto)
+                .bodyValue(notFilledBoardDto);
+        Mono<ModelServerResponseDto> autofillReqMono = requestHeadersSpec
                 .retrieve()
                 .bodyToMono(ModelServerResponseDto.class);
+        return autofillReqMono;
     }
 
     private void fillColumns(AcquiredBoard notFilledBoard, ModelServerResponseDto modelServerResponseDto) {

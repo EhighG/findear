@@ -74,6 +74,12 @@ public class Board {
     public void updateAutofillColumn(AiGeneratedColumnDto aiGeneratedColumnDto) {
         this.categoryName = aiGeneratedColumnDto.getCategory();
         this.color = aiGeneratedColumnDto.getColor();
-        this.aiDescription = aiGeneratedColumnDto.getDescription();
+//        this.aiDescription = aiGeneratedColumnDto.getDescription();
+        StringBuilder aiDescStr = new StringBuilder();
+        List<String> generatedKeywords = aiGeneratedColumnDto.getDescription();
+        for (String keyword : generatedKeywords) {
+            aiDescStr.append(keyword).append(" ");
+        }
+        this.aiDescription = aiDescStr.substring(0, aiDescStr.length() - 1);
     }
 }

@@ -44,7 +44,7 @@ def findear_matching(request):
     logger.warning(json.loads(request.body))
     if request.method == 'POST':
         try:
-            body = json.loads(request.body.decode('uft-8'))
+            body = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError:
             return JsonResponse({'error':'invalid json'}, status=400)
         acquiredBoardList = body.get("acquiredBoardList")

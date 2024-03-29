@@ -50,12 +50,12 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     # 데이터 타입 변환
     lostBoard['lostBoardId'] = int(lostBoard['lostBoardId'])
-    lostBoard["xPos"] = float(lostBoard["xPos"])
-    lostBoard["yPos"] = float(lostBoard["yPos"])
+    lostBoard["xpos"] = float(lostBoard["xpos"])
+    lostBoard["ypos"] = float(lostBoard["ypos"])
     
     df['acquiredBoardId'] = df['acquiredBoardId'].astype(int)
-    df['xPos'] = df['xPos'].astype(float)
-    df['yPos'] = df['yPos'].astype(float)
+    df['xpos'] = df['xpos'].astype(float)
+    df['ypos'] = df['ypos'].astype(float)
 
     logger.warning(df)
     logger.warning(lostBoard)
@@ -113,8 +113,8 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     tmplst = []
 
-    for x,y in zip(tmpdf['xPos'], tmpdf['yPos']):
-        dist = hv((y,x), ( lostBoard['yPos'],lostBoard['xPos']), unit='km')
+    for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
+        dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
         # print(dist)
         tmplst.append([dist])
 

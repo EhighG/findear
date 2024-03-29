@@ -46,6 +46,15 @@ color_list = colors.keys()
 def findear_matching(lostBoard, acquiredBoardList):
     
     df = pd.DataFrame(acquiredBoardList)
+    
+    # 데이터 타입 변환
+    lostBoard['lostBoardId'] = int(lostBoard['lostBoardId'])
+    lostBoard["xPos"] = float(lostBoard["xPos"])
+    lostBoard["yPos"] = float(lostBoard["yPos"])
+    
+    df['acquiredBoardId'] = df['acquiredBoardId'].astype(int)
+    df['xPos'] = df['xPos'].astype(float)
+    df['yPos'] = df['yPos'].astype(float)
 
     # # make whole count table
     score = pd.DataFrame()

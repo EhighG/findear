@@ -6,6 +6,7 @@ import com.findear.main.member.command.service.MemberCommandService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,7 +43,7 @@ public class MemberCommandController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReqDto loginReqDto) {
-        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(),
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(new SuccessResponse(HttpStatus.OK.value(),
                 "로그인에 성공하였습니다.",
                 memberCommandService.localLogin(loginReqDto)));
     }

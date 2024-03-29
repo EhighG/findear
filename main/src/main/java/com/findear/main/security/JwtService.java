@@ -71,7 +71,6 @@ public class JwtService {
                 .setClaims(new HashMap<>())
                 .setSubject(memberId.toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-//                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_DURATION_SEC)) // 1시간
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_DURATION_SEC)) // 1시간
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }

@@ -11,6 +11,6 @@ public class MatchingFindearDatasToAiResDto {
 
     private Object acquiredBoardId;
 
-    private Object simulerityRate;
+    private Object similarityRate;
 
 }

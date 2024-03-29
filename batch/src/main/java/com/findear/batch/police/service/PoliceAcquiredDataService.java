@@ -524,4 +524,8 @@ public class PoliceAcquiredDataService {
         }
     }
 
+    public long getTotalCount() {
+
+        return policeAcquiredDataRepository.count();
+    }
 }

@@ -257,7 +257,7 @@ public class PoliceAcquiredDataService {
             deleteDatas();
             log.info("데이터 삭제 성공");
 
-            String startDate = "20200101";
+            String startDate = "20240301";
             LocalDateTime today = LocalDateTime.now();
             String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             log.info(todaysDate + "까지 데이터 저장");

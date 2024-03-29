@@ -23,7 +23,7 @@ public class FindearDataController {
 
     private final FindearDataService findearDataService;
 
-    @PostMapping("/matching")
+    @PostMapping(value = "/matching")
     public ResponseEntity<?> matchingFindearDatas(@RequestBody LostBoardMatchingDto lostBoardMatchingDto) {
 
         HttpHeaders headers = new HttpHeaders();

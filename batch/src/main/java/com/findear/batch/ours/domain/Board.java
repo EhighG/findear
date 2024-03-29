@@ -38,7 +38,7 @@ public class Board {
     private String productName;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String aiDescription;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

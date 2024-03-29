@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class AcquiredBoardMatchingDto {
 
+    private String acquiredBoardId;
+
     private String productName;
 
     private String color;
@@ -17,9 +19,24 @@ public class AcquiredBoardMatchingDto {
 
     private String description;
 
-    private Float xPos;
+    private String xPos;
 
-    private Float yPos;
+    private String yPos;
 
-    private LocalDateTime registeredAt;
+    private String registeredAt;
+//    private Long acquiredBoardId;
+//
+//    private String productName;
+//
+//    private String color;
+//
+//    private String categoryName;
+//
+//    private String description;
+//
+//    private Float xPos;
+//
+//    private Float yPos;
+//
+//    private LocalDateTime registeredAt;
 }

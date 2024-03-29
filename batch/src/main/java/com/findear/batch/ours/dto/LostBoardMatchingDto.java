@@ -10,7 +10,23 @@ import java.time.LocalDateTime;
 @Data
 public class LostBoardMatchingDto {
 
-    private Long boardId;
+//    private Long lostBoardId;
+//
+//    private String productName;
+//
+//    private String color;
+//
+//    private String categoryName;
+//
+//    private String description;
+//
+//    private LocalDate lostAt;
+//
+//    private Float xPos;
+//
+//    private Float yPos;
+
+    private String lostBoardId;
 
     private String productName;
 
@@ -20,10 +36,10 @@ public class LostBoardMatchingDto {
 
     private String description;
 
-    private LocalDate lostAt;
+    private String lostAt;
 
-    private Float xPos;
+    private String xPos;
 
-    private Float yPos;
+    private String yPos;
 
 }

@@ -57,7 +57,7 @@ public class MemberCommandController {
         }
         // code가 잘 왔다면
         return ResponseEntity
-                .ok().build();
+                .ok().body(code);
     }
 
     @GetMapping("/after-login")

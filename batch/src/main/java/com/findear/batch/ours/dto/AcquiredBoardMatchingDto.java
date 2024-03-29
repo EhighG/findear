@@ -24,19 +24,5 @@ public class AcquiredBoardMatchingDto {
     private String yPos;
 
     private String registeredAt;
-//    private Long acquiredBoardId;
-//
-//    private String productName;
-//
-//    private String color;
-//
-//    private String categoryName;
-//
-//    private String description;
-//
-//    private Float xPos;
-//
-//    private Float yPos;
-//
-//    private LocalDateTime registeredAt;
+
 }

@@ -141,6 +141,8 @@ public class FindearDataService {
                                 .build());
             }
 
+            log.info("들어온 데이터 : " + matchingFindearDatasToAiReqDto.toString());
+
             log.info("ai 서버로 요청");
             // ai 서버로 요청
             HttpHeaders headers = new HttpHeaders();

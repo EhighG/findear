@@ -13,7 +13,7 @@ import java.util.List;
 public class NotFilledBoardDto {
     private String productName;
 //    private List<String> imgUrls;
-    private String imgUrls;
+    private String imgUrl;
 
     public static NotFilledBoardDto of(AcquiredBoard acquiredBoard) {
         Board board = acquiredBoard.getBoard();

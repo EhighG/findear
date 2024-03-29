@@ -37,8 +37,11 @@ colors = {
     '퍼플': '800080',
     '보라색': 'FF1493',
     '그레이': '808080',
-    '기타': ''
+    # '기타': ''
 }
+
+print(colors.keys())
+color_list = colors.keys()
 
 def findear_matching(lostBoard, acquiredBoardList):
     
@@ -51,6 +54,7 @@ def findear_matching(lostBoard, acquiredBoardList):
     score['color'] = 0
     score['place'] = 0
     score['desc'] = 0
+    print(score)
 
     # # matching by name
     lostName = lostBoard['productName'].replace(' ','')
@@ -67,25 +71,29 @@ def findear_matching(lostBoard, acquiredBoardList):
     # # matchin by color
 
 
-    lostcolor = colors[lostBoard['color']]
-    lostRed = int(lostcolor[:2], base=16)
-    lostGreen = int(lostcolor[2:4], base=16)
-    lostBlue = int(lostcolor[4:], base=16)
+    if lostBoard['color'] in color_list: # 분실물 색상이 기타 혹은 다른 것이면 점수에 반영 안하도록
+        lostcolor = colors[lostBoard['color']]
+        lostRed = int(lostcolor[:2], base=16)
+        lostGreen = int(lostcolor[2:4], base=16)
+        lostBlue = int(lostcolor[4:], base=16)
 
-    tmplst = []
-    for i in df['color']:
-        color = colors[i]
-        red = int(color[:2], base=16)
-        green = int(color[2:4], base=16)
-        blue = int(color[4:], base=16)
-        tmp = np.sqrt(0.3 * ((lostRed - red) ** 2) + 0.59 * ((lostGreen - green) ** 2) + 0.11 * ((lostBlue - blue) ** 2))
-        tmplst.append([tmp])
+        tmplst = []
+        for i in df['color']:
+            if i in color_list:
+                color = colors[i]
+                red = int(color[:2], base=16)
+                green = int(color[2:4], base=16)
+                blue = int(color[4:], base=16)
+                tmp = np.sqrt(0.3 * ((lostRed - red) ** 2) + 0.59 * ((lostGreen - green) ** 2) + 0.11 * ((lostBlue - blue) ** 2))
+                tmplst.append([tmp])
+            else:  # 습득물 색상이 기타 혹은 다른 것이라면
+                tmplst.append([255])
 
-    minmaxScaler = MinMaxScaler().fit([[0],[255]])
-    X_train_minmax = minmaxScaler.transform(tmplst)
-    nplst = 1- np.array(X_train_minmax).squeeze()
+        minmaxScaler = MinMaxScaler().fit([[0],[255]])
+        X_train_minmax = minmaxScaler.transform(tmplst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
 
-    score['color'] = nplst
+        score['color'] = nplst
 
     # # matching by place
     tmpdf = df.copy()

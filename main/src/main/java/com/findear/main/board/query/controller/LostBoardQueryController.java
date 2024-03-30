@@ -31,7 +31,7 @@ public class LostBoardQueryController {
     private final LostBoardQueryService lostBoardQueryService;
 
     @GetMapping
-    public ResponseEntity<?> findLosts(@RequestParam(required=false) String category,
+    public ResponseEntity<?> findLosts(@RequestParam(required = false) String category,
                                        @RequestParam(required = false) Long memberId,
                                        @RequestParam(required = false) String sDate,
                                        @RequestParam(required = false) String eDate,

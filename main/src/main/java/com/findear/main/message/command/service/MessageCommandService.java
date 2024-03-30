@@ -58,7 +58,8 @@ public class MessageCommandService {
                     .title(sendMessageReqDto.getTitle())
                     .senderId(sendMessageReqDto.getMemberId())
                     .content(sendMessageReqDto.getContent())
-                    .sendAt(LocalDateTime.now()).build();
+                    .sendAt(LocalDateTime.now())
+                    .build();
 
             messageCommandRepository.save(newMessage);
 

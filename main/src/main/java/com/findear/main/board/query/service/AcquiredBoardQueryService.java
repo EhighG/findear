@@ -110,5 +110,4 @@ public class AcquiredBoardQueryService {
         Integer totalRowNum = (Integer) restTemplate.getForObject(BATCH_SERVER_URL + "/total", ResponseEntity.class).getBody();
         return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
     }
-
 }

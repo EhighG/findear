@@ -1,6 +1,7 @@
 package com.findear.main.board.command.service;
 
 import com.findear.main.board.command.dto.ModelServerResponseDto;
+import com.findear.main.board.command.dto.ModifyAcquiredBoardReqDto;
 import com.findear.main.board.command.dto.NotFilledBoardDto;
 import com.findear.main.board.command.dto.PostAcquiredBoardReqDto;
 import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
@@ -68,6 +69,15 @@ public class AcquiredBoardCommandService {
                 );
 
         return savedBoard.getId();
+    }
+
+    /**
+     *
+     * @param modifyReqDto
+     * @return boardId
+     */
+    public Long modify(ModifyAcquiredBoardReqDto modifyReqDto) {
+        return null;
     }
 
     private Mono<ModelServerResponseDto> sendAutoFillRequest(AcquiredBoard notFilledBoard) {

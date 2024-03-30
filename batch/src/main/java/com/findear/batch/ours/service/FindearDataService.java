@@ -154,9 +154,12 @@ public class FindearDataService {
 
             RestTemplate restTemplate = new RestTemplate();
 
+            log.info("요청된 데이터 : " + requestEntity.getBody());
             ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
 
             List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
+
+            log.info("매칭 결과 : " + response.getBody());
 
             List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 

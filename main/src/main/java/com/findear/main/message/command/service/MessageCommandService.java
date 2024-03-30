@@ -5,6 +5,7 @@ import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.repository.MemberQueryRepository;
+import com.findear.main.message.command.dto.ReplyMessageReqDto;
 import com.findear.main.message.command.dto.SendMessageReqDto;
 import com.findear.main.message.command.repository.MessageCommandRepository;
 import com.findear.main.message.command.repository.MessageRoomCommandRepository;
@@ -58,13 +59,36 @@ public class MessageCommandService {
                     .title(sendMessageReqDto.getTitle())
                     .senderId(sendMessageReqDto.getMemberId())
                     .content(sendMessageReqDto.getContent())
-                    .sendAt(LocalDateTime.now()).build();
+                    .sendAt(LocalDateTime.now())
+                    .build();
 
             messageCommandRepository.save(newMessage);
 
         }
         catch (Exception e) {
 
+            throw new MessageException(e.getMessage());
+        }
+    }
+
+    public void replyMessage(ReplyMessageReqDto replyMessageReqDto) {
+
+        try {
+
+            MessageRoom findMessageRoom = messageRoomQueryRepository.findById(replyMessageReqDto.getMessageRoomId())
+                    .orElseThrow(() -> new MessageException("해당 쪽지방이 없습니다."));
+
+            Message newMessage = Message.builder()
+                    .messageRoom(findMessageRoom)
+                    .title(replyMessageReqDto.getTitle())
+                    .senderId(replyMessageReqDto.getMemberId())
+                    .content(replyMessageReqDto.getContent())
+                    .sendAt(LocalDateTime.now())
+                    .build();
+
+            messageCommandRepository.save(newMessage);
+
+        } catch (Exception e) {
             throw new MessageException(e.getMessage());
         }
     }

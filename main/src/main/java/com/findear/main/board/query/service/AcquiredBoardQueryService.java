@@ -103,6 +103,8 @@ public class AcquiredBoardQueryService {
 
         BatchServerResponseDto responseDto = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
 
+        log.info("조회 결과 : " + responseDto);
+
         return responseDto.getResult();
     }
 

@@ -18,7 +18,6 @@ public class BoardDto {
     private Long id;
 
     private Boolean isLost;
-    private String aiDescription;
 
     private MemberDto member;
 
@@ -62,7 +61,7 @@ public class BoardDto {
                 .thumbnailUrl(thumbnailUrl)
                 .categoryName(categoryName)
                 .isLost(isLost)
-                .aiDescription(aiDescription)
+                .aiDescription(description)
                 .build();
     }
 
@@ -76,7 +75,7 @@ public class BoardDto {
                 .thumbnailUrl(board.getThumbnailUrl())
                 .categoryName(board.getCategoryName())
                 .isLost(board.getIsLost())
-                .aiDescription(board.getAiDescription())
+                .description(board.getAiDescription())
                 .build();
     }
 }

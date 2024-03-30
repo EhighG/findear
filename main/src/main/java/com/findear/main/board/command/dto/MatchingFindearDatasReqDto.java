@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class MatchingFindearDatasReqDto {
 
-    private Long boardId;
+    private Long lostBoardId;
 
     private String productName;
 
@@ -15,7 +15,7 @@ public class MatchingFindearDatasReqDto {
 
     private String categoryName;
 
-    private String aiDescription;
+    private String description;
 
     private String lostAt;
 

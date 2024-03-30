@@ -73,11 +73,11 @@ public class LostBoardCommandService {
         LostBoard saveResult = lostBoardCommandRepository.save(lostBoardDto.toEntity());
 
         MatchingFindearDatasReqDto matchingFindearDatasReqDto = MatchingFindearDatasReqDto.builder()
-                .boardId(saveResult.getBoard().getId())
+                .lostBoardId(saveResult.getBoard().getId())
                 .productName(saveResult.getBoard().getProductName())
                 .color(saveResult.getBoard().getColor())
                 .categoryName(saveResult.getBoard().getCategoryName())
-                .aiDescription(saveResult.getBoard().getAiDescription())
+                .description(saveResult.getBoard().getAiDescription())
                 .lostAt(saveResult.getLostAt().toString())
                 .xPos(saveResult.getXPos())
                 .yPos(saveResult.getYPos())
@@ -100,22 +100,21 @@ public class LostBoardCommandService {
 
         List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
 
+        log.info("매칭 결과 : " + resultList);
+
         List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 
         for(Map<String, Object> res : resultList) {
 
-            System.out.println("lostBoardId : " + res.get("lostBoardId"));
-            System.out.println("acquiredBoardId : " + res.get("acquiredBoardId"));
-            System.out.println("simulerityRate : " + res.get("simulerityRate"));
-
             MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
                     .lostBoardId(res.get("lostBoardId"))
                     .acquiredBoardId(res.get("acquiredBoardId"))
-                    .simulerityRate(res.get("simulerityRate")).build();
+                    .similarityRate(res.get("similarityRate")).build();
 
             result.add(matchingFindearDatasToAiResDto);
         }
 
         return result;
     }
+
 }

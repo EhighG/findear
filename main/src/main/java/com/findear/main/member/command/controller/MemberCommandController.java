@@ -4,14 +4,19 @@ import com.findear.main.common.response.SuccessResponse;
 import com.findear.main.member.command.dto.*;
 import com.findear.main.member.command.service.MemberCommandService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RequestMapping("/members")
 @RestController
 public class MemberCommandController {
@@ -45,20 +50,25 @@ public class MemberCommandController {
 
     // 소셜 로그인 / authCode를 갖고 요청
     @GetMapping("/login")
-    public ResponseEntity<?> redirectReqWithCode(@RequestParam(required = false) String code,
-                                        @RequestParam(name = "error", required = false) String errorCode,
-                                        @RequestParam(name = "error_description", required = false) String errorDescription,
-                                        @RequestParam(required = false) String state) {
+    public void redirectReqWithCode(@RequestParam(required = false) String code,
+                                    @RequestParam(name = "error", required = false) String errorCode,
+                                    @RequestParam(name = "error_description", required = false) String errorDescription,
+                                    @RequestParam(required = false) String state, HttpServletResponse response) throws IOException {
         Map<String, String> result = new HashMap<>();
         if (errorCode != null) {
             result.put("errorCode", errorCode);
             result.put("errorDescription", errorDescription);
-            return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
+//            return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
+            log.info("인가코드 발급 후 리다이렉트 중 오류 / errCode = " + errorCode + "\nerrMessage = " + errorDescription);
+            return;
         }
-        // code가 잘 왔다면
-        return ResponseEntity
-                .ok().build();
+//        // code가 잘 왔다면
+//        return ResponseEntity
+//                .ok().body(code);
+        response.setHeader("Cache-Control", "no-store");
+        response.sendRedirect("https://j10a706.p.ssafy.io/members/login?code=" + code);
     }
+
 
     @GetMapping("/after-login")
     public ResponseEntity<?> login(@RequestParam String code) {

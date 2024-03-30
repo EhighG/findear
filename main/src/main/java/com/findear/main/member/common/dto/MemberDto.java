@@ -20,6 +20,7 @@ import java.util.List;
 @Builder
 public class MemberDto {
     private Long id;
+    private String naverUid;
 
 ////    private List<MessageRoom> messageRoomList = new ArrayList<>();
 //    private List<Long> messageRoom
@@ -49,6 +50,7 @@ public class MemberDto {
     public static MemberDto of(Member member) {
         return MemberDto.builder()
                 .id(member.getId())
+                .naverUid(member.getNaverUid())
 //                .messageRoomList(member.getMessageRoomList())
                 .password(member.getPassword())
                 .agency(member.getAgency())
@@ -67,6 +69,7 @@ public class MemberDto {
     public Member toEntity() {
         return Member.builder()
                 .id(id)
+                .naverUid(naverUid)
 //                .messageRoomList(messageRoomList)
                 .password(password)
                 .agency(agency)

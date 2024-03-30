@@ -2,6 +2,7 @@ package com.findear.main.message.command.controller;
 
 import com.findear.main.common.response.SuccessResponse;
 import com.findear.main.member.query.service.MemberQueryService;
+import com.findear.main.message.command.dto.ReplyMessageReqDto;
 import com.findear.main.message.command.dto.SendMessageReqDto;
 import com.findear.main.message.command.service.MessageCommandService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,20 @@ public class MessageCommandController {
         messageCommandService.sendMessage(sendMessageReqDto);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "쪽지를 보냈습니다.", null));
+
+    }
+
+    @PostMapping("/reply")
+    public ResponseEntity<?> replyMessage(@RequestBody ReplyMessageReqDto replyMessageReqDto) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        replyMessageReqDto.setMemberId(MemberQueryService.getAuthenticatedMemberId());
+
+        messageCommandService.replyMessage(replyMessageReqDto);
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "답장을 보냈습니다.", null));
 
     }
 }

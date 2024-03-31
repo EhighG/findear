@@ -3,6 +3,7 @@ package com.findear.main.Alarm.service;
 import com.findear.main.Alarm.common.domain.Alarm;
 import com.findear.main.Alarm.common.exception.AlarmException;
 import com.findear.main.Alarm.dto.AlarmDataDto;
+import com.findear.main.Alarm.dto.NotificationRequestDto;
 import com.findear.main.Alarm.dto.ShowAlarmDto;
 import com.findear.main.Alarm.repository.AlarmRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
+    private final NotificationService notificationService;
 
     public List<AlarmDataDto> showAlarmList(Long memberId) {
 
@@ -67,5 +69,11 @@ public class AlarmService {
             throw new AlarmException(e.getMessage());
         }
 
+    }
+
+    public void sendFcmAlarm(NotificationRequestDto notificationRequestDto) {
+
+        notificationService.sendNotification(notificationRequestDto);
+        log.info("fcm 알림을 보냈습니다.");
     }
 }

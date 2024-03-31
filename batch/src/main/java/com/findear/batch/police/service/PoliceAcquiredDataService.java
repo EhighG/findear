@@ -59,6 +59,14 @@ public class PoliceAcquiredDataService {
 
     public List<PoliceAcquiredData> search(int page, int size, String category,
                                            String startDate, String endDate, String keyword) {
+
+        log.info("page = " + page);
+        log.info("size = " + size);
+        log.info("category = " + category);
+        log.info("startDate = " + startDate);
+        log.info("endDate = " + endDate);
+        log.info("keyword = " + keyword);
+
         try {
             List<PoliceAcquiredData> allDatas = new ArrayList<>();
             int pageSize = 200; // 페이지당 가져올 문서 수
@@ -257,7 +265,7 @@ public class PoliceAcquiredDataService {
             deleteDatas();
             log.info("데이터 삭제 성공");
 
-            String startDate = "20240301";
+            String startDate = "20240101";
             LocalDateTime today = LocalDateTime.now();
             String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             log.info(todaysDate + "까지 데이터 저장");

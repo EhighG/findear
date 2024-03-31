@@ -44,6 +44,10 @@ public class NotificationService {
 
         try {
 
+            log.info("제목 : " + req.getTitle());
+            log.info("메시지 : " + req.getMessage());
+            log.info("토큰 : " + getNotificationToken(req.getMemberId()));
+
             Message message = Message.builder()
                     .setWebpushConfig(WebpushConfig.builder()
                             .setNotification(WebpushNotification.builder()
@@ -53,8 +57,6 @@ public class NotificationService {
                             .build())
                     .setToken(getNotificationToken(req.getMemberId()))
                     .build();
-
-
 
             String response = FirebaseMessaging.getInstance().sendAsync(message).get();
             log.info(">>>>Send message : " + response);

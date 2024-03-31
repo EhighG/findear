@@ -1,5 +1,6 @@
 package com.findear.main.Alarm.controller;
 
+import com.findear.main.Alarm.dto.SaveNotificationReqDto;
 import com.findear.main.Alarm.service.NotificationService;
 import com.findear.main.member.query.service.MemberQueryService;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +14,12 @@ public class NotificationApiController {
     private final NotificationService notificationService;
 
     @PostMapping("/new")
-    public void saveNotification(String token) {
+    public void saveNotification(@RequestBody SaveNotificationReqDto saveNotificationReqDto) {
 
-        Long memberId = MemberQueryService.getAuthenticatedMemberId();
 
-        notificationService.saveNotification(token, memberId);
+        saveNotificationReqDto.setMemberId(MemberQueryService.getAuthenticatedMemberId());
+
+        notificationService.saveNotification(saveNotificationReqDto);
     }
 
 }

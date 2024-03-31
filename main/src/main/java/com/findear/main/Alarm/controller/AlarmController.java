@@ -1,6 +1,7 @@
 package com.findear.main.Alarm.controller;
 
 import com.findear.main.Alarm.dto.AlarmDataDto;
+import com.findear.main.Alarm.dto.NotificationRequestDto;
 import com.findear.main.Alarm.dto.ShowAlarmDto;
 import com.findear.main.Alarm.service.AlarmService;
 import com.findear.main.Alarm.service.EmitterService;
@@ -41,6 +42,19 @@ public class AlarmController {
 
         alarmDataDto.setGeneratedAt(LocalDateTime.now());
         emitterService.alarm(memberId, alarmDataDto, "알림 갔니 인성아", "message");
+    }
+
+    @PostMapping("/send-fcm/{memberId}")
+    public ResponseEntity<?> sendFcmAlarm(@PathVariable Long memberId,
+                                          @RequestBody NotificationRequestDto notificationRequestDto) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        notificationRequestDto.setMemberId(memberId);
+        alarmService.sendFcmAlarm(notificationRequestDto);
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "FCM 알람을 보냈습니다.", null));
     }
 
     @GetMapping("/alarm-list")

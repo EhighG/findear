@@ -8,6 +8,8 @@ import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
+import com.findear.main.board.query.repository.BoardQueryRepository;
 import com.findear.main.member.common.domain.Agency;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.service.MemberQueryService;
@@ -28,6 +30,7 @@ import java.util.List;
 public class AcquiredBoardCommandService {
 
     private final AcquiredBoardCommandRepository acquiredBoardCommandRepository;
+    private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
     private final BoardCommandRepository boardCommandRepository;
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
@@ -72,12 +75,22 @@ public class AcquiredBoardCommandService {
     }
 
     /**
-     *
      * @param modifyReqDto
      * @return boardId
      */
     public Long modify(ModifyAcquiredBoardReqDto modifyReqDto) {
-        return null;
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(modifyReqDto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
+
+        List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
+                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
+                        .orElse(imgFileRepository.save(new ImgFile(acquiredBoard.getBoard(), imgUrl)))
+                ).toList();
+
+        modifyReqDto.setImgFileList(imgFileList);
+        acquiredBoard.modifyAcquiredBoard(modifyReqDto);
+
+        return acquiredBoard.getBoard().getId();
     }
 
     private Mono<ModelServerResponseDto> sendAutoFillRequest(AcquiredBoard notFilledBoard) {

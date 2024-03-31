@@ -1,12 +1,14 @@
 package com.findear.main.board.common.domain;
 
 import com.findear.main.board.command.dto.AiGeneratedColumnDto;
+import com.findear.main.board.command.dto.ModifyAcquiredBoardReqDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +46,11 @@ public class AcquiredBoard {
 
     public void updateAutoFilledColumn(AiGeneratedColumnDto aiGeneratedColumnDto) {
         this.board.updateAutofillColumn(aiGeneratedColumnDto);
+    }
+
+    public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
+        this.acquiredAt = LocalDate.parse(modifyReqDto.getAcquiredAt(), DateTimeFormatter.ISO_LOCAL_DATE);
+        // update board columns
+        this.board.modifyAcquiredBoard(modifyReqDto);
     }
 }

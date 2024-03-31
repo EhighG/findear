@@ -1,6 +1,8 @@
 package com.findear.main.board.common.domain;
 
 import com.findear.main.board.command.dto.AiGeneratedColumnDto;
+import com.findear.main.board.command.dto.ModifyAcquiredBoardReqDto;
+import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.message.common.domain.MessageRoom;
 import jakarta.persistence.*;
@@ -81,5 +83,11 @@ public class Board {
             aiDescStr.append(keyword).append(" ");
         }
         this.aiDescription = aiDescStr.substring(0, aiDescStr.length() - 1);
+    }
+
+    public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
+        this.color = modifyReqDto.getColor();
+        this.imgFileList = modifyReqDto.getImgFileList();
+        this.categoryName = modifyReqDto.getCategory();
     }
 }

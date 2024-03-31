@@ -4,6 +4,7 @@ import com.findear.main.board.common.domain.AcquiredBoard;
 import com.findear.main.board.common.domain.Lost112AcquiredBoardDto;
 import com.findear.main.board.query.dto.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
+import com.findear.main.common.response.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -42,7 +46,7 @@ public class AcquiredBoardQueryService {
             stream = stream.filter(acquired -> acquired.getBoard().getMember().getId().equals(memberId));
         }
         if (category != null) {
-            stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().equals(category));
+            stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().contains(category));
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(
@@ -74,7 +78,7 @@ public class AcquiredBoardQueryService {
         return AcquiredBoardDetailResDto.of(acquiredBoard);
     }
 
-    public List<Lost112AcquiredBoardDto> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo,
+    public List<?> findAllInLost112(String category, String sDate, String eDate, String keyword, int pageNo,
                                                           int pageSize) {
         log.info("service 메소드 들어옴");
         if (sDate != null && eDate == null) {
@@ -84,32 +88,38 @@ public class AcquiredBoardQueryService {
                     .format(DateTimeFormatter.ISO_LOCAL_DATE);
         }
         // request to batch server
-//        RestTemplate restTemplate = new RestTemplate();
+        try {
+            StringBuilder uriBuilder = new StringBuilder(BATCH_SERVER_URL);
+            uriBuilder.append("?page=").append(pageNo)
+                    .append("&size=").append(pageSize);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BATCH_SERVER_URL);
-        if (category != null) {
-            builder = builder.queryParam("category", category);
+            if (category != null) {
+                uriBuilder.append("&category=").append(category);
+            }
+            if (sDate != null) {
+                uriBuilder.append("&startDate=").append(sDate)
+                        .append("&endDate=").append(eDate);
+            }
+            if (keyword != null) {
+                uriBuilder.append("&keyword=").append(keyword);
+            }
+            log.info("조회 파라미터(쿼리스트링) 세팅 끝");
+
+            BatchServerResponseDto responseDto = restTemplate.getForObject(uriBuilder.toString(), BatchServerResponseDto.class);
+            log.info(uriBuilder.toString());
+            log.info("조회 결과 : " + responseDto);
+            List<Lost112AcquiredBoardDto> result = (List<Lost112AcquiredBoardDto>) responseDto.getResult();
+
+            return result; // 최신순 정렬된 데이터
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("필터링 변수 세팅 중 오류");
         }
-        if (sDate != null) {
-            builder = builder.queryParam("sDate", sDate)
-                    .queryParam("eDate", eDate);
-        }
-        if (keyword != null) {
-            builder = builder.queryParam("keyword", keyword);
-        }
-        builder = builder.queryParam("page", pageNo)
-                .queryParam("size", pageSize);
-        log.info("조회 파라미터(쿼리스트링) 세팅 끝");
-
-        BatchServerResponseDto responseDto = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
-
-        log.info("조회 결과 : " + responseDto);
-
-        return responseDto.getResult();
     }
 
     public Integer getLost112TotalPageNum(int pageSize) {
-        Integer totalRowNum = (Integer) restTemplate.getForObject(BATCH_SERVER_URL + "/total", ResponseEntity.class).getBody();
+        BatchServerResponseDto response = restTemplate.getForObject(BATCH_SERVER_URL + "/total", BatchServerResponseDto.class);
+        Integer totalRowNum = (Integer) response.getResult();
         return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
     }
 }

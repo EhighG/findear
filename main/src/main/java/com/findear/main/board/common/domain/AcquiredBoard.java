@@ -48,11 +48,11 @@ public class AcquiredBoard {
         this.board.updateAutofillColumn(aiGeneratedColumnDto);
     }
 
-    public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
+    public void modify(ModifyAcquiredBoardReqDto modifyReqDto) {
         if (modifyReqDto.getAcquiredAt() != null) {
             this.acquiredAt = LocalDate.parse(modifyReqDto.getAcquiredAt(), DateTimeFormatter.ISO_LOCAL_DATE);
         }
         // update board columns
-        this.board.modifyAcquiredBoard(modifyReqDto);
+        this.board.modify(modifyReqDto.getColor(), modifyReqDto.getImgFileList(), modifyReqDto.getCategory());
     }
 }

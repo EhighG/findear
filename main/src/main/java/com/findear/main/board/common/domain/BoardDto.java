@@ -62,6 +62,7 @@ public class BoardDto {
                 .categoryName(categoryName)
                 .isLost(isLost)
                 .aiDescription(description)
+                .deleteYn(deleteYn)
                 .build();
     }
 

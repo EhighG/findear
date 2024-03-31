@@ -1,6 +1,7 @@
 package com.findear.main.board.command.controller;
 
 import com.findear.main.board.command.dto.MatchingFindearDatasToAiResDto;
+import com.findear.main.board.command.dto.ModifyLostBoardReqDto;
 import com.findear.main.board.command.dto.PostLostBoardReqDto;
 import com.findear.main.board.command.service.LostBoardCommandService;
 import com.findear.main.common.response.SuccessResponse;
@@ -9,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,9 +27,20 @@ public class LostBoardCommandController {
             @RequestBody PostLostBoardReqDto postLostBoardReqDto) {
         postLostBoardReqDto.setMemberId(memberId);
 
-        List<MatchingFindearDatasToAiResDto> result = lostBoardCommandService.register(postLostBoardReqDto);
-
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.", result));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "등록되었습니다.",
+                        lostBoardCommandService.register(postLostBoardReqDto)));
+    }
+
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<?> modify(@AuthenticationPrincipal Long memberId,
+                                    @PathVariable Long boardId,
+                                    @RequestBody ModifyLostBoardReqDto modifyLostBoardReqDto) {
+        modifyLostBoardReqDto.setMemberId(memberId);
+        modifyLostBoardReqDto.setBoardId(boardId);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(),
+                        "변경되었습니다.",
+                        lostBoardCommandService.modify(modifyLostBoardReqDto)));
     }
 }

@@ -91,7 +91,7 @@ public class AcquiredBoardCommandService {
 
             modifyReqDto.setImgFileList(imgFileList);
         }
-        acquiredBoard.modifyAcquiredBoard(modifyReqDto);
+        acquiredBoard.modify(modifyReqDto);
 
         return acquiredBoard.getBoard().getId();
     }

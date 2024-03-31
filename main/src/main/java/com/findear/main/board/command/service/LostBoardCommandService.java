@@ -1,12 +1,11 @@
 package com.findear.main.board.command.service;
 
-import com.findear.main.board.command.dto.MatchingFindearDatasReqDto;
-import com.findear.main.board.command.dto.MatchingFindearDatasToAiResDto;
-import com.findear.main.board.command.dto.PostLostBoardReqDto;
+import com.findear.main.board.command.dto.*;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.board.command.repository.LostBoardCommandRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.common.dto.MemberDto;
 import com.findear.main.member.query.service.MemberQueryService;
@@ -36,7 +35,9 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
-    public List<MatchingFindearDatasToAiResDto> register(PostLostBoardReqDto postLostBoardReqDto) {
+    private final LostBoardQueryRepository lostBoardQueryRepository;
+
+    public PostLostBoardResDto register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()
@@ -114,7 +115,24 @@ public class LostBoardCommandService {
             result.add(matchingFindearDatasToAiResDto);
         }
 
-        return result;
+        return new PostLostBoardResDto(savedBoard.getId(), result);
+//        return result;
+    }
+
+    public Long modify(ModifyLostBoardReqDto modifyReqDto) {
+        LostBoard lostBoard = lostBoardQueryRepository.findByBoardId(modifyReqDto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
+        if (modifyReqDto.getImgUrls() != null && !modifyReqDto.getImgUrls().isEmpty()) {
+            List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
+//                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
+                    .map(imgUrl -> imgFileRepository.findFirstByImgUrl(imgUrl) // 개발환경용
+                            .orElse(imgFileRepository.save(new ImgFile(lostBoard.getBoard(), imgUrl)))
+                    ).toList();
+            modifyReqDto.setImgFileList(imgFileList);
+        }
+        lostBoard.modify(modifyReqDto);
+
+        return lostBoard.getBoard().getId();
     }
 
 }

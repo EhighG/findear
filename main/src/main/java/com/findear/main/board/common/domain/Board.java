@@ -85,15 +85,16 @@ public class Board {
         this.aiDescription = aiDescStr.substring(0, aiDescStr.length() - 1);
     }
 
-    public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
-        if (modifyReqDto.getColor() != null) {
-            this.color = modifyReqDto.getColor();
+    public void modify(String color, List<ImgFile> imgFileList, String category) {
+        if (color != null) {
+            this.color = color;
         }
-        if (modifyReqDto.getImgFileList() != null) {
-            this.imgFileList = modifyReqDto.getImgFileList();
+        if (imgFileList != null) {
+            this.imgFileList = imgFileList;
+            this.thumbnailUrl = imgFileList.get(0).getImgUrl();
         }
-        if (modifyReqDto.getCategory() != null) {
-            this.categoryName = modifyReqDto.getCategory();
+        if (category != null) {
+            this.categoryName = category;
         }
     }
 }

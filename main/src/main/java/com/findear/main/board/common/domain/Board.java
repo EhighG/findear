@@ -101,4 +101,12 @@ public class Board {
     public void remove() {
         this.deleteYn = true;
     }
+
+    public void giveBack() {
+        this.status = BoardStatus.DONE;
+    }
+
+    public void rollback() {
+        this.status = BoardStatus.ONGOING;
+    }
 }

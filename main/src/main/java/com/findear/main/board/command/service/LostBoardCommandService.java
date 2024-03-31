@@ -52,6 +52,7 @@ public class LostBoardCommandService {
                         null : postLostBoardReqDto.getImgUrls().get(0))
                 .categoryName(postLostBoardReqDto.getCategory())
                 .isLost(true)
+                .status(BoardStatus.ONGOING)
                 .deleteYn(false)
                 .build();
         Board savedBoard = boardCommandRepository.save(boardDto.toEntity());
@@ -139,11 +140,8 @@ public class LostBoardCommandService {
     }
 
     public void remove(Long boardId, Long memberId) {
-        Board board = boardQueryRepository.findById(boardId)
+        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
-        if (board.getDeleteYn()) {
-            throw new IllegalArgumentException("해당 게시물이 없습니다.");
-        }
         if (!board.getMember().getId().equals(memberId)) {
             throw new AuthorizationServiceException("권한이 없습니다.");
         }

@@ -1,5 +1,6 @@
 package com.findear.main.board.command.controller;
 
+import com.findear.main.board.command.dto.GiveBackReqDto;
 import com.findear.main.board.command.dto.ModifyAcquiredBoardReqDto;
 import com.findear.main.board.command.dto.PostAcquiredBoardReqDto;
 import com.findear.main.board.command.service.AcquiredBoardCommandService;
@@ -45,5 +46,25 @@ public class AcquiredBoardCommandController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(),
                         "삭제되었습니다."));
+    }
+
+    @PostMapping("/{boardId}/return")
+    public ResponseEntity<?> giveBack(@AuthenticationPrincipal Long managerId,
+                                      @PathVariable Long boardId,
+                                      @RequestBody GiveBackReqDto giveBackReqDto) {
+        giveBackReqDto.setManagerId(managerId);
+        giveBackReqDto.setBoardId(boardId);
+        acquiredBoardCommandService.giveBack(giveBackReqDto);
+
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "인계처리 되었습니다."));
+    }
+
+    @PatchMapping("/{boardId}/rollback")
+    public ResponseEntity<?> cancelGiveBack(@AuthenticationPrincipal Long managerId,
+                                            @PathVariable Long boardId) {
+        acquiredBoardCommandService.cancelGiveBack(managerId, boardId);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "인계가 취소되었습니다."));
     }
 }

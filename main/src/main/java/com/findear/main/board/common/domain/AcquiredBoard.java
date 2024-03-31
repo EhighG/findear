@@ -55,4 +55,8 @@ public class AcquiredBoard {
         // update board columns
         this.board.modify(modifyReqDto.getColor(), modifyReqDto.getImgFileList(), modifyReqDto.getCategory());
     }
+
+    public void rollback() {
+        this.getBoard().rollback();
+    }
 }

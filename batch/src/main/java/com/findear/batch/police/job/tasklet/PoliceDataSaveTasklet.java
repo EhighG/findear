@@ -75,7 +75,7 @@ public class PoliceDataSaveTasklet implements Tasklet, StepExecutionListener {
         String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         log.info(todaysDate + "까지 데이터 저장");
 
-        String numOfRows = "50000";
+        String numOfRows = "30000";
 
         BufferedReader rd;
 
@@ -122,8 +122,6 @@ public class PoliceDataSaveTasklet implements Tasklet, StepExecutionListener {
                     isEnd = true;
                     break;
                 }
-
-                log.info(line);
 
                 responses.add(line);
             }
@@ -179,8 +177,6 @@ public class PoliceDataSaveTasklet implements Tasklet, StepExecutionListener {
                     break;
                 }
 
-                log.info(line);
-
                 responses.add(line);
             }
 
@@ -205,9 +201,6 @@ public class PoliceDataSaveTasklet implements Tasklet, StepExecutionListener {
         try {
 
             Long id = 1L;
-
-            // 결과값 List
-            List<String[]> rowDatas = new ArrayList<>();
 
             List<PoliceAcquiredData> policeAcquiredDataList = new ArrayList<>();
 
@@ -251,18 +244,41 @@ public class PoliceDataSaveTasklet implements Tasklet, StepExecutionListener {
                     String[] array;
                     String fdSbjt = "";
                     String clrNm = "";
+
+
                     // 색상 컬럼 분류 로직
                     if(rowData[4] != null) {
                         fdSbjt = rowData[4];
-                        array = fdSbjt.split("\\(");
 
-                        if(array.length < 2) {
+                        // '색'이란 단어를 기준으로 문자열 분할
+                        String[] parts = rowData[4].split("색");
+
+                        if(parts.length == 1) {
                             clrNm = null;
                         }
                         else {
-                            clrNm = array[1];
+
+                            // 분할된 문자열 중 마지막 부분을 선택하여 '색상' 추출
+                            String lastPart = parts[parts.length - 2];
+
+                            List<Integer> indexs = new ArrayList<>();
+                            for(int j=0; j<lastPart.length(); j++) {
+                                if(lastPart.charAt(j) == '(') {
+                                    indexs.add(j);
+                                }
+                            }
+
+                            if(indexs.size() < 2) {
+
+                                clrNm = null;
+                            } else {
+
+                                String color = lastPart.substring(indexs.get(indexs.size()-2) + 1, indexs.get(indexs.size()-1));
+                                clrNm = color;
+                            }
                         }
                     }
+
 
                     // 대분류, 소분류 컬럼 분류 로직
                     String prdtClNm = rowData[6];

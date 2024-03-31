@@ -24,13 +24,13 @@ public class FindearJobScheduler {
     private final JobLauncher jobLauncher;
     private final FindearJobConfig findearJobConfig;
 
-    @Scheduled(cron = "* * 4 * * *")
+    @Scheduled(cron = "0 0 0/2 * * *")
     public void jobSchduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 
         Job findearJob = findearJobConfig.FindearJob();
 
-        System.out.println("스케쥴 실행");
+        log.info("findear job schedule 실행");
 
         Map<String, JobParameter> jobParametersMap = new HashMap<>();
 

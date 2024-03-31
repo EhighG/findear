@@ -265,7 +265,7 @@ public class PoliceAcquiredDataService {
             deleteDatas();
             log.info("데이터 삭제 성공");
 
-            String startDate = "20240101";
+            String startDate = "20150101";
             LocalDateTime today = LocalDateTime.now();
             String todaysDate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             log.info(todaysDate + "까지 데이터 저장");
@@ -409,9 +409,6 @@ public class PoliceAcquiredDataService {
 
             Long id = 1L;
 
-            // 결과값 List
-            List<String[]> rowDatas = new ArrayList<>();
-
             List<PoliceAcquiredData> policeAcquiredDataList = new ArrayList<>();
 
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -487,7 +484,6 @@ public class PoliceAcquiredDataService {
                             } else {
 
                                 String color = lastPart.substring(indexs.get(indexs.size()-2) + 1, indexs.get(indexs.size()-1));
-                                System.out.println("color : " + color);
                                 clrNm = color;
                             }
                         }

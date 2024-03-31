@@ -24,13 +24,13 @@ public class PoliceJobScheduler {
     private final JobLauncher jobLauncher;
     private final PoliceJobConfig policeJobConfig;
 
-    @Scheduled(cron = "* * 4 * * *")
+    @Scheduled(cron = "0 0 4 * * *")
     public void jobSchduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 
         Job policeJob = policeJobConfig.PoliceJob();
 
-        System.out.println("스케쥴 실행");
+        log.info("police job schedule 실행");
 
         Map<String, JobParameter> jobParametersMap = new HashMap<>();
 

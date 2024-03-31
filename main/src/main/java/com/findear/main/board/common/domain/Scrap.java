@@ -3,6 +3,7 @@ package com.findear.main.board.common.domain;
 import com.findear.main.member.common.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +26,8 @@ public class Scrap {
     @JoinColumn(name = "member_id")
     private Member member;
 
-
+    public Scrap(Board board, Member member) {
+        this.board = board;
+        this.member = member;
+    }
 }

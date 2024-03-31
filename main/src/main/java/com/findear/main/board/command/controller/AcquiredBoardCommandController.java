@@ -67,4 +67,14 @@ public class AcquiredBoardCommandController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "인계가 취소되었습니다."));
     }
+
+    // 스크랩
+    @PostMapping("/{boardId}/scrap")
+    public ResponseEntity<?> scrap(@AuthenticationPrincipal Long memberId,
+                                   @PathVariable Long boardId) {
+        acquiredBoardCommandService.scrap(memberId, boardId);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "스크랩 되었습니다."));
+    }
 }
+

@@ -1,10 +1,7 @@
 package com.findear.main.board.command.service;
 
 import com.findear.main.board.command.dto.*;
-import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
-import com.findear.main.board.command.repository.BoardCommandRepository;
-import com.findear.main.board.command.repository.ImgFileRepository;
-import com.findear.main.board.command.repository.ReturnLogRepository;
+import com.findear.main.board.command.repository.*;
 import com.findear.main.board.common.domain.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
 import com.findear.main.board.query.repository.BoardQueryRepository;
@@ -35,6 +32,7 @@ public class AcquiredBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final ReturnLogRepository returnLogRepository;
+    private final ScrapRepository scrapRepository;
 
     public static String MATCH_SERVER_URL = "https://j10a706.p.ssafy.io/match";
 
@@ -165,6 +163,14 @@ public class AcquiredBoardCommandService {
         // cancel
         lastLog.rollback();
         acquiredBoard.rollback();
+    }
+
+    public void scrap(Long memberId, Long boardId) {
+        Member member = memberQueryService.internalFindById(memberId);
+        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+
+        scrapRepository.save(new Scrap(board, member));
     }
 
     private void checkSameAgency(Board board, Long memberId) {

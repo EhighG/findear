@@ -19,12 +19,15 @@ start_time = time.time()
 
 # .env 파일에서 환경 변수를 불러오기
 load_dotenv()
-
 path = os.getenv("MODEL_PATH")
 model = fasttext.load_model(path)
 model.get_words(on_unicode_error='ignore')
 def word_cosine_similarity(word1, word2):
     return np.dot(model[word1], model[word2]) / (np.linalg.norm(model[word1]) * np.linalg.norm(model[word2]))
+
+from .models import matchModel
+testModel = matchModel()
+testModel.test()
 
 colors = {
     '화이트': 'FFFFFF',
@@ -197,7 +200,9 @@ print(f"matching.py 실행 시간: {execution_time} 초")
 
 
 def lost112_matching(lostBoard, acquiredBoardList):
-    
+    '''
+    '''
+    testModel.defineOrigin('lost')    
     df = pd.DataFrame(acquiredBoardList)
     
     # 데이터 타입 변환
@@ -294,3 +299,6 @@ def lost112_matching(lostBoard, acquiredBoardList):
     
     print(result_data)
     return result_data  
+
+
+    

@@ -1,5 +1,8 @@
 package com.findear.main.member.command.service;
 
+import com.findear.main.Alarm.common.domain.Notification;
+import com.findear.main.Alarm.common.exception.AlarmException;
+import com.findear.main.Alarm.repository.NotificationRepository;
 import com.findear.main.member.command.dto.*;
 import com.findear.main.member.command.repository.AgencyCommandRepository;
 import com.findear.main.member.common.domain.Agency;
@@ -38,6 +41,7 @@ public class MemberCommandService {
     private final JwtService jwtService;
     private final NaverOAuthProvider naverOAuthProvider;
     private final MemberQueryRepository memberQueryRepository;
+    private final NotificationRepository notificationRepository;
     private final String NAVER_STATE = "test";
 
 
@@ -117,6 +121,16 @@ public class MemberCommandService {
 
     public void logout(Long memberId) {
         tokenRepository.deleteRefreshToken(memberId);
+
+        // fcm 토큰 삭제
+        Member findMember = memberQueryRepository.findById(memberId)
+                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+
+        Notification notification = notificationRepository.findByMember(findMember)
+                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+
+        System.out.println("삭제되는 토큰 : " + notification.getToken());
+        notificationRepository.delete(notification);
     }
 
     /**

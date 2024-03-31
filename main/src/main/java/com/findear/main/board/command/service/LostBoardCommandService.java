@@ -5,6 +5,7 @@ import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.board.command.repository.LostBoardCommandRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.repository.BoardQueryRepository;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.common.dto.MemberDto;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,6 +37,7 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
+    private final BoardQueryRepository boardQueryRepository;
     private final LostBoardQueryRepository lostBoardQueryRepository;
 
     public PostLostBoardResDto register(PostLostBoardReqDto postLostBoardReqDto) {
@@ -133,6 +136,18 @@ public class LostBoardCommandService {
         lostBoard.modify(modifyReqDto);
 
         return lostBoard.getBoard().getId();
+    }
+
+    public void remove(Long boardId, Long memberId) {
+        Board board = boardQueryRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (board.getDeleteYn()) {
+            throw new IllegalArgumentException("해당 게시물이 없습니다.");
+        }
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AuthorizationServiceException("권한이 없습니다.");
+        }
+        board.remove();
     }
 
 }

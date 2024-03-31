@@ -97,4 +97,8 @@ public class Board {
             this.categoryName = category;
         }
     }
+
+    public void remove() {
+        this.deleteYn = true;
+    }
 }

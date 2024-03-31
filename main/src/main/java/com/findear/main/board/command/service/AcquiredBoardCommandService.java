@@ -16,6 +16,7 @@ import com.findear.main.member.query.service.MemberQueryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -32,6 +33,7 @@ public class AcquiredBoardCommandService {
     private final AcquiredBoardCommandRepository acquiredBoardCommandRepository;
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
     private final BoardCommandRepository boardCommandRepository;
+    private final BoardQueryRepository boardQueryRepository;
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
 
@@ -117,5 +119,17 @@ public class AcquiredBoardCommandService {
         log.info("modelServerResponse = " + modelServerResponseDto);
         notFilledBoard.updateAutoFilledColumn(modelServerResponseDto.getResult());
         boardCommandRepository.save(notFilledBoard.getBoard());
+    }
+
+    public void remove(Long boardId, Long memberId) {
+        Board board = boardQueryRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (board.getDeleteYn()) {
+            throw new IllegalArgumentException("해당 게시물이 없습니다.");
+        }
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AuthorizationServiceException("권한이 없습니다.");
+        }
+        board.remove();
     }
 }

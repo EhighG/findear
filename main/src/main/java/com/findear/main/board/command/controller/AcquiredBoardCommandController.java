@@ -37,4 +37,13 @@ public class AcquiredBoardCommandController {
                         "변경되었습니다.",
                         acquiredBoardCommandService.modify(modifyReqDto)));
     }
+
+    @PatchMapping("{boardId}/delete")
+    public ResponseEntity<?> remove(@AuthenticationPrincipal Long memberId,
+                                    @PathVariable Long boardId) {
+        acquiredBoardCommandService.remove(boardId, memberId);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(),
+                        "삭제되었습니다."));
+    }
 }

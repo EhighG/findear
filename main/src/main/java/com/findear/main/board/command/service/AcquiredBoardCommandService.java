@@ -82,12 +82,15 @@ public class AcquiredBoardCommandService {
         AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(modifyReqDto.getBoardId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
 
-        List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
-                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
-                        .orElse(imgFileRepository.save(new ImgFile(acquiredBoard.getBoard(), imgUrl)))
-                ).toList();
+        if (modifyReqDto.getImgUrls() != null && !modifyReqDto.getImgUrls().isEmpty()) {
+            List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
+//                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
+                    .map(imgUrl -> imgFileRepository.findFirstByImgUrl(imgUrl) // 개발환경용
+                            .orElse(imgFileRepository.save(new ImgFile(acquiredBoard.getBoard(), imgUrl)))
+                    ).toList();
 
-        modifyReqDto.setImgFileList(imgFileList);
+            modifyReqDto.setImgFileList(imgFileList);
+        }
         acquiredBoard.modifyAcquiredBoard(modifyReqDto);
 
         return acquiredBoard.getBoard().getId();

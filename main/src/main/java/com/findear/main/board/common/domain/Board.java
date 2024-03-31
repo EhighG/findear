@@ -86,8 +86,14 @@ public class Board {
     }
 
     public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
-        this.color = modifyReqDto.getColor();
-        this.imgFileList = modifyReqDto.getImgFileList();
-        this.categoryName = modifyReqDto.getCategory();
+        if (modifyReqDto.getColor() != null) {
+            this.color = modifyReqDto.getColor();
+        }
+        if (modifyReqDto.getImgFileList() != null) {
+            this.imgFileList = modifyReqDto.getImgFileList();
+        }
+        if (modifyReqDto.getCategory() != null) {
+            this.categoryName = modifyReqDto.getCategory();
+        }
     }
 }

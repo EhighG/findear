@@ -49,7 +49,9 @@ public class AcquiredBoard {
     }
 
     public void modifyAcquiredBoard(ModifyAcquiredBoardReqDto modifyReqDto) {
-        this.acquiredAt = LocalDate.parse(modifyReqDto.getAcquiredAt(), DateTimeFormatter.ISO_LOCAL_DATE);
+        if (modifyReqDto.getAcquiredAt() != null) {
+            this.acquiredAt = LocalDate.parse(modifyReqDto.getAcquiredAt(), DateTimeFormatter.ISO_LOCAL_DATE);
+        }
         // update board columns
         this.board.modifyAcquiredBoard(modifyReqDto);
     }

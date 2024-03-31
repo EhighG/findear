@@ -3,6 +3,7 @@ package com.findear.main.Alarm.service;
 import com.findear.main.Alarm.common.domain.Notification;
 import com.findear.main.Alarm.common.exception.AlarmException;
 import com.findear.main.Alarm.dto.NotificationRequestDto;
+import com.findear.main.Alarm.dto.SaveNotificationReqDto;
 import com.findear.main.Alarm.repository.NotificationRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.repository.MemberQueryRepository;
@@ -25,13 +26,13 @@ public class NotificationService {
     private final MemberQueryRepository memberQueryRepository;
 
     @Transactional
-    public void saveNotification(String token, Long memberId) {
+    public void saveNotification(SaveNotificationReqDto saveNotificationReqDto) {
 
-        Member findMember = memberQueryRepository.findById(memberId)
+        Member findMember = memberQueryRepository.findById(saveNotificationReqDto.getMemberId())
                 .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
         Notification newNotification = Notification.builder()
-                .token(token)
+                .token(saveNotificationReqDto.getToken())
                 .build();
 
         newNotification.confirmUser(findMember);

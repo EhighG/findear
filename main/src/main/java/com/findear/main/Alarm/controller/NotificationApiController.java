@@ -13,7 +13,7 @@ public class NotificationApiController {
     private final NotificationService notificationService;
 
     @PostMapping("/new")
-    public void saveNotification(String token) {
+    public void saveNotification(@RequestBody String token) {
 
         Long memberId = MemberQueryService.getAuthenticatedMemberId();
 

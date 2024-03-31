@@ -1,6 +1,7 @@
 package com.findear.main.member.common.domain;
 
 import com.findear.main.Alarm.common.domain.Alarm;
+import com.findear.main.Alarm.common.domain.Notification;
 import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.common.domain.Scrap;
 import com.findear.main.message.common.domain.MessageRoom;
@@ -44,6 +45,9 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agency_id")
     private Agency agency;
+
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    private Notification notification;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)

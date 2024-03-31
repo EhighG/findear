@@ -29,10 +29,11 @@ def lost_matching(request):
 
 def process_lost_item_data(found_item_info):
     # 받은 데이터를 이용하여 DataFrame 생성
-    df = pd.DataFrame([found_item_info])
+    lostBoard = found_item_info["lostBoard"]
+    acquiredBoardList = found_item_info.get("acquiredBoardList")
 
     # 데이터 처리 수행
-    processed_data = analyze_lost_data(df)
+    processed_data = matching.lost112_matching(lostBoard, acquiredBoardList)
 
     return processed_data
 

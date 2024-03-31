@@ -16,5 +16,5 @@ public class BatchServerResponseDto {
     @JsonProperty("message")
     private String message;
     @JsonProperty("result")
-    private List<Lost112AcquiredBoardDto> result;
+    private Object result;
 }

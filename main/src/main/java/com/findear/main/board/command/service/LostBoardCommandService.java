@@ -1,12 +1,12 @@
 package com.findear.main.board.command.service;
 
-import com.findear.main.board.command.dto.MatchingFindearDatasReqDto;
-import com.findear.main.board.command.dto.MatchingFindearDatasToAiResDto;
-import com.findear.main.board.command.dto.PostLostBoardReqDto;
+import com.findear.main.board.command.dto.*;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.board.command.repository.LostBoardCommandRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.repository.BoardQueryRepository;
+import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.common.dto.MemberDto;
 import com.findear.main.member.query.service.MemberQueryService;
@@ -17,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,7 +37,10 @@ public class LostBoardCommandService {
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
     private final BoardCommandRepository boardCommandRepository;
-    public List<MatchingFindearDatasToAiResDto> register(PostLostBoardReqDto postLostBoardReqDto) {
+    private final BoardQueryRepository boardQueryRepository;
+    private final LostBoardQueryRepository lostBoardQueryRepository;
+
+    public PostLostBoardResDto register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()
@@ -48,6 +52,7 @@ public class LostBoardCommandService {
                         null : postLostBoardReqDto.getImgUrls().get(0))
                 .categoryName(postLostBoardReqDto.getCategory())
                 .isLost(true)
+                .status(BoardStatus.ONGOING)
                 .deleteYn(false)
                 .build();
         Board savedBoard = boardCommandRepository.save(boardDto.toEntity());
@@ -114,7 +119,33 @@ public class LostBoardCommandService {
             result.add(matchingFindearDatasToAiResDto);
         }
 
-        return result;
+        return new PostLostBoardResDto(savedBoard.getId(), result);
+//        return result;
+    }
+
+    public Long modify(ModifyLostBoardReqDto modifyReqDto) {
+        LostBoard lostBoard = lostBoardQueryRepository.findByBoardId(modifyReqDto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
+        if (modifyReqDto.getImgUrls() != null && !modifyReqDto.getImgUrls().isEmpty()) {
+            List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
+//                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
+                    .map(imgUrl -> imgFileRepository.findFirstByImgUrl(imgUrl) // 개발환경용
+                            .orElse(imgFileRepository.save(new ImgFile(lostBoard.getBoard(), imgUrl)))
+                    ).toList();
+            modifyReqDto.setImgFileList(imgFileList);
+        }
+        lostBoard.modify(modifyReqDto);
+
+        return lostBoard.getBoard().getId();
+    }
+
+    public void remove(Long boardId, Long memberId) {
+        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AuthorizationServiceException("권한이 없습니다.");
+        }
+        board.remove();
     }
 
 }

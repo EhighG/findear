@@ -1,18 +1,20 @@
 package com.findear.main.board.command.service;
 
-import com.findear.main.board.command.dto.ModelServerResponseDto;
-import com.findear.main.board.command.dto.NotFilledBoardDto;
-import com.findear.main.board.command.dto.PostAcquiredBoardReqDto;
+import com.findear.main.board.command.dto.*;
 import com.findear.main.board.command.repository.AcquiredBoardCommandRepository;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
+import com.findear.main.board.command.repository.ReturnLogRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
+import com.findear.main.board.query.repository.BoardQueryRepository;
 import com.findear.main.member.common.domain.Agency;
 import com.findear.main.member.common.domain.Member;
 import com.findear.main.member.query.service.MemberQueryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,9 +29,12 @@ import java.util.List;
 public class AcquiredBoardCommandService {
 
     private final AcquiredBoardCommandRepository acquiredBoardCommandRepository;
+    private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
     private final BoardCommandRepository boardCommandRepository;
+    private final BoardQueryRepository boardQueryRepository;
     private final MemberQueryService memberQueryService;
     private final ImgFileRepository imgFileRepository;
+    private final ReturnLogRepository returnLogRepository;
 
     public static String MATCH_SERVER_URL = "https://j10a706.p.ssafy.io/match";
 
@@ -41,6 +46,7 @@ public class AcquiredBoardCommandService {
                 .thumbnailUrl(postAcquiredBoardReqDto.getImgUrls().get(0))
                 .deleteYn(false)
                 .isLost(false)
+                .status(BoardStatus.ONGOING)
                 .build());
 
         List<ImgFile> imgFiles = new ArrayList<>();
@@ -70,6 +76,28 @@ public class AcquiredBoardCommandService {
         return savedBoard.getId();
     }
 
+    /**
+     * @param modifyReqDto
+     * @return boardId
+     */
+    public Long modify(ModifyAcquiredBoardReqDto modifyReqDto) {
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(modifyReqDto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
+
+        if (modifyReqDto.getImgUrls() != null && !modifyReqDto.getImgUrls().isEmpty()) {
+            List<ImgFile> imgFileList = modifyReqDto.getImgUrls().stream()
+//                .map(imgUrl -> imgFileRepository.findByImgUrl(imgUrl)
+                    .map(imgUrl -> imgFileRepository.findFirstByImgUrl(imgUrl) // 개발환경용
+                            .orElse(imgFileRepository.save(new ImgFile(acquiredBoard.getBoard(), imgUrl)))
+                    ).toList();
+
+            modifyReqDto.setImgFileList(imgFileList);
+        }
+        acquiredBoard.modify(modifyReqDto);
+
+        return acquiredBoard.getBoard().getId();
+    }
+
     private Mono<ModelServerResponseDto> sendAutoFillRequest(AcquiredBoard notFilledBoard) {
         WebClient client = WebClient.builder()
                 .baseUrl(MATCH_SERVER_URL)
@@ -91,5 +119,64 @@ public class AcquiredBoardCommandService {
         log.info("modelServerResponse = " + modelServerResponseDto);
         notFilledBoard.updateAutoFilledColumn(modelServerResponseDto.getResult());
         boardCommandRepository.save(notFilledBoard.getBoard());
+    }
+
+    public void remove(Long boardId, Long memberId) {
+        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new AuthorizationServiceException("권한이 없습니다.");
+        }
+        board.remove();
+    }
+
+    public void giveBack(GiveBackReqDto giveBackReqDto) {
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(giveBackReqDto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        Board board = acquiredBoard.getBoard();
+        if (board.getDeleteYn()) {
+            throw new IllegalArgumentException("해당 게시물이 없습니다.");
+        }
+        // 같은 시설 관리자만 인계처리 가능
+        checkSameAgency(board, giveBackReqDto.getManagerId());
+
+        if (!board.getStatus().equals(BoardStatus.ONGOING)) {
+            throw new IllegalArgumentException("이미 인계처리된 게시물입니다.");
+        }
+
+        ReturnLog savedLog = returnLogRepository.save(
+                new ReturnLog(acquiredBoard, giveBackReqDto.getPhoneNumber())); // 비회원인 경우도 있음.
+        acquiredBoard.getReturnLogList().add(savedLog);
+        board.giveBack();
+    }
+
+    public void cancelGiveBack(Long managerId, Long boardId) {
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        Board board = acquiredBoard.getBoard();
+        if (board.getDeleteYn()) {
+            throw new IllegalArgumentException("해당 게시물이 없습니다.");
+        }
+
+        checkSameAgency(board, managerId);
+
+        ReturnLog lastLog = returnLogRepository.findFirstByAcquiredBoardAndCancelAtIsNullOrderByIdDesc(acquiredBoard)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        // cancel
+        lastLog.rollback();
+        acquiredBoard.rollback();
+    }
+
+    private void checkSameAgency(Board board, Long memberId) {
+        Agency writersAgency = board.getMember().getAgency();
+        if (writersAgency == null) {
+            return; // Member의 Agency도 로그로 남기지 않는 한, 비교 불가능한 경우
+        }
+        Long writersAgencyId = writersAgency.getId();
+        Member requester = memberQueryService.internalFindById(memberId);
+        Agency agency = requester.getAgency();
+        if (agency == null || !writersAgencyId.equals(agency.getId())) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
     }
 }

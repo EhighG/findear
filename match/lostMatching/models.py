@@ -25,6 +25,14 @@ import random
 logger = logging.getLogger(__name__)
 class matchModel():
     
+    def logging_time(original_fn):
+        def wrapper_fn(*args, **kwargs):
+            start_time = time.time()
+            result = original_fn(*args, **kwargs)
+            end_time = time.time()
+            print("WorkingTime[{}]: {} sec".format(original_fn.__name__, end_time-start_time))
+            return result
+        return wrapper_fn
     def __init__(self) -> None:
         # load model
         load_dotenv()
@@ -38,7 +46,7 @@ class matchModel():
         self.driver = webdriver.Chrome()
         self.driver.get(self.webPath)
         print('driver', self.driver)
-        self.timeToWait = 0.001
+        self.timeToWait = 0.00001
 
         return None
 
@@ -154,6 +162,7 @@ class matchModel():
         token = [t.form for t in meaningfulText if t.tag in self.stem_tag] + charEngNum
         return token
 
+    @logging_time
     def getColor(self, query):
         '''
         None 반환 시 색 계산 제외
@@ -179,7 +188,6 @@ class matchModel():
         else:
             index = random.randint(0, len(colorLst))
 
-        print(index)
         select = Select(colorBox)
         select.select_by_index(index)
         selected_option = select.first_selected_option
@@ -238,6 +246,7 @@ class matchModel():
     
     def getCoSim(self, word1, word2):
         return np.dot(word1, word2) / (np.linalg.norm(word1) * np.linalg.norm(word2))
+    
 
 
 if __name__ == '__main__':

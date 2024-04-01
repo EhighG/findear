@@ -10,8 +10,12 @@ import re
 from . import matching
 import logging
 
+from .models import matchModel
+
 logger = logging.getLogger(__name__)
 # Create your views here.
+
+matchInstance = matchModel()
 
 def health(request):
     return JsonResponse({"STATUS":"UP"}, status = 200)
@@ -82,7 +86,14 @@ def process_findear_item_data(items_info):
     acquiredBoardList = items_info.get("acquiredBoardList")
     
     # 데이터 처리 수행
-    processed_data = matching.findear_matching(lostBoard, acquiredBoardList)
+    matchInstance.setData(lost=lostBoard, found=acquiredBoardList)
+    matchInstance.preprocess('findear')
+
+    matchInstance.calColor()
+    matchInstance.calDistance()
+    matchInstance.calName()
+    matchInstance.calDesc()
+    processed_data = matchInstance.aggregateScore()
     
     # 코드 실행 종료 시간 측정
     end_time = time.time()

@@ -2,9 +2,7 @@ package com.findear.batch.ours.controller;
 
 import com.findear.batch.common.response.SuccessResponse;
 import com.findear.batch.ours.domain.FindearMatchingLog;
-import com.findear.batch.ours.dto.LostBoardMatchingDto;
-import com.findear.batch.ours.dto.MatchingFindearDatasToAiResDto;
-import com.findear.batch.ours.dto.SearchFindearMatchingListResDto;
+import com.findear.batch.ours.dto.*;
 import com.findear.batch.ours.service.FindearDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,15 +60,28 @@ public class FindearDataController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "findear 매칭 리스트 조회 성공", result));
     }
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<?> searchFindearMatchingList(@PathVariable Long memberId,
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<?> searchBestMatchingList(@PathVariable Long memberId,
                                                        @RequestParam(required = false, defaultValue = "1") int page,
-                                                       @RequestParam(required = false, defaultValue = "10") int size) {
+                                                       @RequestParam(required = false, defaultValue = "6") int size) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        List<SearchFindearMatchingListResDto> result = findearDataService.searchFindearMatchingList(page, size, memberId);
+        SearchBestMatchingListDto result = findearDataService.searchBestMatchingList(page, size, memberId);
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
+    }
+
+    @GetMapping("/board/{lostBoardId}")
+    public ResponseEntity<?> searchBoardMatchingList(@PathVariable Long lostBoardId,
+                                                       @RequestParam(required = false, defaultValue = "1") int page,
+                                                       @RequestParam(required = false, defaultValue = "6") int size) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        SearchBoardMatchingList result = findearDataService.searchBoardMatchingList(page, size, lostBoardId);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
     }

@@ -29,8 +29,10 @@ class matchModel():
         # load model
         load_dotenv()
         path = os.getenv("MODEL_PATH")
-        #model = fasttext.load_model(path)
+        self.model = fasttext.load_model(path)
 
+        self.kiwi = Kiwi()
+        self.stem_tag = ['NNG', 'NNP', 'VA'] 
         # open color crawling
         self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
         self.driver = webdriver.Chrome()
@@ -75,7 +77,6 @@ class matchModel():
         npLst = np.array([])
         for i in self.found['color']:
             foundColor = self.getColor(i)
-            print(foundColor)
             if foundColor is None:
                 npLst = np.append(npLst,[255])
                 continue
@@ -90,13 +91,60 @@ class matchModel():
         self.score['color'] = nplst
         return
     
-    def cal(self):
-        pass
+    def calDistance(self):
+        std = 20
+        npLst = np.array([[hv((y,x), ( self.lost['ypos'],self.lost['xpos']), unit='km')] for x,y in zip(self.found['xpos'], self.found['ypos']) ])
+        minmaxScaler = MinMaxScaler().fit([[0],[std]])
+        X_train_minmax = minmaxScaler.transform(npLst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
+        self.score['place'] = nplst
+        print(self.score) 
+        return None
     
+    def calName(self):
+        lostName = self.lost['productName'].replace(' ','')
+        foundName = self.found['productName'].map(lambda x: x.replace(' ', '')).to_list()
+        npLst = np.array([self.getCoSim(self.model[lostName], self.model[i]) for i in foundName])
+        self.score['name'] = npLst
+        return None
+    
+    def calDesc(self):
+        # 습득물 설명 형태소 분석 및 토큰화
+        foundToken = [self.getDocumentToken(document) for document in self.found['description']]
+        print(foundToken)
+        # 분실물 설명 형태소 분석 및 토큰화
+        lostToken = self.getDocumentToken(self.lost['description']) 
+        # 단어 임베딩 후 평균 내어 문서 벡터 구하기
+
+        print(lostToken)            
+        lostVector = self.getDocumentVector(lostToken)
+        print(lostVector)
+        foundVector = [self.getDocumentVector(document) for document in foundToken]
+
+
+        npLst = np.array([self.getCoSim(lostVector, i) for i in foundVector])
+        self.score['desc'] = npLst
+        # 분실물과 습특물 text 벡터 내적
+        #KfindScore = []
+        #Kdef tt(word1, word2):
+            #Kreturn np.dot(word1, word2) / (np.linalg.norm(word1) * np.linalg.norm(word2))
+        #Kfor i in findLst:
+            #KfindScore.append(tt(i,lostDoc))
+
 
     def test(self):
         print('teststest')
         return 'test'
+
+    def getDocumentVector(self, document):
+        vector = np.array(sum(self.model[doc] for doc in document)) / len(document)
+        return vector
+
+    def getDocumentToken(self, document):
+        charEngNum = re.findall(r'[A-Za-z0-9]+', document)
+        meaningfulText = self.kiwi.tokenize(document)
+        token = [t.form for t in meaningfulText if t.tag in self.stem_tag] + charEngNum
+        return token
 
     def getColor(self, query):
         '''
@@ -178,6 +226,10 @@ class matchModel():
         v3 = sh
 
         return np.sqrt(v1 * v1 + v2 * v2 + (delta_H2 / (v3 * v3)))
+    
+    def getCoSim(self, word1, word2):
+        return np.dot(word1, word2) / (np.linalg.norm(word1) * np.linalg.norm(word2))
+
 
 if __name__ == '__main__':
     testLost = {
@@ -227,5 +279,8 @@ if __name__ == '__main__':
     testModel.setData(testLost, testFound)
     
     testModel.preprocess('findear')
-    testModel.calColor()
+    #testModel.calColor()
+    #testModel.calDistance()
+    #testModel.calName()
+    testModel.calDesc()
     print(testModel.score)

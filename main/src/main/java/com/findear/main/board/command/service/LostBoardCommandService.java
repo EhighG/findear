@@ -95,8 +95,8 @@ public class LostBoardCommandService {
 
         HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
 
-//        String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
-        String serverURL = "http://localhost:8082/findear/matching";
+        String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
+//        String serverURL = "http://localhost:8082/findear/matching";
 
         RestTemplate restTemplate = new RestTemplate();
 

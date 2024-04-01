@@ -44,6 +44,10 @@ public class NotificationService {
 
         try {
 
+            log.info("제목 : " + req.getTitle());
+            log.info("메시지 : " + req.getMessage());
+            log.info("토큰 : " + getNotificationToken(req.getMemberId()));
+
             Message message = Message.builder()
                     .setWebpushConfig(WebpushConfig.builder()
                             .setNotification(WebpushNotification.builder()
@@ -53,8 +57,6 @@ public class NotificationService {
                             .build())
                     .setToken(getNotificationToken(req.getMemberId()))
                     .build();
-
-
 
             String response = FirebaseMessaging.getInstance().sendAsync(message).get();
             log.info(">>>>Send message : " + response);
@@ -82,12 +84,19 @@ public class NotificationService {
 
     public void deleteNotification(Long memberId) {
 
-        Member findMember = memberQueryRepository.findById(memberId)
-                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+        try {
 
-        Notification notification = notificationRepository.findByMember(findMember)
-                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+            Member findMember = memberQueryRepository.findById(memberId)
+                    .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
-        notificationRepository.delete(notification);
+            Notification notification = notificationRepository.findByMemberId(findMember.getId());
+
+            if(notification != null) {
+                notificationRepository.delete(notification);
+            }
+
+        } catch (Exception e) {
+            throw new AlarmException(e.getMessage());
+        }
     }
 }

@@ -14,7 +14,7 @@ import java.io.IOException;
 @Slf4j
 public class FCMInitializer {
 
-    private static final String FIREBASE_CONFIG_PATH = "key/findear-bfd63-firebase-adminsdk-9a4ao-95dc95086e.json";
+    private static final String FIREBASE_CONFIG_PATH = "key/findear-bfd63-firebase-adminsdk-9a4ao-ca3edec7ec.json";
 
     @PostConstruct
     public void initialize() {

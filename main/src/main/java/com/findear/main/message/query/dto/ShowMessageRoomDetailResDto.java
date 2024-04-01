@@ -14,4 +14,6 @@ public class ShowMessageRoomDetailResDto {
 
     private List<MessageDto> message;
 
+    private String enquirerTelNum;
+
 }

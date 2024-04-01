@@ -1,5 +1,6 @@
 package com.findear.main.common.exception;
 
+import com.findear.main.Alarm.common.exception.AlarmException;
 import com.findear.main.common.response.FailResponse;
 import com.findear.main.message.common.exception.MessageException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -42,6 +43,14 @@ public class CommonControllerAdvice {
     }
     @ExceptionHandler(MessageException.class)
     public ResponseEntity<?> handleMessageException(Exception e) {
+
+        log.info(e.getMessage());
+
+        return ResponseEntity.badRequest().body(new FailResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
+
+    @ExceptionHandler(AlarmException.class)
+    public ResponseEntity<?> handleAlarmException(Exception e) {
 
         log.info(e.getMessage());
 

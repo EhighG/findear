@@ -45,7 +45,6 @@ class matchModel():
     def setData(self, lost, found):
         self.lost = lost
         self.found = found
-        self.score = pd.DataFrame()
         logger.debug(f'Get Data')
         logger.debug(f'lost :: {lost}')
         logger.debug(f'found :: {found}')
@@ -68,6 +67,9 @@ class matchModel():
             self.found['ypos'] = self.found['ypos'].astype(float)
         elif self.source == 'lost112':
             pass
+
+        self.score = pd.DataFrame()
+        self.score['id'] = self.found['acquiredBoardId']
 
     def calColor(self):
         std = 100 
@@ -98,7 +100,6 @@ class matchModel():
         X_train_minmax = minmaxScaler.transform(npLst)
         nplst = 1- np.array(X_train_minmax).squeeze()
         self.score['place'] = nplst
-        print(self.score) 
         return None
     
     def calName(self):
@@ -109,27 +110,34 @@ class matchModel():
         return None
     
     def calDesc(self):
-        # 습득물 설명 형태소 분석 및 토큰화
         foundToken = [self.getDocumentToken(document) for document in self.found['description']]
         print(foundToken)
-        # 분실물 설명 형태소 분석 및 토큰화
         lostToken = self.getDocumentToken(self.lost['description']) 
-        # 단어 임베딩 후 평균 내어 문서 벡터 구하기
 
-        print(lostToken)            
         lostVector = self.getDocumentVector(lostToken)
-        print(lostVector)
         foundVector = [self.getDocumentVector(document) for document in foundToken]
-
 
         npLst = np.array([self.getCoSim(lostVector, i) for i in foundVector])
         self.score['desc'] = npLst
-        # 분실물과 습특물 text 벡터 내적
-        #KfindScore = []
-        #Kdef tt(word1, word2):
-            #Kreturn np.dot(word1, word2) / (np.linalg.norm(word1) * np.linalg.norm(word2))
-        #Kfor i in findLst:
-            #KfindScore.append(tt(i,lostDoc))
+    
+    def aggregateScore(self):
+
+        self.score['mean_value'] = self.score.iloc[:, 1:].mean(axis=1)
+        self.score['mean_value'] = self.score['mean_value'].round(decimals=5)
+        
+        # 평균 값을 기준으로 DataFrame 정렬
+        df_sorted = self.score.sort_values(by='mean_value', ascending=False)
+        print(df_sorted)
+        
+        # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
+        lostBoardId = self.lost["lostBoardId"]
+        result_data = [
+            {"lostBoardId": int(lostBoardId), "acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
+            for index, row in df_sorted.loc[:, ['id', 'mean_value']].iterrows()
+        ]
+        
+        print(result_data)
+        return result_data  
 
 
     def test(self):
@@ -171,6 +179,7 @@ class matchModel():
         else:
             index = random.randint(0, len(colorLst))
 
+        print(index)
         select = Select(colorBox)
         select.select_by_index(index)
         selected_option = select.first_selected_option
@@ -279,8 +288,10 @@ if __name__ == '__main__':
     testModel.setData(testLost, testFound)
     
     testModel.preprocess('findear')
-    #testModel.calColor()
-    #testModel.calDistance()
-    #testModel.calName()
+    testModel.calColor()
+    testModel.calDistance()
+    testModel.calName()
     testModel.calDesc()
     print(testModel.score)
+    ans = testModel.aggregateScore()
+    print(ans)

@@ -20,6 +20,6 @@ public interface MessageRoomQueryRepository extends JpaRepository<MessageRoom, L
             "   or mr.member.id = :memberId")
     List<MessageRoom> findAllByMemberIdWithBoardAndMessage(Long memberId);
 
-    @Query("select mr from MessageRoom mr right join fetch mr.board left join fetch mr.messageList where mr.id = :messageRoomId")
+    @Query("select mr from MessageRoom mr right join fetch mr.board left join fetch mr.messageList where mr.id = :messageRoomId order by mr.id desc")
     MessageRoom findByIdWithBoardAndMessage(Long messageRoomId);
 }

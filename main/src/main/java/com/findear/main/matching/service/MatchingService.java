@@ -8,7 +8,7 @@ import com.findear.main.board.query.service.AcquiredBoardQueryService;
 import com.findear.main.board.query.service.LostBoardQueryService;
 import com.findear.main.matching.model.dto.GetBestMatchingsResDto;
 import com.findear.main.matching.model.dto.BatchServerMatchingResDto;
-import com.findear.main.matching.repository.MatchingRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -173,6 +173,17 @@ public class AcquiredBoardCommandService {
         scrapRepository.save(new Scrap(board, member));
     }
 
+    public void cancelScrap(Long memberId, Long boardId) {
+        Member member = memberQueryService.internalFindById(memberId);
+        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+
+        Scrap scrap = scrapRepository.findByMemberAndBoard(member, board)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+
+        scrapRepository.delete(scrap);
+    }
+
     private void checkSameAgency(Board board, Long memberId) {
         Agency writersAgency = board.getMember().getAgency();
         if (writersAgency == null) {

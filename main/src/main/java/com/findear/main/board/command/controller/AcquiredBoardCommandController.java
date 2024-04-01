@@ -76,5 +76,13 @@ public class AcquiredBoardCommandController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "스크랩 되었습니다."));
     }
+
+    @DeleteMapping("/{boardId}/scrap")
+    public ResponseEntity<?> cancelScrap(@AuthenticationPrincipal Long memberId,
+                                         @PathVariable Long boardId) {
+        acquiredBoardCommandService.cancelScrap(memberId, boardId);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "스크랩 취소되었습니다."));
+    }
 }
 

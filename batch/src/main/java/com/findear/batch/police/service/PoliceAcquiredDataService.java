@@ -1,5 +1,7 @@
 package com.findear.batch.police.service;
 
+import com.findear.batch.ours.domain.FindearMatchingLog;
+import com.findear.batch.ours.repository.FindearMatchingLogRepository;
 import com.findear.batch.police.domain.PoliceAcquiredData;
 import com.findear.batch.police.exception.PoliceException;
 import com.findear.batch.police.repository.PoliceAcquiredDataRepository;
@@ -45,7 +47,6 @@ import java.util.*;
 public class PoliceAcquiredDataService {
 
     private final PoliceAcquiredDataRepository policeAcquiredDataRepository;
-
     private final RestHighLevelClient restHighLevelClient;
 
     @Value("${my.secret-key}")
@@ -483,8 +484,17 @@ public class PoliceAcquiredDataService {
                                 clrNm = null;
                             } else {
 
-                                String color = lastPart.substring(indexs.get(indexs.size()-2) + 1, indexs.get(indexs.size()-1));
-                                clrNm = color;
+//                                String color = lastPart.substring(indexs.get(indexs.size()-2) + 1, indexs.get(indexs.size()-1));
+                                String color;
+                                try {
+
+                                    color = lastPart.substring(indexs.get(indexs.size()-1) + 1, lastPart.length()-1);
+                                    clrNm = color;
+                                    System.out.println("color : " + color);
+                                } catch (StringIndexOutOfBoundsException e) {
+                                    color = null;
+                                    System.out.println("color : " + color);
+                                }
                             }
                         }
                     }
@@ -532,4 +542,5 @@ public class PoliceAcquiredDataService {
 
         return policeAcquiredDataRepository.count();
     }
+
 }

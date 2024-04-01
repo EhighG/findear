@@ -1,11 +1,10 @@
 package com.findear.batch.ours.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
-@Builder
+@AllArgsConstructor
 @Data
 public class SearchFindearMatchingListResDto {
 
@@ -15,7 +14,15 @@ public class SearchFindearMatchingListResDto {
 
     private Long acquiredBoardId;
 
-    private Float simulerityRate;
+    private Float similarityRate;
 
-    private LocalDateTime matchingAt;
+    private String matchingAt;
+
+    public SearchFindearMatchingListResDto(Long findearMatchingLogId, Long lostBoardId,
+                                           Long acquiredBoardId, Float similarityRate) {
+        this.findearMatchingLogId = findearMatchingLogId;
+        this.lostBoardId = lostBoardId;
+        this.acquiredBoardId = acquiredBoardId;
+        this.similarityRate = similarityRate;
+    }
 }

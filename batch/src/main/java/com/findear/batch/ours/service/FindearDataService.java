@@ -21,6 +21,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -177,8 +178,12 @@ public class FindearDataService {
             List<FindearMatchingLog> findearMatchingLogList = new ArrayList<>();
 
             Long findearMatchingId = findearMatchingLogRepository.count() + 1;
+            System.out.println("아이디 : " + findearMatchingId);
 
             for(Map<String, Object> res : resultList) {
+                System.out.println("lostBoardId : " + res.get("lostBoardId"));
+                System.out.println("acquiredBoardId : " + res.get("acquiredBoardId"));
+                System.out.println("similarityRate : " + res.get("similarityRate"));
 
                 MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
                         .lostBoardId(res.get("lostBoardId"))
@@ -191,7 +196,8 @@ public class FindearDataService {
                         .findearMatchingLogId(findearMatchingId++)
                         .lostBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getLostBoardId())))
                         .acquiredBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getAcquiredBoardId())))
-                        .simulerityRate(Float.parseFloat(String.valueOf(matchingFindearDatasToAiResDto.getSimilarityRate())))
+                        .similarityRate(Float.parseFloat(String.valueOf(matchingFindearDatasToAiResDto.getSimilarityRate())))
+                        .matchingAt(LocalDateTime.now().toString())
                         .build();
 
                 findearMatchingLogList.add(newFindearMatchingLog);
@@ -231,7 +237,7 @@ public class FindearDataService {
                 searchSourceBuilder.query(boolQueryBuilder);
                 searchSourceBuilder.size(pageSize);
                 searchSourceBuilder.from((page - 1) * size); // 페이지 번호와 사이즈에 따라 검색 시작 위치 설정
-                searchSourceBuilder.fetchSource(new String[]{"findearMatchingLogId", "lostBoardId", "acquiredBoardId", "simulerityRate"}, null);
+                searchSourceBuilder.fetchSource(new String[]{"findearMatchingLogId", "lostBoardId", "acquiredBoardId", "similarityRate", "matchingAt"}, null);
 
                 searchRequest.source(searchSourceBuilder);
                 SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
@@ -250,6 +256,88 @@ public class FindearDataService {
         } catch (Exception e) {
             throw new FindearException(e.getMessage());
         }
+    }
+
+    public List<SearchFindearMatchingListResDto> searchAllFindearMatchingList() {
+
+        List<SearchFindearMatchingListResDto> allDatas = new ArrayList<>();
+        String searchAfter = null;
+        int pageSize = 200; // 페이지당 가져올 문서 수
+
+        try {
+
+            while (true) {
+                SearchRequest searchRequest = new SearchRequest("findear_matching_log");
+                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+                searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+                searchSourceBuilder.size(pageSize);
+                searchSourceBuilder.fetchSource(new String[]{"findearMatchingLogId", "lostBoardId", "acquiredBoardId", "similarityRate", "matchingAt"}, null);
+
+                if (searchAfter != null) {
+                    searchSourceBuilder.sort("_doc");
+                    searchSourceBuilder.searchAfter(new Object[]{searchAfter});
+                }
+
+                searchRequest.source(searchSourceBuilder);
+                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+                SearchHit[] hits = searchResponse.getHits().getHits();
+                if (hits.length == 0) {
+                    break;
+                }
+
+                for (SearchHit hit : hits) {
+                    allDatas.add(convertToFindearMatchingLog(hit));
+                }
+
+                searchAfter = getLastSortValue(hits);
+                System.out.println("searchAfter = " + searchAfter);
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return allDatas;
+    }
+
+    private String getLastSortValue(SearchHit[] hits) {
+        SearchHit lastHit = hits[hits.length - 1];
+        Object[] sortValues = lastHit.getSortValues();
+        if (sortValues != null && sortValues.length > 0) {
+            return sortValues[0].toString();
+        } else {
+            return lastHit.getId();
+        }
+    }
+
+
+    private SearchFindearMatchingListResDto convertToFindearMatchingLog(SearchHit hit) {
+
+        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+
+        return new SearchFindearMatchingListResDto(
+
+                Long.parseLong(sourceAsMap.get("findearMatchingLogId").toString()),
+                Long.parseLong(sourceAsMap.get("lostBoardId").toString()),
+                Long.parseLong(sourceAsMap.get("acquiredBoardId").toString()),
+                Float.parseFloat(sourceAsMap.get("similarityRate").toString()),
+                sourceAsMap.get("matchingAt").toString()
+        );
+
+    }
+
+    public void deleteFindearMatchingDatas() {
+
+        findearMatchingLogRepository.deleteAll();
+    }
+
+    public Page<FindearMatchingLog> testApi() {
+
+        Page<FindearMatchingLog> result = (Page<FindearMatchingLog>) findearMatchingLogRepository.findAll();
+
+        return result;
     }
 
 //    private PoliceAcquiredData convertToFindearMatchingLog(SearchHit hit) {

@@ -28,19 +28,19 @@ def lost_matching(request):
         if acquiredBoardList:
             result = process_lost_item_data(body)
         else:  # 습득물 리스트가 없을 경우
-            return JsonResponse({'message':'해당 분실물과 매칭 가능한 lost112 데이터가 없습니다.'}, status = 200)
+            return JsonResponse({'message':'해당 분실물과 매칭 가능한 lost112 데이터가 없습니다.', 'result':None}, status = 200)
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    
     return JsonResponse({ 'message':'해당 분실물과 lost112 데이터와의 매칭이 완료되었습니다', 'result':result }, status = 200)
 
 # lost112 매칭 실행 함수
-def process_lost_item_data(items_info):
+def process_lost_item_data(found_item_info):
     # 코드 실행 시작 시간 측정
     start_time = time.time()
     
-    lostBoard = items_info["lostBoard"]
-    acquiredBoardList = items_info.get("acquiredBoardList")
+    lostBoard = found_item_info["lostBoard"]
+    acquiredBoardList = found_item_info.get("acquiredBoardList")
     
     # 데이터 처리 수행
     processed_data = matching.lost112_matching(lostBoard, acquiredBoardList)
@@ -67,7 +67,7 @@ def findear_matching(request):
         if acquiredBoardList:
             result = process_findear_item_data(body)
         else:  # 습득물 리스트가 없을 경우
-            return JsonResponse({'message':'해당 분실물과 매칭 가능한 findear 데이터가 없습니다.'}, status = 200)
+            return JsonResponse({'message':'해당 분실물과 매칭 가능한 findear 데이터가 없습니다.', 'result':None}, status = 200)
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    

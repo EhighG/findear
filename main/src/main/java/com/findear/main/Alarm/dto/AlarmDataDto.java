@@ -11,13 +11,11 @@ public class AlarmDataDto {
 
     private Long alarmId;
 
-    private Long memberId;
-
     private String author;
 
     private String content;
 
-    private LocalDateTime generatedAt;
+    private String generatedAt;
 
     private Boolean readYn;
 }

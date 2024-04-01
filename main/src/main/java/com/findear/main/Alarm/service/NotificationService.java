@@ -84,12 +84,19 @@ public class NotificationService {
 
     public void deleteNotification(Long memberId) {
 
-        Member findMember = memberQueryRepository.findById(memberId)
-                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+        try {
 
-        Notification notification = notificationRepository.findByMember(findMember)
-                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+            Member findMember = memberQueryRepository.findById(memberId)
+                    .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
-        notificationRepository.delete(notification);
+            Notification notification = notificationRepository.findByMemberId(findMember.getId());
+
+            if(notification != null) {
+                notificationRepository.delete(notification);
+            }
+
+        } catch (Exception e) {
+            throw new AlarmException(e.getMessage());
+        }
     }
 }

@@ -14,6 +14,10 @@ public interface AcquiredBoardQueryRepository extends JpaRepository<AcquiredBoar
     @Query("select ab from AcquiredBoard ab join fetch ab.board left join fetch ab.board.imgFileList where ab.board.id = :boardId and ab.board.deleteYn = false")
     Optional<AcquiredBoard> findByBoardId(Long boardId);
 
+    @Query("select ab from AcquiredBoard ab join fetch ab.board left join fetch ab.board.imgFileList where ab.id = :acquiredBoardId and ab.board.deleteYn = false")
+    Optional<AcquiredBoard> findById(Long acquiredBoardId);
+
+
     @Query("select ab from AcquiredBoard ab join fetch ab.board left join fetch ab.board.imgFileList where ab.board.deleteYn = false")
     List<AcquiredBoard> findAll();
 }

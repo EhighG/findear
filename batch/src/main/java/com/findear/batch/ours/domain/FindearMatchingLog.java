@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(indexName = "findear_matching_log")
@@ -19,15 +21,18 @@ public class FindearMatchingLog {
 
     private Long acquiredBoardId;
 
-    private Float simulerityRate;
+    private Float similarityRate;
+
+    private String matchingAt;
 
     @Builder
     public FindearMatchingLog(Long findearMatchingLogId, Long lostBoardId,
-                              Long acquiredBoardId, Float simulerityRate) {
+                              Long acquiredBoardId, Float similarityRate, String matchingAt) {
 
         this.findearMatchingLogId = findearMatchingLogId;
         this.lostBoardId = lostBoardId;
         this.acquiredBoardId = acquiredBoardId;
-        this.simulerityRate = simulerityRate;
+        this.similarityRate = similarityRate;
+        this.matchingAt = matchingAt;
     }
 }

@@ -1,12 +1,14 @@
 package com.findear.batch.ours.controller;
 
 import com.findear.batch.common.response.SuccessResponse;
+import com.findear.batch.ours.domain.FindearMatchingLog;
 import com.findear.batch.ours.dto.LostBoardMatchingDto;
 import com.findear.batch.ours.dto.MatchingFindearDatasToAiResDto;
 import com.findear.batch.ours.dto.SearchFindearMatchingListResDto;
 import com.findear.batch.ours.service.FindearDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,15 +51,51 @@ public class FindearDataController {
 
     }
 
+    @GetMapping("")
+    public ResponseEntity<?> searchAllFindearMatchingList() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        List<SearchFindearMatchingListResDto> result = findearDataService.searchAllFindearMatchingList();
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "findear 매칭 리스트 조회 성공", result));
+    }
+
     @GetMapping("/{memberId}")
     public ResponseEntity<?> searchFindearMatchingList(@PathVariable Long memberId,
-                                                       @RequestParam int page, @RequestParam int size) {
+                                                       @RequestParam(required = false, defaultValue = "1") int page,
+                                                       @RequestParam(required = false, defaultValue = "10") int size) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
         List<SearchFindearMatchingListResDto> result = findearDataService.searchFindearMatchingList(page, size, memberId);
 
-        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "findear 매칭 리스트 조회 성공", result));
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
+    }
+
+    @GetMapping("/test-api")
+    public ResponseEntity<?> testApi() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        Page<FindearMatchingLog> result = findearDataService.testApi();
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 조회 성공", result));
+
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteFindearMatchingDatas() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
+        findearDataService.deleteFindearMatchingDatas();
+
+        return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 삭제 성공", null));
+
     }
 }

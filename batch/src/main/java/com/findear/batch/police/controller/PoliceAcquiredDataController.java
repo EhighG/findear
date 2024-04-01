@@ -1,6 +1,7 @@
 package com.findear.batch.police.controller;
 
 import com.findear.batch.common.response.SuccessResponse;
+import com.findear.batch.ours.domain.FindearMatchingLog;
 import com.findear.batch.police.domain.PoliceAcquiredData;
 import com.findear.batch.police.dto.SaveDataRequestDto;
 import com.findear.batch.police.service.PoliceAcquiredDataService;
@@ -103,4 +104,5 @@ public class PoliceAcquiredDataController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "모든 데이터 삭제 성공", null));
 
     }
+
 }

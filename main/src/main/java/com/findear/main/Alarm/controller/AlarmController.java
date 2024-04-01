@@ -40,8 +40,13 @@ public class AlarmController {
     @PostMapping("/send-data/{memberId}")
     public void sendDataTest(@PathVariable Long memberId, @RequestBody AlarmDataDto alarmDataDto) {
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
         alarmDataDto.setGeneratedAt(LocalDateTime.now());
         emitterService.alarm(memberId, alarmDataDto, "알림 갔니 인성아", "message");
+
+
     }
 
     @PostMapping("/send-fcm/{memberId}")

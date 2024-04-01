@@ -84,6 +84,7 @@ public class MessageQueryService {
             return result;
 
         } catch (Exception e) {
+
             throw new MessageException(e.getMessage());
         }
     }

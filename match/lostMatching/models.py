@@ -29,8 +29,10 @@ class matchModel():
         # load model
         load_dotenv()
         path = os.getenv("MODEL_PATH")
-        #model = fasttext.load_model(path)
+        self.model = fasttext.load_model(path)
 
+        self.kiwi = Kiwi()
+        self.stem_tag = ['NNG', 'NNP', 'VA'] 
         # open color crawling
         self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
         self.driver = webdriver.Chrome()
@@ -43,7 +45,6 @@ class matchModel():
     def setData(self, lost, found):
         self.lost = lost
         self.found = found
-        self.score = pd.DataFrame()
         logger.debug(f'Get Data')
         logger.debug(f'lost :: {lost}')
         logger.debug(f'found :: {found}')
@@ -67,6 +68,9 @@ class matchModel():
         elif self.source == 'lost112':
             pass
 
+        self.score = pd.DataFrame()
+        self.score['id'] = self.found['acquiredBoardId']
+
     def calColor(self):
         std = 100 
         self.score['color'] = 0
@@ -75,7 +79,6 @@ class matchModel():
         npLst = np.array([])
         for i in self.found['color']:
             foundColor = self.getColor(i)
-            print(foundColor)
             if foundColor is None:
                 npLst = np.append(npLst,[255])
                 continue
@@ -90,13 +93,66 @@ class matchModel():
         self.score['color'] = nplst
         return
     
-    def cal(self):
-        pass
+    def calDistance(self):
+        std = 20
+        npLst = np.array([[hv((y,x), ( self.lost['ypos'],self.lost['xpos']), unit='km')] for x,y in zip(self.found['xpos'], self.found['ypos']) ])
+        minmaxScaler = MinMaxScaler().fit([[0],[std]])
+        X_train_minmax = minmaxScaler.transform(npLst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
+        self.score['place'] = nplst
+        return None
     
+    def calName(self):
+        lostName = self.lost['productName'].replace(' ','')
+        foundName = self.found['productName'].map(lambda x: x.replace(' ', '')).to_list()
+        npLst = np.array([self.getCoSim(self.model[lostName], self.model[i]) for i in foundName])
+        self.score['name'] = npLst
+        return None
+    
+    def calDesc(self):
+        foundToken = [self.getDocumentToken(document) for document in self.found['description']]
+        print(foundToken)
+        lostToken = self.getDocumentToken(self.lost['description']) 
+
+        lostVector = self.getDocumentVector(lostToken)
+        foundVector = [self.getDocumentVector(document) for document in foundToken]
+
+        npLst = np.array([self.getCoSim(lostVector, i) for i in foundVector])
+        self.score['desc'] = npLst
+    
+    def aggregateScore(self):
+
+        self.score['mean_value'] = self.score.iloc[:, 1:].mean(axis=1)
+        self.score['mean_value'] = self.score['mean_value'].round(decimals=5)
+        
+        # 평균 값을 기준으로 DataFrame 정렬
+        df_sorted = self.score.sort_values(by='mean_value', ascending=False)
+        print(df_sorted)
+        
+        # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
+        lostBoardId = self.lost["lostBoardId"]
+        result_data = [
+            {"lostBoardId": int(lostBoardId), "acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
+            for index, row in df_sorted.loc[:, ['id', 'mean_value']].iterrows()
+        ]
+        
+        print(result_data)
+        return result_data  
+
 
     def test(self):
         print('teststest')
         return 'test'
+
+    def getDocumentVector(self, document):
+        vector = np.array(sum(self.model[doc] for doc in document)) / len(document)
+        return vector
+
+    def getDocumentToken(self, document):
+        charEngNum = re.findall(r'[A-Za-z0-9]+', document)
+        meaningfulText = self.kiwi.tokenize(document)
+        token = [t.form for t in meaningfulText if t.tag in self.stem_tag] + charEngNum
+        return token
 
     def getColor(self, query):
         '''
@@ -123,6 +179,7 @@ class matchModel():
         else:
             index = random.randint(0, len(colorLst))
 
+        print(index)
         select = Select(colorBox)
         select.select_by_index(index)
         selected_option = select.first_selected_option
@@ -178,6 +235,10 @@ class matchModel():
         v3 = sh
 
         return np.sqrt(v1 * v1 + v2 * v2 + (delta_H2 / (v3 * v3)))
+    
+    def getCoSim(self, word1, word2):
+        return np.dot(word1, word2) / (np.linalg.norm(word1) * np.linalg.norm(word2))
+
 
 if __name__ == '__main__':
     testLost = {
@@ -228,4 +289,9 @@ if __name__ == '__main__':
     
     testModel.preprocess('findear')
     testModel.calColor()
+    testModel.calDistance()
+    testModel.calName()
+    testModel.calDesc()
     print(testModel.score)
+    ans = testModel.aggregateScore()
+    print(ans)

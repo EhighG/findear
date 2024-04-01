@@ -63,6 +63,7 @@ public class MessageQueryService {
                             .boardId(findMessageRoom.getBoard().getId())
                             .thumbnailUrl(findMessageRoom.getBoard().getThumbnailUrl())
                             .productName(findMessageRoom.getBoard().getProductName()).build())
+                    .enquirerTelNum(findMessageRoom.getMember().getPhoneNumber())
                     .build();
 
             for(Message m : findMessageRoom.getMessageList()) {

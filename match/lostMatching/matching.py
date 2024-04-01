@@ -19,12 +19,14 @@ start_time = time.time()
 
 # .env 파일에서 환경 변수를 불러오기
 load_dotenv()
-
 path = os.getenv("MODEL_PATH")
 model = fasttext.load_model(path)
 model.get_words(on_unicode_error='ignore')
 def word_cosine_similarity(word1, word2):
     return np.dot(model[word1], model[word2]) / (np.linalg.norm(model[word1]) * np.linalg.norm(model[word2]))
+
+from .models import matchModel
+testModel = matchModel()
 
 colors = {
     '화이트': 'FFFFFF',
@@ -97,6 +99,7 @@ def findear_matching(lostBoard, acquiredBoardList):
                 green = int(color[2:4], base=16)
                 blue = int(color[4:], base=16)
                 tmp = np.sqrt(0.3 * ((lostRed - red) ** 2) + 0.59 * ((lostGreen - green) ** 2) + 0.11 * ((lostBlue - blue) ** 2))
+                print(tmp)
                 tmplst.append([tmp])
             else:  # 습득물 색상이 기타 혹은 다른 것이라면
                 tmplst.append([255])
@@ -106,6 +109,7 @@ def findear_matching(lostBoard, acquiredBoardList):
         nplst = 1- np.array(X_train_minmax).squeeze()
 
         score['color'] = nplst
+        print('color', score.color)
 
     # # matching by place
     tmpdf = df.copy()
@@ -197,7 +201,9 @@ print(f"matching.py 실행 시간: {execution_time} 초")
 
 
 def lost112_matching(lostBoard, acquiredBoardList):
-    
+    '''
+    '''
+    testModel.defineOrigin('lost')    
     df = pd.DataFrame(acquiredBoardList)
     
     # 데이터 타입 변환
@@ -294,3 +300,6 @@ def lost112_matching(lostBoard, acquiredBoardList):
     
     print(result_data)
     return result_data  
+
+
+    

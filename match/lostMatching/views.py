@@ -19,10 +19,6 @@ def health(request):
 
 def lost_matching(request):
     if request.method == 'POST':
-        # try:
-        #     body = json.loads(request.body)
-        # except JSONDecodeErorr:
-        #     return JsonResponse({'error':'invalid json'}, status=400)
         body = json.loads(request.body)
         data = process_lost_item_data(body)
     return JsonResponse({ 'message':'success', 'result':data }, status = 200)
@@ -52,7 +48,7 @@ def findear_matching(request):
         if acquiredBoardList:
             result = process_findear_item_data(body)
         else:  # 습득물 리스트가 없을 경우
-            return JsonResponse({'message':'해당 분실물과 매칭 가능한 findear 데이터가 없습니다.'}, status = 200)
+            return JsonResponse({'message':'해당 분실물과 매칭 가능한 findear 데이터가 없습니다.', 'result':None}, status = 200)
     else:  # post 요청이 아닐 경우
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
    

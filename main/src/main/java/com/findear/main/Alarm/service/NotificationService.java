@@ -89,10 +89,12 @@ public class NotificationService {
             Member findMember = memberQueryRepository.findById(memberId)
                     .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
-            Notification notification = notificationRepository.findByMember(findMember)
-                    .orElseThrow(() -> new AlarmException("파이어베이스 토큰이 존재하지 않습니다."));
+            Notification notification = notificationRepository.findByMemberId(findMember.getId());
 
-            notificationRepository.delete(notification);
+            if(notification != null) {
+                notificationRepository.delete(notification);
+            }
+
         } catch (Exception e) {
             throw new AlarmException(e.getMessage());
         }

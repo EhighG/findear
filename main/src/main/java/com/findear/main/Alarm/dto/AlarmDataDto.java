@@ -15,7 +15,7 @@ public class AlarmDataDto {
 
     private String content;
 
-    private LocalDateTime generatedAt;
+    private String generatedAt;
 
     private Boolean readYn;
 }

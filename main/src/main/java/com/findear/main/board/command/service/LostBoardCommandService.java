@@ -120,7 +120,6 @@ public class LostBoardCommandService {
         }
 
         return new PostLostBoardResDto(savedBoard.getId(), result);
-//        return result;
     }
 
     public Long modify(ModifyLostBoardReqDto modifyReqDto) {

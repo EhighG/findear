@@ -36,7 +36,7 @@ public class AlarmService {
                         .alarmId(a.getId())
                         .author(a.getAuthor())
                         .content(a.getContent())
-                        .generatedAt(a.getGeneratedAt())
+                        .generatedAt(a.getGeneratedAt().toString())
                         .readYn(a.getReadYn()).build());
             }
 
@@ -59,7 +59,7 @@ public class AlarmService {
                     .author(findAlarm.getAuthor())
                     .content(findAlarm.getContent())
                     .readYn(findAlarm.getReadYn())
-                    .generatedAt(findAlarm.getGeneratedAt()).build();
+                    .generatedAt(findAlarm.getGeneratedAt().toString()).build();
 
             return result;
 

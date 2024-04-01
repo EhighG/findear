@@ -68,7 +68,8 @@ public class AcquiredBoardQueryService {
         int eIdx = pageSize * pageNo;
         int sIdx = eIdx - pageSize;
         if (sIdx >= filtered.size()) return null;
-        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / pageSize + 1);
+        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())),
+                filtered.size() / pageSize + (filtered.size() % pageSize != 0 ? 1 : 0));
     }
 
     public AcquiredBoardDetailResDto findById(Long boardId) {

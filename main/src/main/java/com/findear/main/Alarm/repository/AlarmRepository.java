@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
-    @Query("select a from Alarm a where a.member.id = :memberId")
+    @Query("select a from Alarm a where a.member.id = :memberId order by a.id desc")
     List<Alarm> findAllByMemberId(Long memberId);
 
     @Query("select a from Alarm a where a.id = :alarmId and a.member.id = :memberId")

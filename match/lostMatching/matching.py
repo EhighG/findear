@@ -25,9 +25,55 @@ model.get_words(on_unicode_error='ignore')
 def word_cosine_similarity(word1, word2):
     return np.dot(model[word1], model[word2]) / (np.linalg.norm(model[word1]) * np.linalg.norm(model[word2]))
 
+testLost = {
+        "lostBoardId" : 1,
+        "productName" : "어린이 카드지갑",
+        "color" : "빨강",
+        "categoryName" : "지갑",
+        "description" : "물품에 대한 설명",
+        "aiDescription": "",
+        "lostAt" : "2024-03-26 00:00:00",
+        "xpos" :127.04,
+        "ypos" : 37.5013
+    }
+testFound = [
+        {
+            "acquiredBoardId" : 1,
+            "productName" : "여성 장지갑",
+            "color" : "빨강",
+            "categoryName" : "지갑",
+            "description" : "왼쪽 상단에 흠집이 가있습니다.",
+            "xpos" : 126.933,
+            "ypos" : 37.545,
+            "registeredAt" : "2024-03-25 00:00:00"
+        },
+        {
+            "acquiredBoardId" : 2,
+            "productName" : "에르메스",
+            "color" : "파랑",
+            "categoryName" : "지갑",
+            "description" : "모델은 미상입니다. 한정판으로 보입니다.",
+            "xpos" : 127.05,
+            "ypos" : 37.5034,
+            "registeredAt" : "2024-03-25 00:00:00"
+        },
+        {
+            "acquiredBoardId" : 3,
+            "productName" : "코끼리 그림 박힌 지갑",
+            "color" : "초록",
+            "categoryName" : "지갑",
+            "description" :     "물품에 대한 설명",
+            "xpos" : 126.23,
+            "ypos" : 35.24,
+            "registeredAt" : "2024-03-25 00:00:00"
+        }
+    ]
 from .models import matchModel
 testModel = matchModel()
-testModel.test()
+testModel.setData(testLost, testFound)
+testModel.preprocess('findear')
+testModel.calColor()
+print(testModel.score)
 
 colors = {
     '화이트': 'FFFFFF',
@@ -100,6 +146,7 @@ def findear_matching(lostBoard, acquiredBoardList):
                 green = int(color[2:4], base=16)
                 blue = int(color[4:], base=16)
                 tmp = np.sqrt(0.3 * ((lostRed - red) ** 2) + 0.59 * ((lostGreen - green) ** 2) + 0.11 * ((lostBlue - blue) ** 2))
+                print(tmp)
                 tmplst.append([tmp])
             else:  # 습득물 색상이 기타 혹은 다른 것이라면
                 tmplst.append([255])
@@ -109,6 +156,7 @@ def findear_matching(lostBoard, acquiredBoardList):
         nplst = 1- np.array(X_train_minmax).squeeze()
 
         score['color'] = nplst
+        print('color', score.color)
 
     # # matching by place
     tmpdf = df.copy()

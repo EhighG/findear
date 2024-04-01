@@ -35,6 +35,7 @@ class matchModel():
         self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
         self.driver = webdriver.Chrome()
         self.driver.get(self.webPath)
+        print('driver', self.driver)
         self.timeToWait = 0.001
 
         return None
@@ -72,16 +73,22 @@ class matchModel():
         if lostColor is None: return None
         lostRGB = self.getCodeFromColor(lostColor)
         npLst = np.array([])
-
+        self.found['color'] = ['레드', '블루', '그린']
         for i in self.found['color']:
             foundColor = self.getColor(i)
+            print(foundColor)
             if foundColor is None:
-                np.append(npLst,[[255]])
+                npLst = np.append(npLst,[255])
                 continue
             foundRGB = self.getCodeFromColor(foundColor)
-            colorScore = sum( [w*((l-f)**2) for w,l,f in zip([0.3,0.59,0.11], lostRGB, foundRGB)])
-            np.append(npLst,[[colorScore]])
-
+            for w,l,f in zip([0.3,0.59,0.11], lostRGB, foundRGB):
+                print(w, l, f)
+                print(w*((l-f)**2))
+            colorScore = np.sqrt(sum([ w*((l-f)**2) for w,l,f in zip([0.3,0.59,0.11], lostRGB, foundRGB)]))
+            print(colorScore)
+            npLst = np.append(npLst,[colorScore])
+        print('complete np', npLst )
+        npLst = npLst.reshape(-1,1)
         minmaxScaler = MinMaxScaler().fit([[0],[255]])
         X_train_minmax = minmaxScaler.transform(npLst)
         nplst = 1 - np.array(X_train_minmax).squeeze()

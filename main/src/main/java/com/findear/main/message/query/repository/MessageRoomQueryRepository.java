@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface MessageRoomQueryRepository extends JpaRepository<MessageRoom, Long> {
 
-
     @Query("select mr from MessageRoom mr where mr.board.id = :boardId and (mr.board.member.id = :memberId or mr.member.id = :memberId)")
     MessageRoom findByBoardIdAndMemberId(Long boardId, Long memberId);
 

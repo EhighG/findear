@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import os
 import time
 import logging
+import pickle
 
 from selenium import webdriver 
 from selenium.webdriver.common.by import By # find_element 함수 쉽게 쓰기 위함
@@ -33,21 +34,32 @@ class matchModel():
             print("WorkingTime[{}]: {} sec".format(original_fn.__name__, end_time-start_time))
             return result
         return wrapper_fn
+
     def __init__(self) -> None:
         # load model
         load_dotenv()
         path = os.getenv("MODEL_PATH")
         self.model = fasttext.load_model(path)
 
+        # load kiwi
         self.kiwi = Kiwi()
         self.stem_tag = ['NNG', 'NNP', 'VA'] 
+
         # open color crawling
         self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
-        self.driver = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        self.driver = webdriver.Chrome(options=options)
         self.driver.get(self.webPath)
-        print('driver', self.driver)
         self.timeToWait = 0.00001
 
+        # open color cache file
+        if 'colorDict.pickle' in os.listdir('.'):
+            with open('colorDict.pickle', 'rb') as f:
+                self.colorDict = pickle.load(f)
+                print(self.colorDict)
+        else:
+            self.colorDict = dict()
         return None
 
     def setData(self, lost, found):
@@ -167,6 +179,9 @@ class matchModel():
         '''
         None 반환 시 색 계산 제외
         '''
+        tmpPkl = query
+        if query in self.colorDict:
+            return self.colorDict[query]
         if query == '':
             return None
         elif len(query) == 1:
@@ -199,6 +214,7 @@ class matchModel():
         labBox = self.driver.find_element(By.XPATH, '/html/body/form/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr[3]/td[3]/table/tbody/tr[15]/td/table/tbody/tr')
         lab = labBox.find_elements(By.TAG_NAME, 'input')
         labLst = [float(i.get_attribute('value')) for i in lab]
+        self.colorDict[tmpPkl] = labLst 
         return labLst
     
     def getCodeFromColor(self, color):

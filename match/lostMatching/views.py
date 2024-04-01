@@ -9,13 +9,18 @@ import time
 import re
 from . import matching
 import logging
-
+import pickle
 from .models import matchModel
 
 logger = logging.getLogger(__name__)
 # Create your views here.
 
 matchInstance = matchModel()
+
+def save_color(request):
+    with open('colorDict.picklie', 'wb') as f:
+        pickle.dump(matchInstance.colorDict, f)
+    return JsonResponse({"saved"}, status = 200)
 
 def health(request):
     return JsonResponse({"STATUS":"UP"}, status = 200)

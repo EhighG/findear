@@ -11,8 +11,6 @@ public class AlarmDataDto {
 
     private Long alarmId;
 
-    private Long memberId;
-
     private String author;
 
     private String content;

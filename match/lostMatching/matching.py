@@ -5,8 +5,6 @@ import numpy as np
 import fasttext
 from sklearn.preprocessing import MinMaxScaler
 import haversine.haversine as hv
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from kiwipiepy import Kiwi
 import re
 from dotenv import load_dotenv
@@ -117,16 +115,20 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     tmplst = []
 
-    for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
-        dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
-        # print(dist)
-        tmplst.append([dist])
+    if -90 < lostBoard['ypos'] < 90 and -180 < lostBoard['xpos'] < 180:  # 분실물 위경도 범위 확인
+        for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
+            if -90 < y < 90 and -180 < x < 180:  # 습득물 위경도 범위 확인
+                dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
+                # print(dist)
+                tmplst.append([dist])
+            else:
+                tmplst.append([1000])
 
-    minmaxScaler = MinMaxScaler().fit([[0],[20]])
-    X_train_minmax = minmaxScaler.transform(tmplst)
-    nplst = 1- np.array(X_train_minmax).squeeze()
-    # print(nplst)
-    score['place'] = nplst
+        minmaxScaler = MinMaxScaler().fit([[0],[20]])
+        X_train_minmax = minmaxScaler.transform(tmplst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
+        # print(nplst)
+        score['place'] = nplst
 
     # # matching by text
 
@@ -191,6 +193,7 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     print(result_data)
     return result_data  
+ 
 
 # 코드 실행 종료 시간 측정
 end_time = time.time()
@@ -203,7 +206,6 @@ print(f"matching.py 실행 시간: {execution_time} 초")
 def lost112_matching(lostBoard, acquiredBoardList):
     '''
     '''
-    testModel.defineOrigin('lost')    
     df = pd.DataFrame(acquiredBoardList)
     
     # 데이터 타입 변환
@@ -211,16 +213,17 @@ def lost112_matching(lostBoard, acquiredBoardList):
     lostBoard["xpos"] = float(lostBoard["xpos"])
     lostBoard["ypos"] = float(lostBoard["ypos"])
     
-    df['acquiredBoardId'] = df['acquiredBoardId'].astype(int)
+    df['id'] = df['id'].astype(int)
+    df = df.rename(columns={'fdPrdtNm':'productName', 'clrNm':'color', 'depPlace':'place'})  # 칼럼명 통일
 
     logger.warning(df)
     logger.warning(lostBoard)
     # # make whole count table
     score = pd.DataFrame()
-    score['id'] = df['acquiredBoardId']
+    score['id'] = df['id']
     score['name'] = 0
     #score['color'] = 0
-    #score['place'] = 0
+    score['place'] = 0
     score['desc'] = 0
 
     # # matching by name
@@ -234,6 +237,27 @@ def lost112_matching(lostBoard, acquiredBoardList):
         tmplst.append(tmp)
         # print(tmp,i)
     score['name'] = tmplst
+    
+    # # matching by place
+    tmpdf = df.copy()
+    criteria = 20
+    
+    tmplst = []
+
+    if -90 < lostBoard['ypos'] < 90 and -180 < lostBoard['xpos'] < 180:  # 분실물 위경도 범위 확인
+        for x,y in zip(tmpdf['xpos'], tmpdf['ypos']):
+            if -90 < y < 90 and -180 < x < 180:  # 습득물 위경도 범위 확인
+                dist = hv((y,x), ( lostBoard['ypos'],lostBoard['xpos']), unit='km')
+                # print(dist)
+                tmplst.append([dist])
+            else:
+                tmplst.append([1000])
+
+        minmaxScaler = MinMaxScaler().fit([[0],[20]])
+        X_train_minmax = minmaxScaler.transform(tmplst)
+        nplst = 1- np.array(X_train_minmax).squeeze()
+        # print(nplst)
+        score['place'] = nplst
 
 
 

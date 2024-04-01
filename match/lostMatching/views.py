@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import json
 import pandas as pd
-# from numpyencoder import NumpyEncoder
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -17,29 +16,44 @@ logger = logging.getLogger(__name__)
 def health(request):
     return JsonResponse({"STATUS":"UP"}, status = 200)
 
+# lost112 매칭 요청 처리 함수
 def lost_matching(request):
+    logger.warning(json.loads(request.body))
     if request.method == 'POST':
-        # try:
-        #     body = json.loads(request.body)
-        # except JSONDecodeErorr:
-        #     return JsonResponse({'error':'invalid json'}, status=400)
-        body = json.loads(request.body)
-        data = process_lost_item_data(body)
-    return JsonResponse({ 'message':'success', 'result':data }, status = 200)
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error':'invalid json'}, status=400)
+        acquiredBoardList = body.get("acquiredBoardList")
+        if acquiredBoardList:
+            result = process_lost_item_data(body)
+        else:  # 습득물 리스트가 없을 경우
+            return JsonResponse({'message':'해당 분실물과 매칭 가능한 lost112 데이터가 없습니다.'}, status = 200)
+    else:  # post 요청이 아닐 경우
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+   
+    return JsonResponse({ 'message':'해당 분실물과 lost112 데이터와의 매칭이 완료되었습니다', 'result':result }, status = 200)
 
-def process_lost_item_data(found_item_info):
-    # 받은 데이터를 이용하여 DataFrame 생성
-    lostBoard = found_item_info["lostBoard"]
-    acquiredBoardList = found_item_info.get("acquiredBoardList")
-
+# lost112 매칭 실행 함수
+def process_lost_item_data(items_info):
+    # 코드 실행 시작 시간 측정
+    start_time = time.time()
+    
+    lostBoard = items_info["lostBoard"]
+    acquiredBoardList = items_info.get("acquiredBoardList")
+    
     # 데이터 처리 수행
     processed_data = matching.lost112_matching(lostBoard, acquiredBoardList)
+    
+    # 코드 실행 종료 시간 측정
+    end_time = time.time()
 
+    # 시작 시간과 종료 시간의 차이를 계산하여 실행 시간 출력
+    execution_time = end_time - start_time
+    print(f"실행 시간: {execution_time} 초")
+    
     return processed_data
 
-def analyze_lost_data(data):
-    # 데이터 분석 수행
-    return data
 
 # findear 매칭 요청 처리 함수
 def findear_matching(request):

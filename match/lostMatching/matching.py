@@ -189,6 +189,7 @@ def findear_matching(lostBoard, acquiredBoardList):
     
     print(result_data)
     return result_data  
+ 
 
 # 코드 실행 종료 시간 측정
 end_time = time.time()

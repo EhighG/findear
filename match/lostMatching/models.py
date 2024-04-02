@@ -245,6 +245,7 @@ class matchModel():
         None 반환 시 색 계산 제외
         '''
         tmpPkl = query
+        if query is None: return None
         if query in self.colorDict:
             return self.colorDict[query]
         if query == '':

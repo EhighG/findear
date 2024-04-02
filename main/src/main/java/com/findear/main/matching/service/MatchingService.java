@@ -41,11 +41,11 @@ public class MatchingService {
     }
 
     public Map<String, Object> getLost112BestsResponse(Long memberId, int pageNo, int size) {
-        return sendRequest("member", "lost112", memberId, pageNo, size);
+        return sendRequest("member", "police", memberId, pageNo, size);
     }
 
     public Map<String, Object> getLost112MatchingsResponse(Long lostBoardId, int pageNo, int size) {
-        return sendRequest("board", "lost112", lostBoardId, pageNo, size);
+        return sendRequest("board", "police", lostBoardId, pageNo, size);
     }
 
     private Map<String, Object> parseFindearBoardInfo(Map<String, Object> response) {

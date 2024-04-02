@@ -69,7 +69,6 @@ public class MemberCommandController {
         response.sendRedirect("https://j10a706.p.ssafy.io/members/login?code=" + code);
     }
 
-
     @GetMapping("/after-login")
     public ResponseEntity<?> login(@RequestParam String code) {
         return ResponseEntity

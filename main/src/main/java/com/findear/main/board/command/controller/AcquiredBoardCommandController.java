@@ -67,4 +67,31 @@ public class AcquiredBoardCommandController {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "인계가 취소되었습니다."));
     }
+
+    // 스크랩
+    @PostMapping("/{boardId}/scrap")
+    public ResponseEntity<?> scrap(@AuthenticationPrincipal Long memberId,
+                                   @PathVariable Long boardId,
+                                   @RequestParam Boolean isFindear) {
+        acquiredBoardCommandService.scrap(memberId, boardId, isFindear);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "스크랩 되었습니다."));
+    }
+
+    @GetMapping("/scraps")
+    public ResponseEntity<?> findScrapList(@AuthenticationPrincipal Long memberId) {
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
+                        acquiredBoardCommandService.findScrapList(memberId)));
+    }
+
+    @DeleteMapping("/{boardId}/scrap")
+    public ResponseEntity<?> cancelScrap(@AuthenticationPrincipal Long memberId,
+                                         @PathVariable Long boardId,
+                                         @RequestParam Boolean isFindear) {
+        acquiredBoardCommandService.cancelScrap(memberId, boardId, isFindear);
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "스크랩 취소되었습니다."));
+    }
 }
+

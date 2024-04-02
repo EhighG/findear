@@ -75,11 +75,19 @@ public class AcquiredBoardQueryService {
         int eIdx = pageSize * pageNo;
         int sIdx = eIdx - pageSize;
         if (sIdx >= filtered.size()) return null;
-        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / pageSize + 1);
+        return new AcquiredBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())),
+                filtered.size() / pageSize + (filtered.size() % pageSize != 0 ? 1 : 0));
     }
 
-    public AcquiredBoardDetailResDto findById(Long boardId) {
+    public AcquiredBoardDetailResDto findByBoardId(Long boardId) {
         AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
+
+        return AcquiredBoardDetailResDto.of(acquiredBoard);
+    }
+
+    public AcquiredBoardDetailResDto findById(Long acquiredBoardId) {
+        AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findById(acquiredBoardId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
 
         return AcquiredBoardDetailResDto.of(acquiredBoard);

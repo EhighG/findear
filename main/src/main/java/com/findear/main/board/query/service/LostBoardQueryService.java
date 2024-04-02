@@ -55,13 +55,21 @@ public class LostBoardQueryService {
         int eIdx = PAGE_SIZE * pageNo;
         int sIdx = eIdx - PAGE_SIZE;
         if (sIdx >= filtered.size()) return null;
-        return new LostBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())), filtered.size() / PAGE_SIZE + 1);
+        return new LostBoardListResponse(filtered.subList(sIdx, Math.min(eIdx, filtered.size())),
+                filtered.size() / PAGE_SIZE + (filtered.size() % PAGE_SIZE != 0 ? 1 : 0));
     }
 
     public LostBoardDetailResDto findByBoardId(Long boardId) {
         LostBoard lostBoard = lostBoardQueryRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
 
+        return LostBoardDetailResDto.of(lostBoard);
+    }
+
+    public LostBoardDetailResDto findById(Long lostBoardId) {
+        LostBoard lostBoard = lostBoardQueryRepository.findById(lostBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
+        
         return LostBoardDetailResDto.of(lostBoard);
     }
 }

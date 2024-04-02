@@ -27,6 +27,7 @@ scikit-learn = "^1.4.1.post1"
 haversine = "^2.8.1"
 kiwipiepy = "^0.17.0"
 matplotlib = "^3.8.3"
+selenium = "^4.19.0"
 
 [build-system]
 requires = ["poetry-core"]

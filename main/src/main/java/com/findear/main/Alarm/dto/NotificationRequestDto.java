@@ -12,12 +12,14 @@ public class NotificationRequestDto {
 
     private String title;
     private String message;
+    private String type;
     private Long memberId;
 
     @Builder
-    public NotificationRequestDto(String title, String message, Long memberId) {
+    public NotificationRequestDto(String title, String message, String type, Long memberId) {
         this.title = title;
         this.message = message;
+        this.type = type;
         this.memberId = memberId;
     }
 }

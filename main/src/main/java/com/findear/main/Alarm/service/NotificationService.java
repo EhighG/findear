@@ -46,6 +46,7 @@ public class NotificationService {
 
             log.info("제목 : " + req.getTitle());
             log.info("메시지 : " + req.getMessage());
+            log.info("메시지 타입 : " + req.getType());
             log.info("토큰 : " + getNotificationToken(req.getMemberId()));
 
             Message message = Message.builder()

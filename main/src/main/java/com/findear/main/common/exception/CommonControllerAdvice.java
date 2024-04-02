@@ -7,6 +7,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,12 +26,18 @@ public class CommonControllerAdvice {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<?> handleAuthException(AuthenticationException e) {
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException e) {
         System.out.println("e.getMessage() = " + e.getMessage());
 //        return ResponseEntity
 //                .badRequest()
 //                .body(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
         return new ResponseEntity<>(new FailResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthorizationServiceException.class)
+    public ResponseEntity<?> handleAuthorizationException(AuthorizationServiceException e) {
+        e.printStackTrace();
+        return new ResponseEntity<>(new FailResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
 

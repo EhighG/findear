@@ -15,5 +15,5 @@ public interface Lost112ScrapRepository extends JpaRepository<Lost112Scrap, Long
     @Query("select s from Lost112Scrap s join fetch s.member where s.member = :member")
     List<Lost112Scrap> findAllByMember(Member member);
 
-    Optional<Lost112Scrap> findByMemberAndLost112BoardId(Member member, Long lostBoardId);
+    Optional<Lost112Scrap> findByMemberAndLost112AtcId(Member member, String lost112AtcId);
 }

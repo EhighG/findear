@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/members/login", "/members/emails/**", "/members/find-password", "/actuator/**", "/members/duplicate", "/error", "/assets/**",
                         "/alarm/**", "/acquisitions/lost112", "/members/token/refresh", "/favicon.ico", "/members/after-login",
-                                "/acquisitions/lost112/total-page").permitAll()
+                                "/acquisitions/lost112/total-page", "/acquisitions/returns/count").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.GET, "/acquisitions", "/losts").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

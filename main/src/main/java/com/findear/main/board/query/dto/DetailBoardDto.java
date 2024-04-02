@@ -1,6 +1,7 @@
 package com.findear.main.board.query.dto;
 
 import com.findear.main.board.common.domain.Board;
+import com.findear.main.board.common.domain.BoardStatus;
 import com.findear.main.board.common.domain.ImgFile;
 import com.findear.main.member.command.dto.BriefMemberDto;
 import com.findear.main.member.common.domain.Member;
@@ -26,6 +27,7 @@ public class DetailBoardDto {
     private List<String> imgUrls;
     private String color;
     private String registeredAt;
+    private BoardStatus status;
 
     public static DetailBoardDto of(Board board) {
         Member dbMember = board.getMember();
@@ -39,6 +41,7 @@ public class DetailBoardDto {
                 .imgUrls(imgFiles.stream().map(ImgFile::getImgUrl).toList())
                 .color(board.getColor())
                 .registeredAt(board.getRegisteredAt().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .status(board.getStatus())
                 .build();
     }
 }

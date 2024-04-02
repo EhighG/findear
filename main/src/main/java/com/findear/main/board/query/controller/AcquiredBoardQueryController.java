@@ -62,4 +62,11 @@ public class AcquiredBoardQueryController {
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
                         acquiredBoardQueryService.getLost112TotalPageNum(size)));
     }
+
+    @GetMapping("/returns/count")
+    public ResponseEntity<?> getYesterdaysReturnCount() {
+        return ResponseEntity
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
+                        acquiredBoardQueryService.getYesterdaysReturnCount()));
+    }
 }

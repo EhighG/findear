@@ -17,16 +17,16 @@ public class Lost112Scrap {
     @Column(name = "lost112_scrap_id")
     private Long id;
 
-    @Column(name = "lost112_board_id")
-    @JoinColumn(name = "lost112_board_id")
-    private Long lost112BoardId;
+    @Column(name = "lost112_atc_id")
+    @JoinColumn(name = "lost112_atc_id")
+    private String lost112AtcId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Lost112Scrap(Long lost112BoardId, Member member) {
-        this.lost112BoardId = lost112BoardId;
+    public Lost112Scrap(String lost112AtcId, Member member) {
+        this.lost112AtcId = lost112AtcId;
         this.member = member;
     }
 }

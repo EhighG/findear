@@ -1,6 +1,8 @@
 package com.findear.main.board.query.service;
 
+import com.findear.main.board.command.repository.ReturnLogRepository;
 import com.findear.main.board.common.domain.AcquiredBoard;
+import com.findear.main.board.common.domain.BoardStatus;
 import com.findear.main.board.common.domain.Lost112AcquiredBoardDto;
 import com.findear.main.board.query.dto.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
@@ -11,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -32,6 +37,7 @@ import java.util.stream.Stream;
 public class AcquiredBoardQueryService {
 
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
+    private final ReturnLogRepository returnLogRepository;
     private final String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch/search";
     private final String DEFAULT_SDATE_STRING = "2015-01-01";
     private final RestTemplate restTemplate;
@@ -45,6 +51,7 @@ public class AcquiredBoardQueryService {
         if (memberId != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getMember().getId().equals(memberId));
         }
+
         if (category != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().contains(category));
         }
@@ -129,5 +136,9 @@ public class AcquiredBoardQueryService {
         BatchServerResponseDto response = restTemplate.getForObject(BATCH_SERVER_URL + "/total", BatchServerResponseDto.class);
         Integer totalRowNum = (Integer) response.getResult();
         return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
+    }
+
+    public Long getYesterdaysReturnCount() {
+        return returnLogRepository.countReturn(LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
     }
 }

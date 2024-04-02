@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Optional<Notification> findByMember(Member member);
+    Notification findByMember(Member member);
 
     @Query("select n from Notification n where n.member.id = :memberId")
     Notification findByMemberId(Long memberId);

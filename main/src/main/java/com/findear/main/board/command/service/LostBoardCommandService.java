@@ -104,20 +104,24 @@ public class LostBoardCommandService {
 
         System.out.println("response : " + response.getBody());
 
-        List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
+        List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response
+                .getBody()
+                .get("result");
 
         log.info("매칭 결과 : " + resultList);
 
         List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 
-        for(Map<String, Object> res : resultList) {
+        if (resultList != null) {
+            for(Map<String, Object> res : resultList) {
 
-            MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
-                    .lostBoardId(res.get("lostBoardId"))
-                    .acquiredBoardId(res.get("acquiredBoardId"))
-                    .similarityRate(res.get("similarityRate")).build();
+                MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                        .lostBoardId(res.get("lostBoardId"))
+                        .acquiredBoardId(res.get("acquiredBoardId"))
+                        .similarityRate(res.get("similarityRate")).build();
 
-            result.add(matchingFindearDatasToAiResDto);
+                result.add(matchingFindearDatasToAiResDto);
+            }
         }
 
         return new PostLostBoardResDto(savedBoard.getId(), result);

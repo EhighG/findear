@@ -53,8 +53,8 @@ public class PoliceDataController {
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
     }
 
-    @GetMapping("/scrap")
-    public ResponseEntity<?> searchScrapBoard(SearchScrapBoardReqDto searchScrapBoardReqDto) {
+    @PostMapping("/scrap")
+    public ResponseEntity<?> searchScrapBoard(@RequestBody SearchScrapBoardReqDto searchScrapBoardReqDto) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));

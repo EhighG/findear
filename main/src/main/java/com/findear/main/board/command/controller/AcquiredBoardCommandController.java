@@ -71,7 +71,7 @@ public class AcquiredBoardCommandController {
     // 스크랩
     @PostMapping("/{boardId}/scrap")
     public ResponseEntity<?> scrap(@AuthenticationPrincipal Long memberId,
-                                   @PathVariable Long boardId,
+                                   @PathVariable String boardId,
                                    @RequestParam Boolean isFindear) {
         acquiredBoardCommandService.scrap(memberId, boardId, isFindear);
         return ResponseEntity
@@ -87,7 +87,7 @@ public class AcquiredBoardCommandController {
 
     @DeleteMapping("/{boardId}/scrap")
     public ResponseEntity<?> cancelScrap(@AuthenticationPrincipal Long memberId,
-                                         @PathVariable Long boardId,
+                                         @PathVariable String boardId,
                                          @RequestParam Boolean isFindear) {
         acquiredBoardCommandService.cancelScrap(memberId, boardId, isFindear);
         return ResponseEntity

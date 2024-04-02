@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class LostBoardDetailResDto {
-    private Long id;
+    private Long lostBoardId;
     private DetailBoardDto board;
     private String lostAt;
     private String suspiciousPlace;
@@ -29,7 +29,7 @@ public class LostBoardDetailResDto {
         List<ImgFile> imgFiles = board.getImgFileList();
 
         return LostBoardDetailResDto.builder()
-                .id(lostBoard.getId())
+                .lostBoardId(lostBoard.getId())
                 .board(DetailBoardDto.builder()
                         .id(board.getId())
                         .productName(board.getProductName())

@@ -131,7 +131,7 @@ class matchModel():
         for i in self.found['color']:
             foundColor = self.getColor(i)
             if foundColor is None:
-                npLst = np.append(npLst,[255])
+                npLst = np.append(npLst,[std])
                 continue
             diff = self.delta_E_CMC(lostColor, foundColor)
             npLst = np.append(npLst,[diff])
@@ -238,6 +238,8 @@ class matchModel():
         colorBox = self.driver.find_element(By.XPATH, '/html/body/form/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr[1]/td[1]/table/tbody/tr/td[3]/table/tbody/tr[6]/td/div/select')
         colorLst = colorBox.text.split('\n')
         if len(colorLst) == 1:
+            if colorLst[0] == '':
+                return None
             index = 0
         elif len(colorLst) == 0:
             return None

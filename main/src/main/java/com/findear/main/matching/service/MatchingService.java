@@ -1,22 +1,22 @@
 package com.findear.main.matching.service;
 
-import com.findear.main.board.common.domain.Board;
-import com.findear.main.board.query.dto.AcquiredBoardDetailResDto;
+import com.findear.main.board.common.domain.AcquiredBoard;
+import com.findear.main.board.common.domain.LostBoard;
 import com.findear.main.board.query.dto.BatchServerResponseDto;
-import com.findear.main.board.query.dto.LostBoardDetailResDto;
-import com.findear.main.board.query.service.AcquiredBoardQueryService;
-import com.findear.main.board.query.service.LostBoardQueryService;
-import com.findear.main.matching.model.dto.GetBestMatchingsResDto;
-import com.findear.main.matching.model.dto.BatchServerMatchingResDto;
 
+import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
+import com.findear.main.board.query.repository.LostBoardQueryRepository;
+import com.findear.main.matching.model.dto.FindearMatchingResDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,35 +25,68 @@ import java.util.List;
 public class MatchingService {
 
     private final RestTemplate restTemplate;
-    private final String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch/search";
-    private final LostBoardQueryService lostBoardQueryService;
-    private final AcquiredBoardQueryService acquiredBoardQueryService;
+    private final LostBoardQueryRepository lostBoardQueryRepository;
+    private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
 
-    public List<GetBestMatchingsResDto> getBestMatchings(Long memberId) {
-        List<BatchServerMatchingResDto> matchings = requestBestMatchings(memberId);
-        List<GetBestMatchingsResDto> result = new ArrayList<>(matchings.size());
+    private final String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch";
 
-        for (BatchServerMatchingResDto matchingInfo : matchings) {
-            result.add(matchingToResult(matchingInfo));
+    public Map<String, Object> getFindearBestsResponse(Long memberId, int pageNo, int size) {
+        Map<String, Object> response = sendRequest("member", "findear", memberId, pageNo, size);
+        return parseFindearBoardInfo(response);
+    }
+
+    public Map<String, Object> getFindearMatchingsResponse(Long lostBoardId, int pageNo, int size) {
+        Map<String, Object> response = sendRequest("board", "findear", lostBoardId, pageNo, size);
+        return parseFindearBoardInfo(response);
+    }
+
+    public Map<String, Object> getLost112BestsResponse(Long memberId, int pageNo, int size) {
+        return sendRequest("member", "lost112", memberId, pageNo, size);
+    }
+
+    public Map<String, Object> getLost112MatchingsResponse(Long lostBoardId, int pageNo, int size) {
+        return sendRequest("board", "lost112", lostBoardId, pageNo, size);
+    }
+
+    private Map<String, Object> parseFindearBoardInfo(Map<String, Object> response) {
+        List<Map<String, Object>> matchingList = (List<Map<String, Object>>) response.get("matchingList");
+        List<FindearMatchingResDto> parsedMatchingList = new ArrayList<>(matchingList.size());
+        for (Map<String, Object> matchingInfo : matchingList) {
+            Long lostBoardId = Long.parseLong(matchingInfo.get("lostBoardId").toString());
+            Long acquiredBoardsboardId = Long.parseLong(matchingInfo.get("acquiredBoardId").toString());
+            Optional<LostBoard> optionalLostBoard = lostBoardQueryRepository.findById(lostBoardId);
+            LostBoard lostBoard = optionalLostBoard.isPresent() ? optionalLostBoard.get() : null;
+            Optional<AcquiredBoard> optionalAcquiredBoard = acquiredBoardQueryRepository.findByBoardId(acquiredBoardsboardId);
+            AcquiredBoard acquiredBoard = optionalAcquiredBoard.isPresent() ? optionalAcquiredBoard.get() : null;
+            if (acquiredBoard != null && lostBoard != null) {
+                FindearMatchingResDto findearMatchingResDto = new FindearMatchingResDto(lostBoard, acquiredBoard, Float.parseFloat(matchingInfo.get("similarityRate").toString()),
+                        (String) matchingInfo.get("matchingAt")); // matchedAt으로
+                parsedMatchingList.add(findearMatchingResDto);
+            }
+        }
+        response.put("matchingList", parsedMatchingList);
+        return response;
+    }
+
+    private Map<String, Object> sendRequest(String param, String src, Long id, int pageNo, int size) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BATCH_SERVER_URL + "/" + src + "/"+ param + "/" + id)
+//                .uriVariables(Collections.singletonMap(param + "Id", id))
+                .queryParam("page", pageNo)
+                .queryParam("size", size);
+        System.out.println("builder.toUriString() = " + builder.toUriString());
+        BatchServerResponseDto response = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
+        Map<String, Object> result = (Map<String, Object>) response.getResult();
+        return convertCountToPageNum(result, size);
+    }
+
+    private Map<String, Object> convertCountToPageNum(Map<String, Object> result, int pageSize) {
+        int totalCount = (int) result.get("totalCount");
+        result.remove("totalCount");
+        if (totalCount == 0) {
+            result.put("totalPageNum", 1);
+        } else {
+            result.put("totalPageNum", totalCount / pageSize + (totalCount % pageSize != 0 ? 1 : 0));
         }
         return result;
-    }
-
-    private GetBestMatchingsResDto matchingToResult(BatchServerMatchingResDto matchingRes) {
-        LostBoardDetailResDto lostBoardDto = lostBoardQueryService.findById(matchingRes.getLostBoardId());
-        AcquiredBoardDetailResDto acquiredBoardDto = acquiredBoardQueryService.findById(matchingRes.getAcquiredBoardId());
-
-        return GetBestMatchingsResDto.builder()
-                .lostBoardDto(lostBoardDto)
-                .acquiredBoardDto(acquiredBoardDto)
-                .similarityRate(matchingRes.getSimilarityRate())
-                .matchedAt(matchingRes.getMatchedAt())
-                .build();
-    }
-
-    private List<BatchServerMatchingResDto> requestBestMatchings(Long memberId) {
-        String url = BATCH_SERVER_URL + "?memberId=" + memberId;
-        BatchServerResponseDto response = restTemplate.getForObject(url, BatchServerResponseDto.class);
-        return (List<BatchServerMatchingResDto>) response.getResult();
     }
 }

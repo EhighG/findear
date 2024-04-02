@@ -93,7 +93,26 @@ class matchModel():
             self.found['xpos'] = self.found['xpos'].astype(float)
             self.found['ypos'] = self.found['ypos'].astype(float)
         elif self.source == 'lost112':
-            pass
+            # 칼럼명 통일
+            self.found = self.found.rename(columns={'id':'acquiredBoardId', 'fdPrdtNm':'productName', 'clrNm':'color', 'depPlace':'place'})  
+            self.found['acquiredBoardId'] = self.found['acquiredBoardId'].astype(int)
+            # 좌표 값 집어넣기
+            self.found['xpos'] = 0.0
+            self.found['ypos'] = 0.0
+            location_df = pd.read_csv('lostMatching/police_portal_list.csv', encoding='cp949')
+            # print(location_df.head())
+            for index, row in self.found.iterrows():
+                place_name = row['place']
+                # print(place_name)
+                location_df_row = location_df[location_df['관서명'] == place_name]
+                # print(location_df_row['위도'].values[0])
+                xpos = location_df_row['Longitude'].values[0]
+                ypos = location_df_row['Latitude'].values[0]
+                self.found.at[index, 'xpos'] = xpos
+                self.found.at[index, 'ypos'] = ypos
+            print(self.found)
+
+
 
         self.score = pd.DataFrame()
         self.score['id'] = self.found['acquiredBoardId']
@@ -107,7 +126,7 @@ class matchModel():
         for i in self.found['color']:
             foundColor = self.getColor(i)
             if foundColor is None:
-                npLst = np.append(npLst,[255])
+                npLst = np.append(npLst,[std])
                 continue
             diff = self.delta_E_CMC(lostColor, foundColor)
             npLst = np.append(npLst,[diff])
@@ -202,6 +221,8 @@ class matchModel():
         colorBox = self.driver.find_element(By.XPATH, '/html/body/form/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr[1]/td[1]/table/tbody/tr/td[3]/table/tbody/tr[6]/td/div/select')
         colorLst = colorBox.text.split('\n')
         if len(colorLst) == 1:
+            if colorLst[0] == '':
+                return None
             index = 0
         elif len(colorLst) == 0:
             return None

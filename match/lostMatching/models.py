@@ -44,6 +44,10 @@ class matchModel():
         # load kiwi
         self.kiwi = Kiwi()
         self.stem_tag = ['NNG', 'NNP', 'VA'] 
+        
+        # load police address coordinate data
+        coordinate_path = os.getenv("COORDINATE_PATH")
+        self.location_df = pd.read_csv(coordinate_path)
 
         # open color crawling
         self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
@@ -99,20 +103,21 @@ class matchModel():
             # 좌표 값 집어넣기
             self.found['xpos'] = 0.0
             self.found['ypos'] = 0.0
-            location_df = pd.read_csv('police_portal_list.csv', encoding='cp949')
+            
             # print(location_df.head())
             for index, row in self.found.iterrows():
-                place_name = row['place']
-                # print(place_name)
-                location_df_row = location_df[location_df['관서명'] == place_name]
-                # print(location_df_row['위도'].values[0])
-                xpos = location_df_row['Longitude'].values[0]
-                ypos = location_df_row['Latitude'].values[0]
-                self.found.at[index, 'xpos'] = xpos
-                self.found.at[index, 'ypos'] = ypos
+                try:
+                    place_name = row['place']
+                    # print(place_name)
+                    location_df_row = self.location_df[self.location_df['관서명'] == place_name]
+                    # print(location_df_row['위도'].values[0])
+                    xpos = location_df_row['Longitude'].values[0]
+                    ypos = location_df_row['Latitude'].values[0]
+                    self.found.at[index, 'xpos'] = xpos
+                    self.found.at[index, 'ypos'] = ypos
+                except:
+                    continue
             print(self.found)
-
-
 
         self.score = pd.DataFrame()
         self.score['id'] = self.found['acquiredBoardId']
@@ -338,7 +343,7 @@ if __name__ == '__main__':
             },
             {
                 "id": 959145,
-                "depPlace": "약수지구대",
+                "depPlace": "약수",
                 "fdFilePathImg": "https://www.lost112.go.kr/lostnfs/images/uploadImg/20231114/20231114035402064.jpg",
                 "fdPrdtNm": "지갑(카드 2개)",
                 "fdSbjt": "지갑(카드 2개)(코발트(짙은청록)색)을 습득하여 보관하고 있습니다.",

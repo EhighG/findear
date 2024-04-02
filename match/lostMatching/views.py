@@ -58,7 +58,6 @@ def process_lost_item_data(items_info):
     matchInstance.calColor()
     matchInstance.calDistance()
     matchInstance.calName()
-    matchInstance.calDesc()
     processed_data = matchInstance.aggregateScore()
     
     # 코드 실행 종료 시간 측정

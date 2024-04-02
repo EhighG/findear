@@ -188,20 +188,42 @@ class matchModel():
         self.score['mean_value'] = self.score.iloc[:, 1:].mean(axis=1)
         self.score['mean_value'] = self.score['mean_value'].round(decimals=5)
         
-        # 평균 값을 기준으로 DataFrame 정렬
-        df_sorted = self.score.sort_values(by='mean_value', ascending=False)
-        print(df_sorted)
-        
-        # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
         lostBoardId = self.lost["lostBoardId"]
-        result_data = [
-            {"lostBoardId": int(lostBoardId), "acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
-            for index, row in df_sorted.loc[:, ['id', 'mean_value']].iterrows()
-        ]
-        
+            
+        if self.source == 'findear':
+            # 평균 값을 기준으로 DataFrame 정렬
+            df_sorted = self.score.sort_values(by='mean_value', ascending=False)
+            print(df_sorted)
+            # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
+            result_data = [
+                {"lostBoardId": int(lostBoardId), "acquiredBoardId": int(row["id"]), "similarityRate": row["mean_value"]}
+                for index, row in df_sorted.loc[:, ['id', 'mean_value']].iterrows()
+            ]
+            
+        elif self.source == 'lost112':
+            # 응답 데이터를 위한 df concat
+            response_df = pd.concat([self.score, self.found], axis=1)
+            # 평균 값을 기준으로 DataFrame 정렬
+            df_sorted = response_df.sort_values(by='mean_value', ascending=False)
+            print(df_sorted)
+            # 데이터프레임 순회하며 반환 형태로 변환하는 리스트 컴프리헨션
+            result_data = [
+                {"lostBoardId": int(lostBoardId), 
+                 "acquiredBoardId": int(row["id"]), 
+                 "similarityRate": row["mean_value"],
+                 "atcId": row["atcId"],
+                 "depPlace": row["place"].values[1],
+                 "fdFilePathImg": row["fdFilePathImg"],
+                 "fdPrdtNm": row["productName"],
+                 "fdSbjt": row["fdSbjt"],
+                 "clrNm": row["color"].values[1],
+                 "fdYmd": row["fdYmd"],
+                 "mainPrdtClNm": row["mainPrdtClNm"]
+                 }
+                for index, row in df_sorted.loc[:, ('id', 'mean_value', "atcId", "place", "fdFilePathImg", "productName", "fdSbjt", "color", "fdYmd", "mainPrdtClNm")].iterrows()
+            ]
         print(result_data)
-        return result_data  
-
+        return result_data 
 
     def test(self):
         print('teststest')

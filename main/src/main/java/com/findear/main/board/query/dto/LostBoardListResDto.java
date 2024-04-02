@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 
 public class LostBoardListResDto {
+    private Long lostBoardId;
     private Long boardId;
     private String productName;
     private Boolean isLost;
@@ -22,8 +23,9 @@ public class LostBoardListResDto {
     private BriefMemberDto writer;
 
     @Builder
-    public LostBoardListResDto(Long boardId, String productName, String category, String thumbnailUrl, String lostAt, BriefMemberDto writer,
+    public LostBoardListResDto(Long lostBoardId, Long boardId, String productName, String category, String thumbnailUrl, String lostAt, BriefMemberDto writer,
                                String suspiciousPlace) {
+        this.lostBoardId = lostBoardId;
         this.boardId = boardId;
         this.productName = productName;
         this.isLost = true;
@@ -39,6 +41,7 @@ public class LostBoardListResDto {
         Member writer = board.getMember();
 
         return LostBoardListResDto.builder()
+                .lostBoardId(lostBoard.getId())
                 .boardId(board.getId())
                 .productName(board.getProductName())
                 .category(board.getCategoryName())

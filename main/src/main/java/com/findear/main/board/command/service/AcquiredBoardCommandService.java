@@ -75,7 +75,7 @@ public class AcquiredBoardCommandService {
         sendAutoFillRequest(savedAcquiredBoard)
                 .subscribe(
                         response -> fillColumns(savedAcquiredBoard, response),
-                        error -> log.info("습득물 컬럼 자동 업데이트 실패. \nerror = " + error)
+                        error -> log.error("습득물 컬럼 자동 업데이트 실패. \nerror = " + error)
                 );
 
         return savedBoard.getId();

@@ -10,5 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BriefLostBoardDto {
     private Long boardId;
+    private Long lostBoardId;
     private String productName;
 }

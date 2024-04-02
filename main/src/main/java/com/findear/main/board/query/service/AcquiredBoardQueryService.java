@@ -45,6 +45,8 @@ public class AcquiredBoardQueryService {
         if (sortBy != null && sortBy.equals("date")) {
             acquiredBoards = desc ? acquiredBoardQueryRepository.findAllOrderByAcquiredAtDesc()
                     : acquiredBoardQueryRepository.findAllOrderByAcquiredAt();
+        } else {
+            acquiredBoards = acquiredBoardQueryRepository.findAll();
         }
         Stream<AcquiredBoard> stream = acquiredBoards.stream();
 

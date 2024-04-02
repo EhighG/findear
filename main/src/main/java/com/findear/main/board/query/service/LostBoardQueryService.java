@@ -33,6 +33,8 @@ public class LostBoardQueryService {
         if (sortBy != null && sortBy.equals("date")) {
             lostBoards = desc ? lostBoardQueryRepository.findAllOrderByLostAtDesc()
                     : lostBoardQueryRepository.findAllOrderByLostAt();
+        } else {
+            lostBoards = lostBoardQueryRepository.findAll();
         }
         Stream<LostBoard> stream = lostBoards.stream();
 

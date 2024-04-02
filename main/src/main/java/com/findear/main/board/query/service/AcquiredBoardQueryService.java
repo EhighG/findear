@@ -1,5 +1,6 @@
 package com.findear.main.board.query.service;
 
+import com.findear.main.board.command.repository.ReturnLogRepository;
 import com.findear.main.board.common.domain.AcquiredBoard;
 import com.findear.main.board.common.domain.BoardStatus;
 import com.findear.main.board.common.domain.Lost112AcquiredBoardDto;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 public class AcquiredBoardQueryService {
 
     private final AcquiredBoardQueryRepository acquiredBoardQueryRepository;
+    private final ReturnLogRepository returnLogRepository;
     private final String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch/search";
     private final String DEFAULT_SDATE_STRING = "2015-01-01";
     private final RestTemplate restTemplate;
@@ -126,5 +128,9 @@ public class AcquiredBoardQueryService {
         BatchServerResponseDto response = restTemplate.getForObject(BATCH_SERVER_URL + "/total", BatchServerResponseDto.class);
         Integer totalRowNum = (Integer) response.getResult();
         return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
+    }
+
+    public Long getYesterdaysReturnCount() {
+        return returnLogRepository.countReturn(LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
     }
 }

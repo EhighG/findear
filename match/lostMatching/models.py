@@ -92,15 +92,15 @@ class matchModel():
             # 좌표 값 집어넣기
             self.found['xpos'] = 0.0
             self.found['ypos'] = 0.0
-            location_df = pd.read_csv('test_police_location.csv', encoding='cp949')
+            location_df = pd.read_csv('police_portal_list.csv', encoding='cp949')
             # print(location_df.head())
             for index, row in self.found.iterrows():
                 place_name = row['place']
                 # print(place_name)
                 location_df_row = location_df[location_df['관서명'] == place_name]
                 # print(location_df_row['위도'].values[0])
-                xpos = location_df_row['경도'].values[0]
-                ypos = location_df_row['위도'].values[0]
+                xpos = location_df_row['Longitude'].values[0]
+                ypos = location_df_row['Latitude'].values[0]
                 self.found.at[index, 'xpos'] = xpos
                 self.found.at[index, 'ypos'] = ypos
             print(self.found)

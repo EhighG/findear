@@ -16,8 +16,8 @@ public class AgencyDto {
     private String name;
 //    private List<Member> memberList = new ArrayList<>();
     private String address;
-    private Float xPos;
-    private Float yPos;
+    private Float xpos;
+    private Float ypos;
 
     public static AgencyDto of(Agency agency) {
         return AgencyDto.builder()
@@ -25,8 +25,8 @@ public class AgencyDto {
                 .name(agency.getName())
 //                .memberList(agency.getMemberList())
                 .address(agency.getAddress())
-                .xPos(agency.getXPos())
-                .yPos(agency.getYPos())
+                .xpos(agency.getXPos())
+                .ypos(agency.getYPos())
                 .build();
     }
 
@@ -36,8 +36,8 @@ public class AgencyDto {
                 .name(name)
 //                .memberList(memberList)
                 .address(address)
-                .xPos(xPos)
-                .yPos(yPos)
+                .xPos(xpos)
+                .yPos(ypos)
                 .build();
     }
 }

@@ -5,6 +5,7 @@ import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
 import com.findear.main.board.command.repository.LostBoardCommandRepository;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.dto.BatchServerResponseDto;
 import com.findear.main.board.query.repository.BoardQueryRepository;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
 import com.findear.main.member.common.domain.Member;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +43,7 @@ public class LostBoardCommandService {
     private final BoardQueryRepository boardQueryRepository;
     private final LostBoardQueryRepository lostBoardQueryRepository;
 
-    public PostLostBoardResDto register(PostLostBoardReqDto postLostBoardReqDto) {
+    public Long register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()
@@ -77,6 +80,42 @@ public class LostBoardCommandService {
 
         LostBoard saveResult = lostBoardCommandRepository.save(lostBoardDto.toEntity());
 
+        requestFirstMatching(saveResult)
+                .subscribe(
+                        this::parseAndRequestAlert,
+                        error -> log.error("분실물 등록 후 첫 매칭 요청 실패 \nerror = " + error)
+                );
+
+        return savedBoard.getId();
+    }
+
+    private void parseAndRequestAlert(BatchServerResponseDto batchServerResponseDto) {
+        try {
+            List<Map<String, Object>> resultList = (List<Map<String, Object>>) batchServerResponseDto.getResult();
+
+            log.info("매칭 결과 : " + resultList);
+
+            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
+
+            if (resultList != null) {
+                for(Map<String, Object> res : resultList) {
+                    MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                            .lostBoardId(res.get("lostBoardId"))
+                            .acquiredBoardId(res.get("acquiredBoardId"))
+                            .similarityRate(res.get("similarityRate")).build();
+                    result.add(matchingFindearDatasToAiResDto);
+                }
+            }
+
+            // 알림 메소드 호출
+            System.out.println("첫 매칭 로직 끝나고, 알림 메소드 호출 부분");
+
+        } catch (Exception e) {
+            throw new RuntimeException("분실물 등록 후 첫 매칭 결과 파싱 중 오류");
+        }
+    }
+
+    private Mono<BatchServerResponseDto> requestFirstMatching(LostBoard saveResult) {
         MatchingFindearDatasReqDto matchingFindearDatasReqDto = MatchingFindearDatasReqDto.builder()
                 .lostBoardId(saveResult.getId())
                 .productName(saveResult.getBoard().getProductName())
@@ -90,37 +129,27 @@ public class LostBoardCommandService {
 
         log.info("batch 서버로 요청 로직");
         // batch 서버로 요청
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-
-        HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+//
+//        HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
 
         String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
-//        String serverURL = "http://localhost:8082/findear/matching";
+////        String serverURL = "http://localhost:8082/findear/matching";
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//
+//        ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
 
-        RestTemplate restTemplate = new RestTemplate();
+        WebClient client = WebClient.builder()
+                .baseUrl(serverURL)
+//                .defaultHeader("Content-Type", "application/json; charset=utf-8")
+                .build();
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
-
-        System.out.println("response : " + response.getBody());
-
-        List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
-
-        log.info("매칭 결과 : " + resultList);
-
-        List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
-
-        for(Map<String, Object> res : resultList) {
-
-            MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
-                    .lostBoardId(res.get("lostBoardId"))
-                    .acquiredBoardId(res.get("acquiredBoardId"))
-                    .similarityRate(res.get("similarityRate")).build();
-
-            result.add(matchingFindearDatasToAiResDto);
-        }
-
-        return new PostLostBoardResDto(savedBoard.getId(), result);
+        return client.post()
+                .bodyValue(matchingFindearDatasReqDto)
+                .retrieve()
+                .bodyToMono(BatchServerResponseDto.class);
     }
 
     public Long modify(ModifyLostBoardReqDto modifyReqDto) {

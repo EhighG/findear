@@ -60,7 +60,7 @@ public class MatchingService {
             AcquiredBoard acquiredBoard = optionalAcquiredBoard.isPresent() ? optionalAcquiredBoard.get() : null;
             if (acquiredBoard != null && lostBoard != null) {
                 FindearMatchingResDto findearMatchingResDto = new FindearMatchingResDto(lostBoard, acquiredBoard, Float.parseFloat(matchingInfo.get("similarityRate").toString()),
-                        (String) matchingInfo.get("matchingAt")); // matchedAt으로
+                        (String) matchingInfo.get("matchedAt"));
                 parsedMatchingList.add(findearMatchingResDto);
             }
         }

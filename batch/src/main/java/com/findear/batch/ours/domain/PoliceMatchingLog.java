@@ -19,20 +19,38 @@ public class PoliceMatchingLog {
 
     private Long lostBoardId;
 
-    private Long acquiredBoardId;
+    private Float similarityRate;
 
-    private Float simulerityRate;
+    private String matchingAt;
 
-    private LocalDateTime matchingAt;
+    private String acquiredBoardId;
+    private String atcId;
+    private String depPlace;
+    private String fdFilePathImg;
+    private String fdPrdtNm;
+    private String fdSbjt;
+    private String clrNm;
+    private String fdYmd;
+    private String mainPrdtClNm;
 
     @Builder
     public PoliceMatchingLog(Long policeMatchingLogId, Long lostBoardId,
-                              Long acquiredBoardId, Float simulerityRate) {
+                              Float similarityRate, String acquiredBoardId, String atcId, String depPlace,
+                             String fdFilePathImg, String fdPrdtNm, String fdSbjt,
+                             String clrNm, String fdYmd, String mainPrdtClNm, String matchingAt) {
 
         this.policeMatchingLogId = policeMatchingLogId;
         this.lostBoardId = lostBoardId;
+        this.similarityRate = similarityRate;
         this.acquiredBoardId = acquiredBoardId;
-        this.simulerityRate = simulerityRate;
-        this.matchingAt = LocalDateTime.now();
+        this.atcId = atcId;
+        this.depPlace = depPlace;
+        this.fdFilePathImg = fdFilePathImg;
+        this.fdPrdtNm = fdPrdtNm;
+        this.fdSbjt = fdSbjt;
+        this.clrNm = clrNm;
+        this.fdYmd = fdYmd;
+        this.mainPrdtClNm = mainPrdtClNm;
+        this.matchingAt = matchingAt;
     }
 }

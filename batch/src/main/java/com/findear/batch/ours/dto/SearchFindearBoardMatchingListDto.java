@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class SearchBestMatchingListDto {
+public class SearchFindearBoardMatchingListDto {
 
     List<SearchFindearMatchingListResDto> matchingList;
 

@@ -5,11 +5,11 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
 @Builder
-public class SearchBoardMatchingList {
+@Data
+public class SearchPoliceBestMatchingListDto {
 
-    List<SearchFindearMatchingListResDto> matchingList;
+    List<SearchPoliceMatchingListResDto> matchingList;
 
     private int totalCount;
 }

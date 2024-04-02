@@ -15,14 +15,14 @@ public class SearchFindearMatchingListResDto {
 
     private Float similarityRate;
 
-    private String matchingAt;
+    private String matchedAt;
 
     public SearchFindearMatchingListResDto(Long findearMatchingLogId, Long lostBoardId,
-                                           Long acquiredBoardId, Float similarityRate, String matchingAt) {
+                                           Long acquiredBoardId, Float similarityRate, String matchedAt) {
         this.findearMatchingLogId = findearMatchingLogId;
         this.lostBoardId = lostBoardId;
         this.acquiredBoardId = acquiredBoardId;
         this.similarityRate = similarityRate;
-        this.matchingAt = matchingAt;
+        this.matchedAt = matchedAt;
     }
 }

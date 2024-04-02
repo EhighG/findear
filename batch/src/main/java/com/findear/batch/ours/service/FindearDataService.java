@@ -1,16 +1,15 @@
 package com.findear.batch.ours.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.findear.batch.common.exception.FindearException;
 import com.findear.batch.ours.domain.AcquiredBoard;
 import com.findear.batch.ours.domain.FindearMatchingLog;
 import com.findear.batch.ours.domain.LostBoard;
+import com.findear.batch.ours.domain.PoliceMatchingLog;
 import com.findear.batch.ours.dto.*;
 import com.findear.batch.ours.repository.AcquiredBoardRepository;
 import com.findear.batch.ours.repository.FindearMatchingLogRepository;
 import com.findear.batch.ours.repository.LostBoardRepository;
-import com.findear.batch.police.domain.PoliceAcquiredData;
+import com.findear.batch.ours.repository.PoliceMatchingLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
@@ -26,15 +25,13 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +46,8 @@ public class FindearDataService {
     private final FindearMatchingLogRepository findearMatchingLogRepository;
     private final LostBoardRepository lostBoardRepository;
     private final AcquiredBoardRepository acquiredBoardRepository;
+    private final PoliceMatchingLogRepository policeMatchingLogRepository;
+
     private final RestHighLevelClient restHighLevelClient;
 
     public List<MatchingFindearDatasToAiResDto> matchingFindearDatasBatch() {
@@ -118,7 +117,7 @@ public class FindearDataService {
             throw new FindearException(e.getMessage());
         }
     }
-    public List<MatchingFindearDatasToAiResDto> matchingFindearDatas(LostBoardMatchingDto lostBoardMatchingDto) {
+    public MatchingAllDatasToAiResDto matchingFindearDatas(LostBoardMatchingDto lostBoardMatchingDto) {
 
         try {
 
@@ -175,12 +174,13 @@ public class FindearDataService {
             }
             log.info("매칭 결과 : " + response.getBody());
 
-            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
+            MatchingAllDatasToAiResDto result = new MatchingAllDatasToAiResDto(new ArrayList<>(), new ArrayList<>());
             List<FindearMatchingLog> findearMatchingLogList = new ArrayList<>();
+            List<PoliceMatchingLog> policeMatchingLogList = new ArrayList<>();
 
             Long findearMatchingId = findearMatchingLogRepository.count() + 1;
-            System.out.println("아이디 : " + findearMatchingId);
 
+            // findear 매칭 로직
             for(Map<String, Object> res : resultList) {
 
                 MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
@@ -188,7 +188,7 @@ public class FindearDataService {
                         .acquiredBoardId(res.get("acquiredBoardId"))
                         .similarityRate(res.get("similarityRate")).build();
 
-                result.add(matchingFindearDatasToAiResDto);
+                result.getFindearDatas().add(matchingFindearDatasToAiResDto);
 
                 FindearMatchingLog newFindearMatchingLog = FindearMatchingLog.builder()
                         .findearMatchingLogId(findearMatchingId++)
@@ -202,6 +202,98 @@ public class FindearDataService {
             }
 
             findearMatchingLogRepository.saveAll(findearMatchingLogList);
+            log.info("findear 로그 저장 완료");
+
+            // lost112 매칭 로직
+
+            MatchingPoliceDatasToAiReqDto matchingPoliceDatasToAiReqDto = MatchingPoliceDatasToAiReqDto
+                    .builder().lostBoard(lostBoardMatchingDto).acquiredBoardList(new ArrayList<>()).build();
+
+            // 카테고리가 같고, 분실물 이후 등록된 fdYmd 인 보드 조회
+            /////////////////////////////////////////////////////////////
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            boolQueryBuilder.must(QueryBuilders.matchQuery("mainPrdtClNm", lostBoardMatchingDto.getCategoryName()));
+
+            // 검색 요청 생성
+            SearchRequest searchRequest = new SearchRequest("police_matching_log");
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(boolQueryBuilder);
+            searchRequest.source(searchSourceBuilder);
+
+            SearchHits hits;
+
+            try {
+                // 검색 실행
+                hits = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT).getHits();
+            } catch (IOException e) {
+                throw new FindearException(e.getMessage());
+            }
+
+            // 검색 결과를 리스트에 추가
+            for (SearchHit hit : hits) {
+                Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+                String depPlace = hit.getSourceAsMap().get("depPlace").toString();
+                String fdFilePathImg = hit.getSourceAsMap().get("fdFilePathImg").toString();
+                String fdPrdtNm = hit.getSourceAsMap().get("fdPrdtNm").toString();
+                String fdSbjt = hit.getSourceAsMap().get("fdSbjt").toString();
+                String clrNm = hit.getSourceAsMap().get("clrNm").toString();
+                String fdYmd = hit.getSourceAsMap().get("fdYmd").toString();
+                String mainPrdtClNm = hit.getSourceAsMap().get("mainPrdtClNm").toString();
+
+                PoliceAcquiredBoardMatchingDto dto = PoliceAcquiredBoardMatchingDto.builder()
+                        .id(id.toString())
+                        .depPlace(depPlace)
+                        .fdFilePathImg(fdFilePathImg)
+                        .fdPrdtNm(fdPrdtNm)
+                        .fdSbjt(fdSbjt)
+                        .clrNm(clrNm)
+                        .fdYmd(fdYmd)
+                        .mainPrdtClNm(mainPrdtClNm)
+                        .build();
+
+                matchingPoliceDatasToAiReqDto.getAcquiredBoardList().add(dto);
+            }
+            //////////////////////////////////////////////////////////////
+
+            log.info("request dto 생성 완료");
+
+            HttpEntity<?> requestEntity2 = new HttpEntity<>(matchingPoliceDatasToAiReqDto, headers);
+
+            String serverURL2 = "https://j10a706.p.ssafy.io/match/matching/lost";
+
+            log.info("요청된 데이터 : " + requestEntity2.getBody());
+            ResponseEntity<Map> response2 = restTemplate.postForEntity(serverURL2, requestEntity2, Map.class);
+
+            List<Map<String, Object>> resultList2 = (List<Map<String, Object>> ) response2.getBody().get("result");
+
+            if(resultList2 == null) {
+
+                return null;
+            }
+            log.info("매칭 결과 : " + response2.getBody());
+            ///////
+
+            for(Map<String, Object> res : resultList2) {
+
+                MatchingPoliceDatasToAiResDto matchingPoliceDatasToAiResDto = MatchingPoliceDatasToAiResDto.builder()
+                        .lostBoardId(res.get("lostBoardId"))
+                        .acquiredBoardId(res.get("acquiredBoardId"))
+                        .similarityRate(res.get("similarityRate")).build();
+
+                result.getPoliceDatas().add(matchingPoliceDatasToAiResDto);
+
+                PoliceMatchingLog newPoliceMatchingLog = PoliceMatchingLog.builder()
+                        .policeMatchingLogId(findearMatchingId++)
+                        .lostBoardId(Long.parseLong(String.valueOf(matchingPoliceDatasToAiResDto.getLostBoardId())))
+                        .acquiredBoardId(String.valueOf(matchingPoliceDatasToAiResDto.getAcquiredBoardId()))
+                        .similarityRate(Float.parseFloat(String.valueOf(matchingPoliceDatasToAiResDto.getSimilarityRate())))
+                        .matchingAt(LocalDateTime.now().toString())
+                        .build();
+
+                policeMatchingLogList.add(newPoliceMatchingLog);
+            }
+
+            policeMatchingLogRepository.saveAll(policeMatchingLogList);
 
             return result;
 
@@ -211,7 +303,7 @@ public class FindearDataService {
         }
     }
 
-    public SearchBoardMatchingList searchBoardMatchingList(int page, int size, Long lostBoardId) {
+    public SearchFindearBoardMatchingListDto searchBoardMatchingList(int page, int size, Long lostBoardId) {
 
         try {
             LostBoard findLostBoard = lostBoardRepository.findById(lostBoardId)
@@ -263,11 +355,11 @@ public class FindearDataService {
                 result.add(boardMatchingList.get(i));
             }
 
-            SearchBoardMatchingList searchBoardMatchingList = SearchBoardMatchingList.builder()
+            SearchFindearBoardMatchingListDto searchFindearBoardMatchingListDto = SearchFindearBoardMatchingListDto.builder()
                     .matchingList(result)
                     .totalCount(boardMatchingList.size()).build();
 
-            return searchBoardMatchingList;
+            return searchFindearBoardMatchingListDto;
 
         } catch (Exception e) {
 
@@ -275,7 +367,7 @@ public class FindearDataService {
         }
     }
 
-    public SearchBestMatchingListDto searchBestMatchingList(int page, int size, Long memberId) {
+    public SearchFindearBestMatchingListDto searchBestMatchingList(int page, int size, Long memberId) {
 
         try {
 
@@ -331,11 +423,11 @@ public class FindearDataService {
                 result.add(bestMatchesList.get(i));
             }
 
-            SearchBestMatchingListDto searchBestMatchingListDto = SearchBestMatchingListDto.builder()
+            SearchFindearBestMatchingListDto searchFindearBestMatchingListDto = SearchFindearBestMatchingListDto.builder()
                     .matchingList(result)
                     .totalCount(bestMatchesList.size()).build();
 
-            return searchBestMatchingListDto;
+            return searchFindearBestMatchingListDto;
 
         } catch (IOException e) {
             throw new FindearException(e.getMessage());
@@ -411,7 +503,6 @@ public class FindearDataService {
         );
 
     }
-
 
     public void deleteFindearMatchingDatas() {
 

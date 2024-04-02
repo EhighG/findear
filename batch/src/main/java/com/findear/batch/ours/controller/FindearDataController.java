@@ -31,7 +31,7 @@ public class FindearDataController {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
         log.info("분실물 매칭");
-        List<MatchingFindearDatasToAiResDto> result = findearDataService.matchingFindearDatas(lostBoardMatchingDto);
+        MatchingAllDatasToAiResDto result = findearDataService.matchingFindearDatas(lostBoardMatchingDto);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "습득물 매칭 성공", result));
 
@@ -68,7 +68,7 @@ public class FindearDataController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        SearchBestMatchingListDto result = findearDataService.searchBestMatchingList(page, size, memberId);
+        SearchFindearBestMatchingListDto result = findearDataService.searchBestMatchingList(page, size, memberId);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
     }
@@ -81,7 +81,7 @@ public class FindearDataController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        SearchBoardMatchingList result = findearDataService.searchBoardMatchingList(page, size, lostBoardId);
+        SearchFindearBoardMatchingListDto result = findearDataService.searchBoardMatchingList(page, size, lostBoardId);
 
         return ResponseEntity.ok().body(new SuccessResponse(HttpStatus.OK.value(), "사용자의 findear 매칭 리스트 조회 성공", result));
     }

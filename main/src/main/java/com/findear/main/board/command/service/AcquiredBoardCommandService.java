@@ -202,7 +202,7 @@ public class AcquiredBoardCommandService {
         List<String> atcIdList = lost112Scraps.stream()
                 .map(Lost112Scrap::getLost112AtcId)
                 .toList();
-        BatchServerResponseDto response = restTemplate.postForObject(BATCH_SERVER_URL + "/lost112/list",
+        BatchServerResponseDto response = restTemplate.postForObject(BATCH_SERVER_URL + "/police/scrap",
                 atcIdList, BatchServerResponseDto.class);
         List<Map<String, Object>> lost112Acquireds = (List<Map<String, Object>>) response.getResult();
         return new ScrapListResDto(findearAcquireds, lost112Acquireds);

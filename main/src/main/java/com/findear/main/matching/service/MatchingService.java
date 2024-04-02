@@ -80,6 +80,7 @@ public class MatchingService {
             Map<String, Object> result = (Map<String, Object>) response.getResult();
             return convertCountToPageNum(result, size);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IllegalStateException("배치서버 요청 중 에러");
         }
     }

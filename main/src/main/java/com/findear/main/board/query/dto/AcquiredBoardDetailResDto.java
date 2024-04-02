@@ -22,6 +22,7 @@ public class AcquiredBoardDetailResDto {
     private String agencyName;
     private Float xPos;
     private Float yPos;
+    private String acquiredAt;
 
     public static AcquiredBoardDetailResDto of(AcquiredBoard acquiredBoard) {
         Board board = acquiredBoard.getBoard();
@@ -44,6 +45,7 @@ public class AcquiredBoardDetailResDto {
                 .agencyName(acquiredBoard.getName())
                 .xPos(acquiredBoard.getXPos())
                 .yPos(acquiredBoard.getYPos())
+                .acquiredAt(acquiredBoard.getAcquiredAt().format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .build();
     }
 }

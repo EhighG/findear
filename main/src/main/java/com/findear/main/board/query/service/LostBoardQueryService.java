@@ -65,4 +65,11 @@ public class LostBoardQueryService {
 
         return LostBoardDetailResDto.of(lostBoard);
     }
+
+    public LostBoardDetailResDto findById(Long lostBoardId) {
+        LostBoard lostBoard = lostBoardQueryRepository.findById(lostBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시물입니다."));
+        
+        return LostBoardDetailResDto.of(lostBoard);
+    }
 }

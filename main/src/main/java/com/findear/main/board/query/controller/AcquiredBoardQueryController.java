@@ -39,9 +39,9 @@ public class AcquiredBoardQueryController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<?> findById(@PathVariable Long boardId) {
+    public ResponseEntity<?> findByBoardId(@PathVariable Long boardId) {
         return ResponseEntity
-                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardQueryService.findById(boardId)));
+                .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.", acquiredBoardQueryService.findByBoardId(boardId)));
     }
 
     @GetMapping("/lost112")

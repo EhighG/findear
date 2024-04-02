@@ -25,8 +25,9 @@ public class PoliceJobConfig {
     public Job PoliceJob(){
 
         Job policeJob = jobBuilderFactory.get("policeJob")
-                .start(policeSaveStep())
-                .next(policeMatchingStep())
+//                .start(policeSaveStep())
+//                .next(policeMatchingStep())
+                .start(policeMatchingStep())
                 .build();
 
         return policeJob;

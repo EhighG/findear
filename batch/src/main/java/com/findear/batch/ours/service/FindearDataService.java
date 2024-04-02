@@ -10,6 +10,7 @@ import com.findear.batch.ours.repository.AcquiredBoardRepository;
 import com.findear.batch.ours.repository.FindearMatchingLogRepository;
 import com.findear.batch.ours.repository.LostBoardRepository;
 import com.findear.batch.ours.repository.PoliceMatchingLogRepository;
+import com.findear.batch.police.domain.PoliceAcquiredData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
@@ -117,9 +118,32 @@ public class FindearDataService {
             throw new FindearException(e.getMessage());
         }
     }
+
+//    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
+//
+//        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+//
+//        return new PoliceAcquiredData(
+//
+//                Long.parseLong(sourceAsMap.get("id").toString()),
+//                sourceAsMap.get("atcId").toString(),
+//                sourceAsMap.get("depPlace").toString(),
+//                sourceAsMap.get("fdFilePathImg").toString(),
+//                sourceAsMap.get("fdPrdtNm").toString(),
+//                sourceAsMap.get("fdSbjt").toString(),
+//                sourceAsMap.get("clrNm").toString(),
+//                sourceAsMap.get("fdYmd").toString(),
+//                sourceAsMap.get("prdtClNm").toString(),
+//                sourceAsMap.get("mainPrdtClNm").toString(),
+//                sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
+//        );
+//    }
+
     public MatchingAllDatasToAiResDto matchingFindearDatas(LostBoardMatchingDto lostBoardMatchingDto) {
 
         try {
+
+            MatchingAllDatasToAiResDto result = new MatchingAllDatasToAiResDto(new ArrayList<>(), new ArrayList<>());
 
             log.info("분실물 매칭 service");
             // request dto 생성
@@ -163,127 +187,162 @@ public class FindearDataService {
 
             RestTemplate restTemplate = new RestTemplate();
 
-            log.info("요청된 데이터 : " + requestEntity.getBody());
+            log.info("findear 매칭 요청된 데이터 : " + requestEntity.getBody());
             ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
 
+            log.info("findear 매칭 결과 : " + response.getBody());
             List<Map<String, Object>> resultList = (List<Map<String, Object>> ) response.getBody().get("result");
 
             if(resultList == null) {
 
-                return null;
+                result.setFindearDatas(Collections.emptyList());
             }
-            log.info("매칭 결과 : " + response.getBody());
+            else {
+                List<FindearMatchingLog> findearMatchingLogList = new ArrayList<>();
 
-            MatchingAllDatasToAiResDto result = new MatchingAllDatasToAiResDto(new ArrayList<>(), new ArrayList<>());
-            List<FindearMatchingLog> findearMatchingLogList = new ArrayList<>();
-            List<PoliceMatchingLog> policeMatchingLogList = new ArrayList<>();
+                Long findearMatchingId = findearMatchingLogRepository.count() + 1;
 
-            Long findearMatchingId = findearMatchingLogRepository.count() + 1;
+                // findear 매칭 로직
+                for(Map<String, Object> res : resultList) {
 
-            // findear 매칭 로직
-            for(Map<String, Object> res : resultList) {
+                    MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                            .lostBoardId(res.get("lostBoardId"))
+                            .acquiredBoardId(res.get("acquiredBoardId"))
+                            .similarityRate(res.get("similarityRate")).build();
 
-                MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
-                        .lostBoardId(res.get("lostBoardId"))
-                        .acquiredBoardId(res.get("acquiredBoardId"))
-                        .similarityRate(res.get("similarityRate")).build();
+                    result.getFindearDatas().add(matchingFindearDatasToAiResDto);
 
-                result.getFindearDatas().add(matchingFindearDatasToAiResDto);
+                    FindearMatchingLog newFindearMatchingLog = FindearMatchingLog.builder()
+                            .findearMatchingLogId(findearMatchingId++)
+                            .lostBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getLostBoardId())))
+                            .acquiredBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getAcquiredBoardId())))
+                            .similarityRate(Float.parseFloat(String.valueOf(matchingFindearDatasToAiResDto.getSimilarityRate())))
+                            .matchingAt(LocalDateTime.now().toString())
+                            .build();
 
-                FindearMatchingLog newFindearMatchingLog = FindearMatchingLog.builder()
-                        .findearMatchingLogId(findearMatchingId++)
-                        .lostBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getLostBoardId())))
-                        .acquiredBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getAcquiredBoardId())))
-                        .similarityRate(Float.parseFloat(String.valueOf(matchingFindearDatasToAiResDto.getSimilarityRate())))
-                        .matchingAt(LocalDateTime.now().toString())
-                        .build();
+                    findearMatchingLogList.add(newFindearMatchingLog);
+                }
 
-                findearMatchingLogList.add(newFindearMatchingLog);
+                findearMatchingLogRepository.saveAll(findearMatchingLogList);
+                log.info("findear 로그 저장 완료");
+
             }
-
-            findearMatchingLogRepository.saveAll(findearMatchingLogList);
-            log.info("findear 로그 저장 완료");
 
             // lost112 매칭 로직
+
+            log.info("lost112 매칭 start");
+            Long policeMatchingId = policeMatchingLogRepository.count() + 1;
 
             MatchingPoliceDatasToAiReqDto matchingPoliceDatasToAiReqDto = MatchingPoliceDatasToAiReqDto
                     .builder().lostBoard(lostBoardMatchingDto).acquiredBoardList(new ArrayList<>()).build();
 
-            // 카테고리가 같고, 분실물 이후 등록된 fdYmd 인 보드 조회
-            /////////////////////////////////////////////////////////////
-            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-            boolQueryBuilder.must(QueryBuilders.matchQuery("mainPrdtClNm", lostBoardMatchingDto.getCategoryName()));
+            List<PoliceAcquiredData> allDatas = new ArrayList<>();
+            String searchAfter = null;
+            int pageSize = 200; // 페이지당 가져올 문서 수
 
-            // 검색 요청 생성
-            SearchRequest searchRequest = new SearchRequest("police_matching_log");
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(boolQueryBuilder);
-            searchRequest.source(searchSourceBuilder);
+            while (true) {
+                SearchRequest searchRequest = new SearchRequest("police_acquired_data");
+                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-            SearchHits hits;
+                BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+                boolQueryBuilder.must(QueryBuilders.matchQuery("mainPrdtClNm", lostBoardMatchingDto.getCategoryName()));
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("fdYmd").gte(lostBoardMatchingDto.getLostAt()));
 
-            try {
-                // 검색 실행
-                hits = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT).getHits();
-            } catch (IOException e) {
-                throw new FindearException(e.getMessage());
+                searchSourceBuilder.query(boolQueryBuilder);
+                searchSourceBuilder.size(pageSize);
+                searchSourceBuilder.fetchSource(new String[]{"id", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "mainPrdtClNm"}, null);
+
+                if (searchAfter != null) {
+                    searchSourceBuilder.sort("_doc");
+                    searchSourceBuilder.searchAfter(new Object[]{searchAfter});
+                }
+
+                searchRequest.source(searchSourceBuilder);
+                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+                SearchHit[] hits = searchResponse.getHits().getHits();
+
+                if (hits.length == 0) {
+                    break;
+                }
+
+                PoliceAcquiredBoardMatchingDto policeAcquiredBoardMatchingDto = null;
+
+                for (SearchHit hit : hits) {
+                    Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+
+                    if(sourceAsMap.get("clrNm") == null) {
+                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
+                                sourceAsMap.get("id").toString(),
+                                sourceAsMap.get("atcId").toString(),
+                                sourceAsMap.get("depPlace").toString(),
+                                sourceAsMap.get("fdFilePathImg").toString(),
+                                sourceAsMap.get("fdPrdtNm").toString(),
+                                sourceAsMap.get("fdSbjt").toString(),
+                                "기타",
+                                sourceAsMap.get("fdYmd").toString(),
+                                sourceAsMap.get("mainPrdtClNm").toString()
+                        );
+                    }
+
+                    else {
+                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
+                                sourceAsMap.get("id").toString(),
+                                sourceAsMap.get("atcId").toString(),
+                                sourceAsMap.get("depPlace").toString(),
+                                sourceAsMap.get("fdFilePathImg").toString(),
+                                sourceAsMap.get("fdPrdtNm").toString(),
+                                sourceAsMap.get("fdSbjt").toString(),
+                                sourceAsMap.get("clrNm").toString(),
+                                sourceAsMap.get("fdYmd").toString(),
+                                sourceAsMap.get("mainPrdtClNm").toString()
+                        );
+                    }
+
+                    matchingPoliceDatasToAiReqDto.getAcquiredBoardList().add(policeAcquiredBoardMatchingDto);
+                }
+
+                searchAfter = getLastSortValue(hits);
             }
 
-            // 검색 결과를 리스트에 추가
-            for (SearchHit hit : hits) {
-                Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
-                String depPlace = hit.getSourceAsMap().get("depPlace").toString();
-                String fdFilePathImg = hit.getSourceAsMap().get("fdFilePathImg").toString();
-                String fdPrdtNm = hit.getSourceAsMap().get("fdPrdtNm").toString();
-                String fdSbjt = hit.getSourceAsMap().get("fdSbjt").toString();
-                String clrNm = hit.getSourceAsMap().get("clrNm").toString();
-                String fdYmd = hit.getSourceAsMap().get("fdYmd").toString();
-                String mainPrdtClNm = hit.getSourceAsMap().get("mainPrdtClNm").toString();
 
-                PoliceAcquiredBoardMatchingDto dto = PoliceAcquiredBoardMatchingDto.builder()
-                        .id(id.toString())
-                        .depPlace(depPlace)
-                        .fdFilePathImg(fdFilePathImg)
-                        .fdPrdtNm(fdPrdtNm)
-                        .fdSbjt(fdSbjt)
-                        .clrNm(clrNm)
-                        .fdYmd(fdYmd)
-                        .mainPrdtClNm(mainPrdtClNm)
-                        .build();
-
-                matchingPoliceDatasToAiReqDto.getAcquiredBoardList().add(dto);
-            }
-            //////////////////////////////////////////////////////////////
-
-            log.info("request dto 생성 완료");
+            List<PoliceMatchingLog> policeMatchingLogList = new ArrayList<>();
 
             HttpEntity<?> requestEntity2 = new HttpEntity<>(matchingPoliceDatasToAiReqDto, headers);
 
             String serverURL2 = "https://j10a706.p.ssafy.io/match/matching/lost";
 
-            log.info("요청된 데이터 : " + requestEntity2.getBody());
+            log.info("lost112 요청된 데이터 : " + requestEntity2.getBody());
             ResponseEntity<Map> response2 = restTemplate.postForEntity(serverURL2, requestEntity2, Map.class);
 
+            log.info("lost112 매칭 결과 : " + response2.getBody());
             List<Map<String, Object>> resultList2 = (List<Map<String, Object>> ) response2.getBody().get("result");
 
             if(resultList2 == null) {
 
                 return null;
             }
-            log.info("매칭 결과 : " + response2.getBody());
-            ///////
 
             for(Map<String, Object> res : resultList2) {
 
                 MatchingPoliceDatasToAiResDto matchingPoliceDatasToAiResDto = MatchingPoliceDatasToAiResDto.builder()
                         .lostBoardId(res.get("lostBoardId"))
                         .acquiredBoardId(res.get("acquiredBoardId"))
-                        .similarityRate(res.get("similarityRate")).build();
+                        .similarityRate(res.get("similarityRate"))
+                        .atcId(res.get("atcId"))
+                        .depPlace(res.get("depPlace"))
+                        .fdFilePathImg(res.get("fdFilePathImg"))
+                        .fdPrdtNm(res.get("fdPrdtNm"))
+                        .fdSbjt(res.get("fdSbjt"))
+                        .clrNm(res.get("clrNm"))
+                        .fdYmd(res.get("fdYmd"))
+                        .mainPrdtClNm(res.get("mainPrdtClNm"))
+                        .build();
 
                 result.getPoliceDatas().add(matchingPoliceDatasToAiResDto);
 
                 PoliceMatchingLog newPoliceMatchingLog = PoliceMatchingLog.builder()
-                        .policeMatchingLogId(findearMatchingId++)
+                        .policeMatchingLogId(policeMatchingId++)
                         .lostBoardId(Long.parseLong(String.valueOf(matchingPoliceDatasToAiResDto.getLostBoardId())))
                         .acquiredBoardId(String.valueOf(matchingPoliceDatasToAiResDto.getAcquiredBoardId()))
                         .similarityRate(Float.parseFloat(String.valueOf(matchingPoliceDatasToAiResDto.getSimilarityRate())))
@@ -306,6 +365,7 @@ public class FindearDataService {
     public SearchFindearBoardMatchingListDto searchBoardMatchingList(int page, int size, Long lostBoardId) {
 
         try {
+            System.out.println("lostBoardId : " + lostBoardId);
             LostBoard findLostBoard = lostBoardRepository.findById(lostBoardId)
                     .orElseThrow(() -> new FindearException("해당 분실물이 존재하지 않습니다."));
 

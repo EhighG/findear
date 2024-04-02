@@ -12,4 +12,21 @@ public class MatchingPoliceDatasToAiResDto {
     private Object acquiredBoardId;
 
     private Object similarityRate;
+
+    private Object atcId;
+
+    private Object depPlace;
+
+    private Object fdFilePathImg;
+
+    private Object fdPrdtNm;
+
+    private Object fdSbjt;
+
+    private Object clrNm;
+
+    private Object fdYmd;
+
+    private Object mainPrdtClNm;
+
 }

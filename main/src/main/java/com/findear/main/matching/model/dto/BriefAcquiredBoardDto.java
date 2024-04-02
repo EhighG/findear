@@ -1,5 +1,6 @@
 package com.findear.main.matching.model.dto;
 
+import com.findear.main.board.common.domain.BoardStatus;
 import lombok.*;
 
 @Getter @Setter
@@ -14,4 +15,5 @@ public class BriefAcquiredBoardDto {
     private String agencyName;
     private String agencyAddress;
     private String thumbnailUrl;
+    private BoardStatus status;
 }

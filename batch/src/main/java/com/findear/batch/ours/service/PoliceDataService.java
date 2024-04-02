@@ -73,8 +73,7 @@ public class PoliceDataService {
                 searchRequest.source(searchSourceBuilder);
 
                 SearchHits hits = null;
-//                // 검색 실행
-//                SearchHits hits = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT).getHits();
+
                 try {
                     hits = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT).getHits();
                     log.info("가장 높은 similarityRate의 결과를 리스트에 추가");

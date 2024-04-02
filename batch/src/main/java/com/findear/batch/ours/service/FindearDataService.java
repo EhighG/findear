@@ -55,6 +55,8 @@ public class FindearDataService {
 
         try {
 
+            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
+
             // 찾아지지 않은 분실물 게시글 모두 조회
             List<LostBoard> lostBoardList = lostBoardRepository.findAllWithBoardByStatusOngoing();
 
@@ -82,7 +84,7 @@ public class FindearDataService {
                 MatchingFindearDatasToAiReqDto matchingFindearDatasToAiReqDto = MatchingFindearDatasToAiReqDto
                         .builder().lostBoard(lostBoardMatchingDto).acquiredBoardList(new ArrayList<>()).build();
 
-                for(AcquiredBoard ab : acquiredBoardList) {
+                for (AcquiredBoard ab : acquiredBoardList) {
                     matchingFindearDatasToAiReqDto.getAcquiredBoardList()
                             .add(AcquiredBoardMatchingDto.builder()
                                     .acquiredBoardId(ab.getId().toString())
@@ -110,34 +112,48 @@ public class FindearDataService {
 
                 System.out.println("response : " + response.getBody());
 
+                List<Map<String, Object>> resultList = (List<Map<String, Object>>) response.getBody().get("result");
+
+                if (resultList == null) {
+
+                    return Collections.emptyList();
+                } else {
+                    List<FindearMatchingLog> findearMatchingLogList = new ArrayList<>();
+
+                    Long findearMatchingId = findearMatchingLogRepository.count() + 1;
+
+                    // findear 매칭 로직
+                    for (Map<String, Object> res : resultList) {
+
+                        MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                                .lostBoardId(res.get("lostBoardId"))
+                                .acquiredBoardId(res.get("acquiredBoardId"))
+                                .similarityRate(res.get("similarityRate")).build();
+
+                        result.add(matchingFindearDatasToAiResDto);
+
+                        FindearMatchingLog newFindearMatchingLog = FindearMatchingLog.builder()
+                                .findearMatchingLogId(findearMatchingId++)
+                                .lostBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getLostBoardId())))
+                                .acquiredBoardId(Long.parseLong(String.valueOf(matchingFindearDatasToAiResDto.getAcquiredBoardId())))
+                                .similarityRate(Float.parseFloat(String.valueOf(matchingFindearDatasToAiResDto.getSimilarityRate())))
+                                .matchingAt(LocalDateTime.now().toString())
+                                .build();
+
+                        findearMatchingLogList.add(newFindearMatchingLog);
+                    }
+
+                    findearMatchingLogRepository.saveAll(findearMatchingLogList);
+                    log.info("findear 로그 저장 완료");
+                }
             }
 
-            return null;
+            return result;
 
         } catch (Exception e) {
             throw new FindearException(e.getMessage());
         }
     }
-
-//    private PoliceAcquiredData convertToPoliceData(SearchHit hit) {
-//
-//        Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-//
-//        return new PoliceAcquiredData(
-//
-//                Long.parseLong(sourceAsMap.get("id").toString()),
-//                sourceAsMap.get("atcId").toString(),
-//                sourceAsMap.get("depPlace").toString(),
-//                sourceAsMap.get("fdFilePathImg").toString(),
-//                sourceAsMap.get("fdPrdtNm").toString(),
-//                sourceAsMap.get("fdSbjt").toString(),
-//                sourceAsMap.get("clrNm").toString(),
-//                sourceAsMap.get("fdYmd").toString(),
-//                sourceAsMap.get("prdtClNm").toString(),
-//                sourceAsMap.get("mainPrdtClNm").toString(),
-//                sourceAsMap.getOrDefault("subPrdtClNm", "").toString()
-//        );
-//    }
 
     public MatchingAllDatasToAiResDto matchingFindearDatas(LostBoardMatchingDto lostBoardMatchingDto) {
 
@@ -250,7 +266,7 @@ public class FindearDataService {
 
                 searchSourceBuilder.query(boolQueryBuilder);
                 searchSourceBuilder.size(pageSize);
-                searchSourceBuilder.fetchSource(new String[]{"id", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "mainPrdtClNm"}, null);
+                searchSourceBuilder.fetchSource(new String[]{"id", "atcId", "depPlace", "fdFilePathImg", "fdPrdtNm", "fdSbjt", "clrNm", "fdYmd", "mainPrdtClNm"}, null);
 
                 if (searchAfter != null) {
                     searchSourceBuilder.sort("_doc");
@@ -271,33 +287,59 @@ public class FindearDataService {
                 for (SearchHit hit : hits) {
                     Map<String, Object> sourceAsMap = hit.getSourceAsMap();
 
-                    if(sourceAsMap.get("clrNm") == null) {
-                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
-                                sourceAsMap.get("id").toString(),
-                                sourceAsMap.get("atcId").toString(),
-                                sourceAsMap.get("depPlace").toString(),
-                                sourceAsMap.get("fdFilePathImg").toString(),
-                                sourceAsMap.get("fdPrdtNm").toString(),
-                                sourceAsMap.get("fdSbjt").toString(),
-                                "기타",
-                                sourceAsMap.get("fdYmd").toString(),
-                                sourceAsMap.get("mainPrdtClNm").toString()
-                        );
-                    }
+//                    log.info("id : " + sourceAsMap.get("id").toString());
+////                    log.info("atcId : " + sourceAsMap.get("atcId").toString());
+//                    log.info("depPlace : " + sourceAsMap.get("depPlace").toString());
+//                    log.info("fdFilePathImg : " + sourceAsMap.get("fdFilePathImg").toString());
+//                    log.info("fdPrdtNm : " + sourceAsMap.get("fdPrdtNm").toString());
+//                    log.info("fdSbjt : " + sourceAsMap.get("fdSbjt").toString());
+////                    log.info("clrNm : " + sourceAsMap.get("clrNm").toString());
+//                    log.info("fdYmd : " + sourceAsMap.get("fdYmd").toString());
+//                    log.info("mainPrdtClNm : " + sourceAsMap.get("mainPrdtClNm").toString());
 
-                    else {
-                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
-                                sourceAsMap.get("id").toString(),
-                                sourceAsMap.get("atcId").toString(),
-                                sourceAsMap.get("depPlace").toString(),
-                                sourceAsMap.get("fdFilePathImg").toString(),
-                                sourceAsMap.get("fdPrdtNm").toString(),
-                                sourceAsMap.get("fdSbjt").toString(),
-                                sourceAsMap.get("clrNm").toString(),
-                                sourceAsMap.get("fdYmd").toString(),
-                                sourceAsMap.get("mainPrdtClNm").toString()
-                        );
-                    }
+                    policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
+                            sourceAsMap.get("id") == null ? null : sourceAsMap.get("id").toString(),
+                            sourceAsMap.get("atcId") == null ? null : sourceAsMap.get("atcId").toString(),
+                            sourceAsMap.get("depPlace") == null ? null : sourceAsMap.get("depPlace").toString(),
+                            sourceAsMap.get("fdFilePathImg") == null ? null : sourceAsMap.get("fdFilePathImg").toString(),
+                            sourceAsMap.get("fdPrdtNm") == null ? null : sourceAsMap.get("fdPrdtNm").toString(),
+                            sourceAsMap.get("fdSbjt") == null ? null : sourceAsMap.get("fdSbjt").toString(),
+                            sourceAsMap.get("clrNm") == null ? null : sourceAsMap.get("clrNm").toString(),
+                            sourceAsMap.get("fdYmd") == null ? null : sourceAsMap.get("fdYmd").toString(),
+                            sourceAsMap.get("mainPrdtClNm") == null ? null : sourceAsMap.get("mainPrdtClNm").toString()
+                    );
+
+//                    if(sourceAsMap.get("clrNm") == null) {
+//                        log.info("clrNm 가 null");
+//                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
+//                                sourceAsMap.get("id").toString(),
+//                                sourceAsMap.get("atcId").toString(),
+//                                sourceAsMap.get("depPlace").toString(),
+//                                sourceAsMap.get("fdFilePathImg").toString(),
+//                                sourceAsMap.get("fdPrdtNm").toString(),
+//                                sourceAsMap.get("fdSbjt").toString(),
+//                                "기타",
+//                                sourceAsMap.get("fdYmd").toString(),
+//                                sourceAsMap.get("mainPrdtClNm").toString()
+//                        );
+//                    } else if(sourceAsMap.get("atcId") == null) {
+//                        log.info("atcId 가 null");
+//                        continue;
+//                    }
+//                    else {
+//                        log.info("null 없음");
+//                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
+//                                sourceAsMap.get("id").toString(),
+//                                sourceAsMap.get("atcId").toString(),
+//                                sourceAsMap.get("depPlace").toString(),
+//                                sourceAsMap.get("fdFilePathImg").toString(),
+//                                sourceAsMap.get("fdPrdtNm").toString(),
+//                                sourceAsMap.get("fdSbjt").toString(),
+//                                sourceAsMap.get("clrNm").toString(),
+//                                sourceAsMap.get("fdYmd").toString(),
+//                                sourceAsMap.get("mainPrdtClNm").toString()
+//                        );
+//                    }
 
                     matchingPoliceDatasToAiReqDto.getAcquiredBoardList().add(policeAcquiredBoardMatchingDto);
                 }

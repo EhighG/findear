@@ -69,14 +69,19 @@ public class MatchingService {
     }
 
     private Map<String, Object> sendRequest(String param, String src, Long id, int pageNo, int size) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BATCH_SERVER_URL + "/" + src + "/"+ param + "/" + id)
+        try {
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BATCH_SERVER_URL + "/" + src + "/"+ param + "/" + id)
 //                .uriVariables(Collections.singletonMap(param + "Id", id))
-                .queryParam("page", pageNo)
-                .queryParam("size", size);
-        System.out.println("builder.toUriString() = " + builder.toUriString());
-        BatchServerResponseDto response = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
-        Map<String, Object> result = (Map<String, Object>) response.getResult();
-        return convertCountToPageNum(result, size);
+                    .queryParam("page", pageNo)
+                    .queryParam("size", size);
+            System.out.println("builder.toUriString() = " + builder.toUriString());
+            BatchServerResponseDto response = restTemplate.getForObject(builder.toUriString(), BatchServerResponseDto.class);
+            Map<String, Object> result = (Map<String, Object>) response.getResult();
+            return convertCountToPageNum(result, size);
+        } catch (Exception e) {
+            throw new IllegalStateException("배치서버 요청 중 에러");
+        }
     }
 
     private Map<String, Object> convertCountToPageNum(Map<String, Object> result, int pageSize) {

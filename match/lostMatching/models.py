@@ -34,11 +34,11 @@ class matchModel():
         self.kiwi = Kiwi()
         self.stem_tag = ['NNG', 'NNP', 'VA'] 
         # open color crawling
-        self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
-        self.driver = webdriver.Chrome()
-        self.driver.get(self.webPath)
-        print('driver', self.driver)
-        self.timeToWait = 0.001
+        # self.webPath = 'http://web.kats.go.kr/KoreaColor/color.asp'
+        # self.driver = webdriver.Chrome()
+        # self.driver.get(self.webPath)
+        # print('driver', self.driver)
+        # self.timeToWait = 0.001
 
         return None
 
@@ -60,13 +60,32 @@ class matchModel():
 
         # set found item type
         self.found = pd.DataFrame(self.found)
-        self.found['acquiredBoardId'] = self.found['acquiredBoardId'].astype(int)
 
         if self.source == 'findear':
+            self.found['acquiredBoardId'] = self.found['acquiredBoardId'].astype(int)
             self.found['xpos'] = self.found['xpos'].astype(float)
             self.found['ypos'] = self.found['ypos'].astype(float)
         elif self.source == 'lost112':
-            pass
+            # 칼럼명 통일
+            self.found = self.found.rename(columns={'id':'acquiredBoardId', 'fdPrdtNm':'productName', 'clrNm':'color', 'depPlace':'place'})  
+            self.found['acquiredBoardId'] = self.found['acquiredBoardId'].astype(int)
+            # 좌표 값 집어넣기
+            self.found['xpos'] = 0.0
+            self.found['ypos'] = 0.0
+            location_df = pd.read_csv('test_police_location.csv', encoding='cp949')
+            # print(location_df.head())
+            for index, row in self.found.iterrows():
+                place_name = row['place']
+                # print(place_name)
+                location_df_row = location_df[location_df['관서명'] == place_name]
+                # print(location_df_row['위도'].values[0])
+                xpos = location_df_row['경도'].values[0]
+                ypos = location_df_row['위도'].values[0]
+                self.found.at[index, 'xpos'] = xpos
+                self.found.at[index, 'ypos'] = ypos
+            print(self.found)
+
+
 
         self.score = pd.DataFrame()
         self.score['id'] = self.found['acquiredBoardId']
@@ -95,7 +114,19 @@ class matchModel():
     
     def calDistance(self):
         std = 20
-        npLst = np.array([[hv((y,x), ( self.lost['ypos'],self.lost['xpos']), unit='km')] for x,y in zip(self.found['xpos'], self.found['ypos']) ])
+        npLst = []
+
+        if -90 < self.lost['ypos'] < 90 and -180 < self.lost['xpos'] < 180:  # 분실물 위경도 범위 확인
+            for x,y in zip(self.found['xpos'], self.found['ypos']):
+                if -90 < y < 90 and -180 < x < 180:  # 습득물 위경도 범위 확인
+                    dist = hv((y,x), ( self.lost['ypos'],self.lost['xpos']), unit='km')
+                    # print(dist)
+                    npLst.append([dist])
+                else:
+                    npLst.append([1000])
+            
+        # npLst = np.array([[hv((y,x), ( self.lost['ypos'],self.lost['xpos']), unit='km')] for x,y in zip(self.found['xpos'], self.found['ypos']) ])
+        
         minmaxScaler = MinMaxScaler().fit([[0],[std]])
         X_train_minmax = minmaxScaler.transform(npLst)
         nplst = 1- np.array(X_train_minmax).squeeze()
@@ -254,44 +285,44 @@ if __name__ == '__main__':
         }
     testFound = [
             {
-                "acquiredBoardId" : 1,
-                "productName" : "여성 장지갑",
-                "color" : "하양",
-                "categoryName" : "지갑",
-                "description" : "왼쪽 상단에 흠집이 가있습니다.",
-                "xpos" : 126.933,
-                "ypos" : 37.545,
-                "registeredAt" : "2024-03-25 00:00:00"
+                "id": 959143,
+                "depPlace": "을지지구대",
+                "fdFilePathImg": "https://www.lost112.go.kr/lostnfs/images/uploadImg/20231114/20231114035402064.jpg",
+                "fdPrdtNm": "지갑(카드 2개)",
+                "fdSbjt": "지갑(카드 2개)(코발트(짙은청록)색)을 습득하여 보관하고 있습니다.",
+                "clrNm": "짙은청록",
+                "fdYmd": "2023-10-13",
+                "mainPrdtClNm": "지갑"
             },
             {
-                "acquiredBoardId" : 2,
-                "productName" : "에르메스",
-                "color" : "파랑",
-                "categoryName" : "지갑",
-                "description" : "모델은 미상입니다. 한정판으로 보입니다.",
-                "xpos" : 127.05,
-                "ypos" : 37.5034,
-                "registeredAt" : "2024-03-25 00:00:00"
+                "id": 959144,
+                "depPlace": "광희지구대",
+                "fdFilePathImg": "https://www.lost112.go.kr/lostnfs/images/uploadImg/20231114/20231114035402064.jpg",
+                "fdPrdtNm": "지갑(카드 2개)",
+                "fdSbjt": "지갑(카드 2개)(코발트(짙은청록)색)을 습득하여 보관하고 있습니다.",
+                "clrNm": "짙은청록",
+                "fdYmd": "2023-10-13",
+                "mainPrdtClNm": "지갑"
             },
             {
-                "acquiredBoardId" : 3,
-                "productName" : "코끼리 그림 박힌 지갑",
-                "color" : "초록",
-                "categoryName" : "지갑",
-                "description" :     "물품에 대한 설명",
-                "xpos" : 126.23,
-                "ypos" : 35.24,
-                "registeredAt" : "2024-03-25 00:00:00"
+                "id": 959145,
+                "depPlace": "약수지구대",
+                "fdFilePathImg": "https://www.lost112.go.kr/lostnfs/images/uploadImg/20231114/20231114035402064.jpg",
+                "fdPrdtNm": "지갑(카드 2개)",
+                "fdSbjt": "지갑(카드 2개)(코발트(짙은청록)색)을 습득하여 보관하고 있습니다.",
+                "clrNm": "짙은청록",
+                "fdYmd": "2023-10-13",
+                "mainPrdtClNm": "지갑"
             }
         ]
     testModel = matchModel()
     testModel.setData(testLost, testFound)
     
-    testModel.preprocess('findear')
-    testModel.calColor()
+    testModel.preprocess('lost112')
+    # testModel.calColor()
     testModel.calDistance()
     testModel.calName()
-    testModel.calDesc()
+    # testModel.calDesc()
     print(testModel.score)
     ans = testModel.aggregateScore()
     print(ans)

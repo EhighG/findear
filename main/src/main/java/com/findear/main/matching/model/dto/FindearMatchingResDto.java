@@ -18,7 +18,7 @@ public class FindearMatchingResDto {
     public FindearMatchingResDto(LostBoard lostBoard, AcquiredBoard acquiredBoard, Float similarityRate, String matchedAt) {
         Board lBoard = lostBoard.getBoard();
         Board aBoard = acquiredBoard.getBoard();
-        this.lostBoard = new BriefLostBoardDto(lBoard.getId(), lBoard.getProductName());
+        this.lostBoard = new BriefLostBoardDto(lBoard.getId(), lostBoard.getId(), lBoard.getProductName());
         this.acquiredBoard = BriefAcquiredBoardDto.builder()
                 .boardId(aBoard.getId())
                 .productName(aBoard.getProductName())

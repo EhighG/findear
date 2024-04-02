@@ -44,15 +44,22 @@ def lost_matching(request):
     return JsonResponse({ 'message':'해당 분실물과 lost112 데이터와의 매칭이 완료되었습니다', 'result':result }, status = 200)
 
 # lost112 매칭 실행 함수
-def process_lost_item_data(found_item_info):
+def process_lost_item_data(items_info):
     # 코드 실행 시작 시간 측정
     start_time = time.time()
     
-    lostBoard = found_item_info["lostBoard"]
-    acquiredBoardList = found_item_info.get("acquiredBoardList")
+    lostBoard = items_info["lostBoard"]
+    acquiredBoardList = items_info.get("acquiredBoardList")
     
     # 데이터 처리 수행
-    processed_data = matching.lost112_matching(lostBoard, acquiredBoardList)
+    matchInstance.setData(lost=lostBoard, found=acquiredBoardList)
+    matchInstance.preprocess('lost112')
+
+    matchInstance.calColor()
+    matchInstance.calDistance()
+    matchInstance.calName()
+    matchInstance.calDesc()
+    processed_data = matchInstance.aggregateScore()
     
     # 코드 실행 종료 시간 측정
     end_time = time.time()

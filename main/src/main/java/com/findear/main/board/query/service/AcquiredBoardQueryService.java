@@ -24,10 +24,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -42,9 +39,13 @@ public class AcquiredBoardQueryService {
     private final String DEFAULT_SDATE_STRING = "2015-01-01";
     private final RestTemplate restTemplate;
 
-    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo,
-                                             int pageSize) {
-        List<AcquiredBoard> acquiredBoards = acquiredBoardQueryRepository.findAll();
+    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword,
+                                             String sortBy, Boolean desc, int pageNo, int pageSize) {
+        List<AcquiredBoard> acquiredBoards = null;
+        if (sortBy != null && sortBy.equals("date")) {
+            acquiredBoards = desc ? acquiredBoardQueryRepository.findAllOrderByAcquiredAtDesc()
+                    : acquiredBoardQueryRepository.findAllOrderByAcquiredAt();
+        }
         Stream<AcquiredBoard> stream = acquiredBoards.stream();
 
         // filtering

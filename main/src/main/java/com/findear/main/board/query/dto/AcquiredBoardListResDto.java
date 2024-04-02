@@ -2,6 +2,7 @@ package com.findear.main.board.query.dto;
 
 import com.findear.main.board.common.domain.AcquiredBoard;
 import com.findear.main.board.common.domain.Board;
+import com.findear.main.board.common.domain.BoardStatus;
 import com.findear.main.board.common.domain.LostBoard;
 import com.findear.main.member.command.dto.BriefMemberDto;
 import com.findear.main.member.command.dto.LoginResAgencyDto;
@@ -26,6 +27,7 @@ public class AcquiredBoardListResDto {
     private LoginResAgencyDto agency;
     private String acquiredAt;
     private BriefMemberDto writer;
+    private BoardStatus status;
 
     public static AcquiredBoardListResDto of(AcquiredBoard acquiredBoard) {
         Board board = acquiredBoard.getBoard();
@@ -41,6 +43,7 @@ public class AcquiredBoardListResDto {
                 .agency(new LoginResAgencyDto(dbAgency.getId(), dbAgency.getName(), dbAgency.getAddress()))
                 .acquiredAt(acquiredBoard.getAcquiredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .writer(new BriefMemberDto(writer.getId(), writer.getPhoneNumber()))
+                .status(board.getStatus())
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.findear.main.board.query.service;
 
 import com.findear.main.board.common.domain.AcquiredBoard;
+import com.findear.main.board.common.domain.BoardStatus;
 import com.findear.main.board.common.domain.Lost112AcquiredBoardDto;
 import com.findear.main.board.query.dto.*;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
@@ -11,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,6 +49,7 @@ public class AcquiredBoardQueryService {
         if (memberId != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getMember().getId().equals(memberId));
         }
+
         if (category != null) {
             stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().contains(category));
         }

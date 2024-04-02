@@ -156,7 +156,83 @@ public class PoliceDataService {
 
         try {
 
-            return null;
+            //////////////////////
+            System.out.println("lostBoardId : " + lostBoardId);
+            LostBoard findLostBoard = lostBoardRepository.findById(lostBoardId)
+                    .orElseThrow(() -> new FindearException("해당 분실물이 존재하지 않습니다."));
+
+            List<SearchPoliceMatchingListResDto> boardMatchingList = new ArrayList<>();
+
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            boolQueryBuilder.must(QueryBuilders.matchQuery("lostBoardId", lostBoardId));
+
+            // 검색 요청 생성
+            SearchRequest searchRequest = new SearchRequest("police_matching_log");
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(boolQueryBuilder);
+            searchSourceBuilder.sort(SortBuilders.fieldSort("similarityRate").order(SortOrder.DESC)); // similarityRate 내림차순으로 정렬
+            searchRequest.source(searchSourceBuilder);
+
+            SearchHits hits;
+            try {
+                // 검색 실행
+                hits = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT).getHits();
+            } catch (IOException e) {
+                throw new FindearException(e.getMessage());
+            }
+
+            // 검색 결과를 리스트에 추가
+            for (SearchHit hit : hits) {
+                String policeMatchingLogId = hit.getSourceAsMap().get("policeMatchingLogId").toString();
+                String findLostBoardId = hit.getSourceAsMap().get("lostBoardId").toString();
+                Float similarityRate = Float.parseFloat(hit.getSourceAsMap().get("similarityRate").toString());
+                String matchedAt = (String) hit.getSourceAsMap().get("matchedAt");
+                String acquiredBoardId = (String) hit.getSourceAsMap().get("acquiredBoardId");
+                String atcId = (String) hit.getSourceAsMap().get("atcId");
+                String depPlace = (String) hit.getSourceAsMap().get("depPlace");
+                String fdFilePathImg = (String) hit.getSourceAsMap().get("fdFilePathImg");
+                String fdPrdtNm = (String) hit.getSourceAsMap().get("fdPrdtNm");
+                String fdSbjt = (String) hit.getSourceAsMap().get("fdSbjt");
+                String clrNm = (String) hit.getSourceAsMap().get("clrNm");
+                String fdYmd = (String) hit.getSourceAsMap().get("fdYmd");
+                String mainPrdtClNm = (String) hit.getSourceAsMap().get("mainPrdtClNm");
+
+                SearchPoliceMatchingListResDto dto = SearchPoliceMatchingListResDto.builder()
+                        .policeMatchingLogId(policeMatchingLogId)
+                        .lostBoardId(findLostBoardId)
+                        .similarityRate(similarityRate.toString())
+                        .matchedAt(matchedAt)
+                        .acquiredBoardId(acquiredBoardId)
+                        .atcId(atcId)
+                        .depPlace(depPlace)
+                        .fdFilePathImg(fdFilePathImg)
+                        .fdPrdtNm(fdPrdtNm)
+                        .fdSbjt(fdSbjt)
+                        .clrNm(clrNm)
+                        .fdYmd(fdYmd)
+                        .mainPrdtClNm(mainPrdtClNm)
+                        .build();
+
+                boardMatchingList.add(dto);
+            }
+
+            int from = (page - 1) * size;
+            int to = page * size;
+
+            if(to > boardMatchingList.size()) {
+                to = boardMatchingList.size();
+            }
+
+            List<SearchPoliceMatchingListResDto> result = new ArrayList<>();
+            for(int i=from; i<to; i++) {
+                result.add(boardMatchingList.get(i));
+            }
+
+            SearchPoliceBoardMatchingListDto searchPoliceBoardMatchingListDto = SearchPoliceBoardMatchingListDto.builder()
+                    .matchingList(result)
+                    .totalCount(boardMatchingList.size()).build();
+
+            return searchPoliceBoardMatchingListDto;
 
         } catch (Exception e) {
             throw new PoliceException(e.getMessage());

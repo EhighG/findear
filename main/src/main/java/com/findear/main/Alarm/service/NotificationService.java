@@ -37,6 +37,12 @@ public class NotificationService {
         Member findMember = memberQueryRepository.findById(saveNotificationReqDto.getMemberId())
                 .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
+        Notification findNotification = notificationRepository.findByMember(findMember);
+
+        if(findNotification != null) {
+            notificationRepository.delete(findNotification);
+        }
+
         Notification newNotification = Notification.builder()
                 .token(saveNotificationReqDto.getToken())
                 .build();

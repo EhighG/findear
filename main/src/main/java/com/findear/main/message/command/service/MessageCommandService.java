@@ -1,7 +1,9 @@
 package com.findear.main.message.command.service;
 
 import com.findear.main.Alarm.dto.AlarmDataDto;
+import com.findear.main.Alarm.dto.NotificationRequestDto;
 import com.findear.main.Alarm.service.EmitterService;
+import com.findear.main.Alarm.service.NotificationService;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.common.domain.Board;
 import com.findear.main.board.query.repository.LostBoardQueryRepository;
@@ -35,6 +37,7 @@ public class MessageCommandService {
     private final MessageRoomQueryRepository messageRoomQueryRepository;
     private final MemberQueryRepository memberQueryRepository;
     private final EmitterService emitterService;
+    private final NotificationService notificationService;
 
     public void sendMessage(SendMessageReqDto sendMessageReqDto) {
 
@@ -68,15 +71,12 @@ public class MessageCommandService {
 
             messageCommandRepository.save(newMessage);
 
-            // 유저에게 알림 발송
-            AlarmDataDto alarmDataDto = AlarmDataDto.builder()
-                    .content("쪽지 도착 : " + newMessage.getContent())
-                    .readYn(false)
-                    .generatedAt(LocalDateTime.now().toString())
-                    .author("쪽지 도착")
-                    .build();
-
-            emitterService.alarm(findMessageRoom.getBoard().getMember().getId(), alarmDataDto, "쪽지 도착", "consult");
+            notificationService.sendNotification(NotificationRequestDto.builder()
+                    .title("쪽지 도착")
+                    .message(newMessage.getContent())
+                    .type("message")
+                    .memberId(findMessageRoom.getBoard().getMember().getId())
+                    .build());
 
         }
         catch (Exception e) {
@@ -110,15 +110,12 @@ public class MessageCommandService {
                 receiverId = newMessage.getSenderId();
             }
 
-            // 유저에게 알림 발송
-            AlarmDataDto alarmDataDto = AlarmDataDto.builder()
-                    .content("쪽지 도착 : " + newMessage.getContent())
-                    .readYn(false)
-                    .generatedAt(LocalDateTime.now().toString())
-                    .author("쪽지 도착")
-                    .build();
-
-            emitterService.alarm(receiverId, alarmDataDto, "쪽지 도착", "reply");
+            notificationService.sendNotification(NotificationRequestDto.builder()
+                    .title("쪽지 도착")
+                    .message(newMessage.getContent())
+                    .type("message")
+                    .memberId(receiverId)
+                    .build());
 
         } catch (Exception e) {
             throw new MessageException(e.getMessage());

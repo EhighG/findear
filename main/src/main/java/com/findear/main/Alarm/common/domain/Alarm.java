@@ -28,12 +28,12 @@ public class Alarm {
 
     private String content;
 
-    private LocalDateTime generatedAt;
+    private String generatedAt;
 
     private Boolean readYn;
 
     @Builder
-    public Alarm(Member member, String author, String content, LocalDateTime generatedAt, Boolean readYn) {
+    public Alarm(Member member, String author, String content, String generatedAt, Boolean readYn) {
 
         this.member = member;
         this.author = author;

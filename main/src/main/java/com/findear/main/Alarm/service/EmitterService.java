@@ -59,7 +59,7 @@ public class EmitterService {
             sendToClient(memberId, alarmDataDto, comment, type);
 
             Alarm alarm = Alarm.builder()
-                    .generatedAt(LocalDateTime.now())
+                    .generatedAt(LocalDateTime.now().toString())
                     .author(alarmDataDto.getAuthor())
                     .readYn(false)
                     .content(alarmDataDto.getContent())
@@ -70,7 +70,6 @@ public class EmitterService {
         } catch (Exception e) {
             throw new AlarmException(e.getMessage());
         }
-
     }
 
     private void sendToClient(Long memberId, Object data, String comment) {

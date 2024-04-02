@@ -3,6 +3,8 @@ package com.findear.main.board.command.service;
 import com.findear.main.board.command.dto.*;
 import com.findear.main.board.command.repository.*;
 import com.findear.main.board.common.domain.*;
+import com.findear.main.board.query.dto.AcquiredBoardListResDto;
+import com.findear.main.board.query.dto.BatchServerResponseDto;
 import com.findear.main.board.query.repository.AcquiredBoardQueryRepository;
 import com.findear.main.board.query.repository.BoardQueryRepository;
 import com.findear.main.member.common.domain.Agency;
@@ -13,11 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Transactional
@@ -33,8 +37,11 @@ public class AcquiredBoardCommandService {
     private final ImgFileRepository imgFileRepository;
     private final ReturnLogRepository returnLogRepository;
     private final ScrapRepository scrapRepository;
+    private final Lost112ScrapRepository lost112ScrapRepository;
+    private final RestTemplate restTemplate;
 
     public static String MATCH_SERVER_URL = "https://j10a706.p.ssafy.io/match";
+    public static String BATCH_SERVER_URL = "https://j10a706.p.ssafy.io/batch";
 
     public Long register(PostAcquiredBoardReqDto postAcquiredBoardReqDto) {
         Member manager = memberQueryService.internalFindById(postAcquiredBoardReqDto.getMemberId());
@@ -165,23 +172,57 @@ public class AcquiredBoardCommandService {
         acquiredBoard.rollback();
     }
 
-    public void scrap(Long memberId, Long boardId) {
+    public void scrap(Long memberId, Long boardId, Boolean isFindear) {
         Member member = memberQueryService.internalFindById(memberId);
-        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
-
-        scrapRepository.save(new Scrap(board, member));
+        if (isFindear) {
+            Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+            if (scrapRepository.findByMemberAndBoard(member, board).isPresent()) {
+                throw new IllegalArgumentException("이미 스크랩한 게시물입니다.");
+            }
+            scrapRepository.save(new Scrap(board, member));
+        } else {
+            lost112ScrapRepository.save(new Lost112Scrap(boardId, member));
+        }
     }
 
-    public void cancelScrap(Long memberId, Long boardId) {
+    public ScrapListResDto findScrapList(Long memberId) {
+        // findear
         Member member = memberQueryService.internalFindById(memberId);
-        Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+        List<Scrap> myScraps = scrapRepository.findAllByMember(member);
+        List<AcquiredBoardListResDto> findearAcquireds = new ArrayList<>(myScraps.size());
+        for (Scrap scrap : myScraps) {
+            AcquiredBoard acquiredBoard = acquiredBoardQueryRepository.findByBoardId(scrap.getBoard().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("오류 : 없는 게시물이 스크랩됨"));
+            findearAcquireds.add(AcquiredBoardListResDto.of(acquiredBoard));
+        }
 
-        Scrap scrap = scrapRepository.findByMemberAndBoard(member, board)
-                .orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        // lost112
+        List<Lost112Scrap> lost112Scraps = lost112ScrapRepository.findAllByMember(member);
+        List<Long> lost112ScrapIds = lost112Scraps.stream()
+                .map(Lost112Scrap::getLost112BoardId)
+                .toList();
+        BatchServerResponseDto response = restTemplate.postForObject(BATCH_SERVER_URL + "/lost112/list",
+                lost112ScrapIds, BatchServerResponseDto.class);
+        List<Map<String, Object>> lost112Acquireds = (List<Map<String, Object>>) response.getResult();
+        return new ScrapListResDto(findearAcquireds, lost112Acquireds);
+    }
 
-        scrapRepository.delete(scrap);
+    public void cancelScrap(Long memberId, Long boardId, Boolean isFindear) {
+        Member member = memberQueryService.internalFindById(memberId);
+        if (isFindear) {
+            Board board = boardQueryRepository.findByIdAndDeleteYnFalse(boardId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 없습니다."));
+
+            Scrap scrap = scrapRepository.findByMemberAndBoard(member, board)
+                    .orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+
+            scrapRepository.delete(scrap);
+        } else {
+            Lost112Scrap scrap = lost112ScrapRepository.findByMemberAndLost112BoardId(member, boardId)
+                    .orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+            lost112ScrapRepository.delete(scrap);
+        }
     }
 
     private void checkSameAgency(Board board, Long memberId) {

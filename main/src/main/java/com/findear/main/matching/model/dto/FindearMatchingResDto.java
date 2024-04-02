@@ -27,6 +27,7 @@ public class FindearMatchingResDto {
                 .agencyName(acquiredBoard.getName())
                 .agencyAddress(acquiredBoard.getAddress())
                 .acquiredAt(acquiredBoard.getAcquiredAt().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .status(aBoard.getStatus())
                 .build();
         this.similarityRate = similarityRate;
         this.matchedAt = matchedAt;

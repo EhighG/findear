@@ -36,7 +36,6 @@ public class MessageCommandService {
     private final MessageRoomCommandRepository messageRoomCommandRepository;
     private final MessageRoomQueryRepository messageRoomQueryRepository;
     private final MemberQueryRepository memberQueryRepository;
-    private final EmitterService emitterService;
     private final NotificationService notificationService;
 
     public void sendMessage(SendMessageReqDto sendMessageReqDto) {

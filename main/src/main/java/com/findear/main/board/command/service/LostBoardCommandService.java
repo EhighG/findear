@@ -1,7 +1,5 @@
 package com.findear.main.board.command.service;
 
-import com.findear.main.Alarm.dto.NotificationRequestDto;
-import com.findear.main.Alarm.service.NotificationService;
 import com.findear.main.board.command.dto.*;
 import com.findear.main.board.command.repository.BoardCommandRepository;
 import com.findear.main.board.command.repository.ImgFileRepository;
@@ -44,7 +42,6 @@ public class LostBoardCommandService {
     private final BoardCommandRepository boardCommandRepository;
     private final BoardQueryRepository boardQueryRepository;
     private final LostBoardQueryRepository lostBoardQueryRepository;
-    private final NotificationService notificationService;
 
     public Long register(PostLostBoardReqDto postLostBoardReqDto) {
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
@@ -101,19 +98,20 @@ public class LostBoardCommandService {
 
             log.info("매칭 결과 : " + resultList);
 
-            if (resultList != null) {
-                Long lostBoardId = (Long) resultList.get(0).get("lostBoardId");
+            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 
-                Long losterId = lostBoardQueryRepository.findById(lostBoardId).get()
-                        .getBoard().getMember().getId();
-                // 알림 메소드 호출
-                notificationService.sendNotification(NotificationRequestDto.builder()
-                        .title("등록하신 분실물과 유사한 물건들을 찾아봤어요!")
-                        .message("매칭이 완료되었습니다.")
-                        .type("message")
-                        .memberId(losterId)
-                        .build());
+            if (resultList != null) {
+                for(Map<String, Object> res : resultList) {
+                    MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
+                            .lostBoardId(res.get("lostBoardId"))
+                            .acquiredBoardId(res.get("acquiredBoardId"))
+                            .similarityRate(res.get("similarityRate")).build();
+                    result.add(matchingFindearDatasToAiResDto);
+                }
             }
+
+            // 알림 메소드 호출
+            System.out.println("첫 매칭 로직 끝나고, 알림 메소드 호출 부분");
 
         } catch (Exception e) {
             throw new RuntimeException("분실물 등록 후 첫 매칭 결과 파싱 중 오류");
@@ -134,8 +132,17 @@ public class LostBoardCommandService {
 
         log.info("batch 서버로 요청 로직");
         // batch 서버로 요청
-        String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+//
+//        HttpEntity<?> requestEntity = new HttpEntity<>(matchingFindearDatasReqDto, headers);
 
+        String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
+//        String serverURL = "http://localhost:8082/findear/matching";
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//
+//        ResponseEntity<Map> response = restTemplate.postForEntity(serverURL, requestEntity, Map.class);
 
         WebClient client = WebClient.builder()
                 .baseUrl(serverURL)

@@ -13,6 +13,7 @@ import com.findear.main.member.query.repository.MemberQueryRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.WebpushNotification;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ public class NotificationService {
     private final MemberQueryRepository memberQueryRepository;
     private final AlarmRepository alarmRepository;
 
+    private final EntityManager em;
+
     @Transactional
     public void saveNotification(SaveNotificationReqDto saveNotificationReqDto) {
 
@@ -38,18 +41,24 @@ public class NotificationService {
                 .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
         Notification findNotification = notificationRepository.findByMember(findMember);
+        log.info(findNotification.getToken());
 
-        if(findNotification != null) {
+        if (findNotification != null) {
             notificationRepository.delete(findNotification);
+            log.info("토큰 삭제");
+
+            em.flush();
         }
 
         Notification newNotification = Notification.builder()
                 .token(saveNotificationReqDto.getToken())
                 .build();
 
+        log.info("새로운 토큰 : " + newNotification.getToken());
         newNotification.confirmUser(findMember);
 
         notificationRepository.save(newNotification);
+
     }
 
     public void sendNotification(NotificationRequestDto req) {
@@ -81,7 +90,6 @@ public class NotificationService {
 
             if(token != null) {
 
-                System.out.println("토큰 : " + token);
                 Message message = Message.builder()
                         .setWebpushConfig(WebpushConfig.builder()
                                 .setNotification(WebpushNotification.builder()

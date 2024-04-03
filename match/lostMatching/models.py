@@ -270,10 +270,13 @@ class matchModel():
         elif query in colorLst:
             index = colorLst.index(query)
         else:
-            index = random.randint(0, len(colorLst))
+            index = random.randint(0, len(colorLst)-1)
 
         select = Select(colorBox)
-        select.select_by_index(index)
+        try:
+            select.select_by_index(index)
+        except:
+            return None
         selected_option = select.first_selected_option
         action = ActionChains(self.driver)
         action.double_click(selected_option).perform()

@@ -115,7 +115,7 @@ public class LostBoardCommandService {
             notificationService.sendNotification(NotificationRequestDto.builder()
                     .title("등록하신 분실물과 유사한 물건들을 찾아봤어요!")
                     .message("매칭이 완료되었습니다.")
-                    .type("message")
+                    .type("register")
                     .memberId(losterId)
                     .build());
 //            if (result != null) {

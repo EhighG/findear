@@ -223,6 +223,7 @@ class matchModel():
                 for index, row in df_sorted.loc[:, ('id', 'mean_value', "atcId", "place", "fdFilePathImg", "productName", "fdSbjt", "color", "fdYmd", "mainPrdtClNm")].iterrows()
             ]
         print(result_data)
+        if len(result_data) > 100 : result_data = result_data[:100]
         return result_data 
 
     def test(self):

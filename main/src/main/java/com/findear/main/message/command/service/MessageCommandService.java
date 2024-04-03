@@ -72,7 +72,7 @@ public class MessageCommandService {
 
             notificationService.sendNotification(NotificationRequestDto.builder()
                     .title("쪽지 도착")
-                    .message(newMessage.getContent())
+                    .message("쪽지가 도착했습니다.")
                     .type("message")
                     .memberId(findMessageRoom.getBoard().getMember().getId())
                     .build());
@@ -111,7 +111,7 @@ public class MessageCommandService {
 
             notificationService.sendNotification(NotificationRequestDto.builder()
                     .title("쪽지 도착")
-                    .message(newMessage.getContent())
+                    .message("쪽지가 도착했습니다.")
                     .type("message")
                     .memberId(receiverId)
                     .build());

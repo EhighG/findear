@@ -22,7 +22,7 @@ import java.net.URLEncoder;
 public class LocationController {
     private static final String KEY = "03A85DB3-4BC6-3E04-A597-CFDD044A271A";
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", produces = "application/json; charset=UTF8")
     public ResponseEntity<?> search(LocationSearchReqDto locationSearchReqDto) throws IOException {
         log.info(locationSearchReqDto.toString());
 
@@ -64,7 +64,7 @@ public class LocationController {
         return ResponseEntity.ok(sb);
     }
 
-    @GetMapping("/address")
+    @GetMapping(value = "/address", produces = "application/json; charset=UTF8")
     public ResponseEntity<?> address(LocationAddressReqDto locationAddressReqDto) throws IOException {
         log.info(locationAddressReqDto.toString());
 

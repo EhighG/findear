@@ -40,6 +40,7 @@ public class AcquiredBoardDetailResDto {
                         .imgUrls(imgFiles.stream().map(ImgFile::getImgUrl).toList())
                         .color(board.getColor())
                         .registeredAt(board.getRegisteredAt().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                        .status(board.getStatus())
                         .build())
                 .address(acquiredBoard.getAddress())
                 .agencyName(acquiredBoard.getName())

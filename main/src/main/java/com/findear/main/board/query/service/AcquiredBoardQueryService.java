@@ -24,10 +24,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -42,29 +39,45 @@ public class AcquiredBoardQueryService {
     private final String DEFAULT_SDATE_STRING = "2015-01-01";
     private final RestTemplate restTemplate;
 
-    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword, int pageNo,
-                                             int pageSize) {
-        List<AcquiredBoard> acquiredBoards = acquiredBoardQueryRepository.findAll();
+    public AcquiredBoardListResponse findAll(Long memberId, String category, String sDate, String eDate, String keyword,
+                                             String sortBy, Boolean desc, int pageNo, int pageSize) {
+        List<AcquiredBoard> acquiredBoards = null;
+        if (sortBy != null && sortBy.equals("date")) {
+            acquiredBoards = desc ? acquiredBoardQueryRepository.findAllOrderByAcquiredAtDesc()
+                    : acquiredBoardQueryRepository.findAllOrderByAcquiredAt();
+        } else {
+            acquiredBoards = acquiredBoardQueryRepository.findAll();
+        }
         Stream<AcquiredBoard> stream = acquiredBoards.stream();
 
         // filtering
         if (memberId != null) {
-            stream = stream.filter(acquired -> acquired.getBoard().getMember().getId().equals(memberId));
+            stream = stream.filter(acquired -> {
+                Long mId = acquired.getBoard().getMember().getId();
+                return mId != null && mId.equals(memberId);
+            });
         }
 
         if (category != null) {
-            stream = stream.filter(acquired -> acquired.getBoard().getCategoryName().contains(category));
+            stream = stream.filter(acquired -> {
+                String cName = acquired.getBoard().getCategoryName();
+                return cName != null && cName.contains(category);
+            });
         }
         if (sDate != null || eDate != null) {
             stream = stream.filter(
-                    acquired -> !acquired.getAcquiredAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(DEFAULT_SDATE_STRING))
+                    acquired -> acquired.getAcquiredAt() != null
+                            && !acquired.getAcquiredAt().isBefore(sDate != null ? LocalDate.parse(sDate) : LocalDate.parse(DEFAULT_SDATE_STRING))
                             && !acquired.getAcquiredAt().isAfter(eDate != null ? LocalDate.parse(eDate) : LocalDate.now())
             );
         }
         if (keyword != null) {
-            stream = stream.filter(acquired -> acquired.getBoard().getProductName().contains(keyword)
-                    || acquired.getAddress().contains(keyword)
-                    || acquired.getName().contains(keyword));
+            stream = stream.filter(acquired -> {
+                String pName = acquired.getBoard().getProductName();
+                return (pName != null && pName.contains(keyword))
+                        || (acquired.getAddress() != null && acquired.getAddress().contains(keyword))
+                        || (acquired.getName() != null && acquired.getName().contains(keyword));
+            });
         }
 
         List<AcquiredBoardListResDto> filtered = stream

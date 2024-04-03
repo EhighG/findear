@@ -36,10 +36,13 @@ public class LostBoardQueryController {
                                        @RequestParam(required = false) String sDate,
                                        @RequestParam(required = false) String eDate,
                                        @RequestParam(required = false) String keyword,
-                                       @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
+                                       @RequestParam(required = false) String sortBy,
+                                       @RequestParam(required = false, defaultValue = "true") Boolean desc,
+                                       @RequestParam(required = false, defaultValue = "1") Integer pageNo,
+                                       @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity
                 .ok(new SuccessResponse(HttpStatus.OK.value(), "조회에 성공했습니다.",
-                        lostBoardQueryService.findAll(memberId, category, sDate, eDate, keyword, pageNo)));
+                        lostBoardQueryService.findAll(memberId, category, sDate, eDate, keyword, sortBy, desc, pageNo, size)));
     }
 
     @GetMapping("/{boardId}")

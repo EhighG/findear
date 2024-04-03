@@ -182,6 +182,7 @@ public class PoliceDataService {
 
             // 검색 결과를 리스트에 추가
             for (SearchHit hit : hits) {
+
                 String policeMatchingLogId = hit.getSourceAsMap().get("policeMatchingLogId").toString();
                 String findLostBoardId = hit.getSourceAsMap().get("lostBoardId").toString();
                 Float similarityRate = Float.parseFloat(hit.getSourceAsMap().get("similarityRate").toString());
@@ -222,16 +223,16 @@ public class PoliceDataService {
                 to = boardMatchingList.size();
             }
 
-            List<SearchPoliceMatchingListResDto> result = new ArrayList<>();
+            List<SearchPoliceMatchingListResDto> matchingList = new ArrayList<>();
             for(int i=from; i<to; i++) {
-                result.add(boardMatchingList.get(i));
+                matchingList.add(boardMatchingList.get(i));
             }
 
-            SearchPoliceBoardMatchingListDto searchPoliceBoardMatchingListDto = SearchPoliceBoardMatchingListDto.builder()
-                    .matchingList(result)
+            SearchPoliceBoardMatchingListDto result = SearchPoliceBoardMatchingListDto.builder()
+                    .matchingList(matchingList)
                     .totalCount(boardMatchingList.size()).build();
 
-            return searchPoliceBoardMatchingListDto;
+            return result;
 
         } catch (Exception e) {
             throw new PoliceException(e.getMessage());

@@ -309,38 +309,6 @@ public class FindearDataService {
                             sourceAsMap.get("mainPrdtClNm") == null ? null : sourceAsMap.get("mainPrdtClNm").toString()
                     );
 
-//                    if(sourceAsMap.get("clrNm") == null) {
-//                        log.info("clrNm 가 null");
-//                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
-//                                sourceAsMap.get("id").toString(),
-//                                sourceAsMap.get("atcId").toString(),
-//                                sourceAsMap.get("depPlace").toString(),
-//                                sourceAsMap.get("fdFilePathImg").toString(),
-//                                sourceAsMap.get("fdPrdtNm").toString(),
-//                                sourceAsMap.get("fdSbjt").toString(),
-//                                "기타",
-//                                sourceAsMap.get("fdYmd").toString(),
-//                                sourceAsMap.get("mainPrdtClNm").toString()
-//                        );
-//                    } else if(sourceAsMap.get("atcId") == null) {
-//                        log.info("atcId 가 null");
-//                        continue;
-//                    }
-//                    else {
-//                        log.info("null 없음");
-//                        policeAcquiredBoardMatchingDto = new PoliceAcquiredBoardMatchingDto(
-//                                sourceAsMap.get("id").toString(),
-//                                sourceAsMap.get("atcId").toString(),
-//                                sourceAsMap.get("depPlace").toString(),
-//                                sourceAsMap.get("fdFilePathImg").toString(),
-//                                sourceAsMap.get("fdPrdtNm").toString(),
-//                                sourceAsMap.get("fdSbjt").toString(),
-//                                sourceAsMap.get("clrNm").toString(),
-//                                sourceAsMap.get("fdYmd").toString(),
-//                                sourceAsMap.get("mainPrdtClNm").toString()
-//                        );
-//                    }
-
                     matchingPoliceDatasToAiReqDto.getAcquiredBoardList().add(policeAcquiredBoardMatchingDto);
                 }
 

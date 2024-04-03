@@ -357,13 +357,22 @@ public class FindearDataService {
                             .acquiredBoardId(String.valueOf(matchingPoliceDatasToAiResDto.getAcquiredBoardId()))
                             .similarityRate(Float.parseFloat(String.valueOf(matchingPoliceDatasToAiResDto.getSimilarityRate())))
                             .matchingAt(LocalDateTime.now().toString())
+                            .atcId(matchingPoliceDatasToAiResDto.getAtcId().toString())
+                            .depPlace(matchingPoliceDatasToAiResDto.getDepPlace().toString())
+                            .fdFilePathImg(matchingPoliceDatasToAiResDto.getFdFilePathImg().toString())
+                            .fdPrdtNm(matchingPoliceDatasToAiResDto.getFdPrdtNm().toString())
+                            .fdSbjt(matchingPoliceDatasToAiResDto.getFdSbjt().toString())
+                            .clrNm(matchingPoliceDatasToAiResDto.getClrNm() == null ? null : matchingPoliceDatasToAiResDto.getClrNm().toString())
+                            .fdYmd(matchingPoliceDatasToAiResDto.getFdYmd().toString())
+                            .mainPrdtClNm(matchingPoliceDatasToAiResDto.getMainPrdtClNm().toString())
                             .build();
 
                     policeMatchingLogList.add(newPoliceMatchingLog);
                 }
+                policeMatchingLogRepository.saveAll(policeMatchingLogList);
             }
-
-            policeMatchingLogRepository.saveAll(policeMatchingLogList);
+//
+//            policeMatchingLogRepository.saveAll(policeMatchingLogList);
 
             return result;
 

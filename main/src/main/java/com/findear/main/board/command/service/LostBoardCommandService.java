@@ -48,6 +48,8 @@ public class LostBoardCommandService {
     private final NotificationService notificationService;
 
     public Long register(PostLostBoardReqDto postLostBoardReqDto) {
+
+        log.info("들어온 데이터 : " + postLostBoardReqDto.toString());
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()

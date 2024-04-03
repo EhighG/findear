@@ -106,7 +106,7 @@ public class MessageCommandService {
             if(!Objects.equals(hostId, newMessage.getSenderId())) {
                 receiverId = hostId;
             } else {
-                receiverId = newMessage.getSenderId();
+                receiverId = findMessageRoom.getMember().getId();
             }
 
             notificationService.sendNotification(NotificationRequestDto.builder()

@@ -87,8 +87,6 @@ public class PoliceDataService {
                     return searchFindearBestMatchingListDto;
                 }
 
-
-                System.out.println("33333");
                 log.info("가장 높은 similarityRate의 결과를 리스트에 추가");
                 // 가장 높은 similarityRate의 결과를 리스트에 추가
                 if (hits.getTotalHits().value > 0) {
@@ -186,7 +184,7 @@ public class PoliceDataService {
                 String policeMatchingLogId = hit.getSourceAsMap().get("policeMatchingLogId").toString();
                 String findLostBoardId = hit.getSourceAsMap().get("lostBoardId").toString();
                 Float similarityRate = Float.parseFloat(hit.getSourceAsMap().get("similarityRate").toString());
-                String matchedAt = (String) hit.getSourceAsMap().get("matchedAt");
+                String matchedAt = (String) hit.getSourceAsMap().get("matchingAt");
                 String acquiredBoardId = (String) hit.getSourceAsMap().get("acquiredBoardId");
                 String atcId = (String) hit.getSourceAsMap().get("atcId");
                 String depPlace = (String) hit.getSourceAsMap().get("depPlace");

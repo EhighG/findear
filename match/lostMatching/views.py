@@ -111,8 +111,7 @@ def process_findear_item_data(items_info):
 
     # 시작 시간과 종료 시간의 차이를 계산하여 실행 시간 출력
     execution_time = end_time - start_time
-    print(f"실행 시간: {execution_time} 초")
-    
+    logger.warning(f"실행 시간: {execution_time} 초")
     return processed_data
 
 # 게시글 이미지 정보 추출

@@ -198,13 +198,14 @@ public class AcquiredBoardCommandService {
         }
 
         // lost112
-        List<Lost112Scrap> lost112Scraps = lost112ScrapRepository.findAllByMember(member);
-        List<String> atcIdList = lost112Scraps.stream()
-                .map(Lost112Scrap::getLost112AtcId)
-                .toList();
-        BatchServerResponseDto response = restTemplate.postForObject(BATCH_SERVER_URL + "/police/scrap",
-                atcIdList, BatchServerResponseDto.class);
-        List<Map<String, Object>> lost112Acquireds = (List<Map<String, Object>>) response.getResult();
+//        List<Lost112Scrap> lost112Scraps = lost112ScrapRepository.findAllByMember(member);
+//        List<String> atcIdList = lost112Scraps.stream()
+//                .map(Lost112Scrap::getLost112AtcId)
+//                .toList();
+//        BatchServerResponseDto response = restTemplate.postForObject(BATCH_SERVER_URL + "/police/scrap",
+//                atcIdList, BatchServerResponseDto.class);
+//        List<Map<String, Object>> lost112Acquireds = (List<Map<String, Object>>) response.getResult();
+        List<Map<String, Object>> lost112Acquireds = null;
         return new ScrapListResDto(findearAcquireds, lost112Acquireds);
     }
 

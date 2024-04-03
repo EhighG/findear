@@ -330,36 +330,37 @@ public class FindearDataService {
 
             if(resultList2 == null) {
 
-                return null;
+                result.setPoliceDatas(Collections.emptyList());
             }
+            else {
+                for (Map<String, Object> res : resultList2) {
 
-            for(Map<String, Object> res : resultList2) {
+                    MatchingPoliceDatasToAiResDto matchingPoliceDatasToAiResDto = MatchingPoliceDatasToAiResDto.builder()
+                            .lostBoardId(res.get("lostBoardId"))
+                            .acquiredBoardId(res.get("acquiredBoardId"))
+                            .similarityRate(res.get("similarityRate"))
+                            .atcId(res.get("atcId"))
+                            .depPlace(res.get("depPlace"))
+                            .fdFilePathImg(res.get("fdFilePathImg"))
+                            .fdPrdtNm(res.get("fdPrdtNm"))
+                            .fdSbjt(res.get("fdSbjt"))
+                            .clrNm(res.get("clrNm"))
+                            .fdYmd(res.get("fdYmd"))
+                            .mainPrdtClNm(res.get("mainPrdtClNm"))
+                            .build();
 
-                MatchingPoliceDatasToAiResDto matchingPoliceDatasToAiResDto = MatchingPoliceDatasToAiResDto.builder()
-                        .lostBoardId(res.get("lostBoardId"))
-                        .acquiredBoardId(res.get("acquiredBoardId"))
-                        .similarityRate(res.get("similarityRate"))
-                        .atcId(res.get("atcId"))
-                        .depPlace(res.get("depPlace"))
-                        .fdFilePathImg(res.get("fdFilePathImg"))
-                        .fdPrdtNm(res.get("fdPrdtNm"))
-                        .fdSbjt(res.get("fdSbjt"))
-                        .clrNm(res.get("clrNm"))
-                        .fdYmd(res.get("fdYmd"))
-                        .mainPrdtClNm(res.get("mainPrdtClNm"))
-                        .build();
+                    result.getPoliceDatas().add(matchingPoliceDatasToAiResDto);
 
-                result.getPoliceDatas().add(matchingPoliceDatasToAiResDto);
+                    PoliceMatchingLog newPoliceMatchingLog = PoliceMatchingLog.builder()
+                            .policeMatchingLogId(policeMatchingId++)
+                            .lostBoardId(Long.parseLong(String.valueOf(matchingPoliceDatasToAiResDto.getLostBoardId())))
+                            .acquiredBoardId(String.valueOf(matchingPoliceDatasToAiResDto.getAcquiredBoardId()))
+                            .similarityRate(Float.parseFloat(String.valueOf(matchingPoliceDatasToAiResDto.getSimilarityRate())))
+                            .matchingAt(LocalDateTime.now().toString())
+                            .build();
 
-                PoliceMatchingLog newPoliceMatchingLog = PoliceMatchingLog.builder()
-                        .policeMatchingLogId(policeMatchingId++)
-                        .lostBoardId(Long.parseLong(String.valueOf(matchingPoliceDatasToAiResDto.getLostBoardId())))
-                        .acquiredBoardId(String.valueOf(matchingPoliceDatasToAiResDto.getAcquiredBoardId()))
-                        .similarityRate(Float.parseFloat(String.valueOf(matchingPoliceDatasToAiResDto.getSimilarityRate())))
-                        .matchingAt(LocalDateTime.now().toString())
-                        .build();
-
-                policeMatchingLogList.add(newPoliceMatchingLog);
+                    policeMatchingLogList.add(newPoliceMatchingLog);
+                }
             }
 
             policeMatchingLogRepository.saveAll(policeMatchingLogList);

@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // only pattern
         List<String> exclusiveUris = Arrays.asList("/members/login", "/members/emails/**", "/members/find-password", "/members/duplicate", "/actuator/**", "/error", "/assets/**"
         ,"/acquisitions/lost112", "/members/token/refresh", "/favicon.ico", "/members/after-login", "/acquisitions/lost112/total-page",
-                "/acquisitions/returns/count");
+                "/acquisitions/returns/count", "/location/**");
         for (String uri : exclusiveUris) {
             exclusiveRequestMatchers.add(new AntPathRequestMatcher(uri));
         }

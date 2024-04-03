@@ -48,6 +48,8 @@ public class LostBoardCommandService {
     private final NotificationService notificationService;
 
     public Long register(PostLostBoardReqDto postLostBoardReqDto) {
+
+        log.info("들어온 데이터 : " + postLostBoardReqDto.toString());
         Member member = memberQueryService.internalFindById(postLostBoardReqDto.getMemberId());
 
         BoardDto boardDto = BoardDto.builder()
@@ -101,9 +103,6 @@ public class LostBoardCommandService {
             LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) batchServerResponseDto.getResult();
             if (resultMap == null) return;
             List<LinkedHashMap<String, Object>> result = (List<LinkedHashMap<String, Object>>)resultMap.get("findearDatas");
-//            log.info("매칭 결과 : " + resultList);
-
-//            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 
             Long lostBoardId = ((Integer) result.get(0).get("lostBoardId")).longValue();
 
@@ -116,16 +115,6 @@ public class LostBoardCommandService {
                     .type("message")
                     .memberId(losterId)
                     .build());
-//            if (result != null) {
-////                for(Map<String, Object> res : resultList) {
-////                    MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
-////                            .lostBoardId(res.get("lostBoardId"))
-////                            .acquiredBoardId(res.get("acquiredBoardId"))
-////                            .similarityRate(res.get("similarityRate")).build();
-////                    result.add(matchingFindearDatasToAiResDto);
-////                }
-//
-//            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,7 +137,6 @@ public class LostBoardCommandService {
         log.info("batch 서버로 요청 로직");
         // batch 서버로 요청
         String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
-
 
         WebClient client = WebClient.builder()
                 .baseUrl(serverURL)

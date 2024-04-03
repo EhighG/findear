@@ -42,7 +42,6 @@ public class NotificationService {
                     .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
             Notification findNotification = notificationRepository.findByMember(findMember);
-            log.info(findNotification.getToken());
 
             if (findNotification != null) {
                 notificationRepository.delete(findNotification);

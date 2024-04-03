@@ -867,8 +867,8 @@ const Main = () => {
                     labelProgress
                     progress={
                       best.findearBest
-                        ? best.findearBest.similarityRate * 100
-                        : best.lost112Best!.similarityRate * 100
+                        ? Math.ceil(best.findearBest.similarityRate * 100)
+                        : Math.ceil(best.lost112Best!.similarityRate * 100)
                     }
                     progressLabelPosition="inside"
                     color="A706CheryBlue"
@@ -1018,7 +1018,9 @@ const Main = () => {
                               <Progress
                                 theme={customProgress}
                                 labelProgress
-                                progress={best.findearBest.similarityRate * 100}
+                                progress={Math.ceil(
+                                  best.findearBest.similarityRate * 100
+                                )}
                                 progressLabelPosition="inside"
                                 color="A706CheryBlue"
                                 size={"lg"}
@@ -1070,7 +1072,9 @@ const Main = () => {
                               <Progress
                                 theme={customProgress}
                                 labelProgress
-                                progress={best.lost112Best.similarityRate * 100}
+                                progress={Math.ceil(
+                                  best.lost112Best.similarityRate * 100
+                                )}
                                 progressLabelPosition="inside"
                                 color="A706CheryBlue"
                                 size={"lg"}

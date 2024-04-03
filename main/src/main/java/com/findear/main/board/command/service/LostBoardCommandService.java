@@ -103,9 +103,6 @@ public class LostBoardCommandService {
             LinkedHashMap<String, Object> resultMap = (LinkedHashMap<String, Object>) batchServerResponseDto.getResult();
             if (resultMap == null) return;
             List<LinkedHashMap<String, Object>> result = (List<LinkedHashMap<String, Object>>)resultMap.get("findearDatas");
-//            log.info("매칭 결과 : " + resultList);
-
-//            List<MatchingFindearDatasToAiResDto> result = new ArrayList<>();
 
             Long lostBoardId = ((Integer) result.get(0).get("lostBoardId")).longValue();
 
@@ -115,19 +112,9 @@ public class LostBoardCommandService {
             notificationService.sendNotification(NotificationRequestDto.builder()
                     .title("등록하신 분실물과 유사한 물건들을 찾아봤어요!")
                     .message("매칭이 완료되었습니다.")
-                    .type("register")
+                    .type("message")
                     .memberId(losterId)
                     .build());
-//            if (result != null) {
-////                for(Map<String, Object> res : resultList) {
-////                    MatchingFindearDatasToAiResDto matchingFindearDatasToAiResDto = MatchingFindearDatasToAiResDto.builder()
-////                            .lostBoardId(res.get("lostBoardId"))
-////                            .acquiredBoardId(res.get("acquiredBoardId"))
-////                            .similarityRate(res.get("similarityRate")).build();
-////                    result.add(matchingFindearDatasToAiResDto);
-////                }
-//
-//            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,7 +137,6 @@ public class LostBoardCommandService {
         log.info("batch 서버로 요청 로직");
         // batch 서버로 요청
         String serverURL = "https://j10a706.p.ssafy.io/batch/findear/matching";
-
 
         WebClient client = WebClient.builder()
                 .baseUrl(serverURL)

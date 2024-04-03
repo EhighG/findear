@@ -37,27 +37,32 @@ public class NotificationService {
     @Transactional
     public void saveNotification(SaveNotificationReqDto saveNotificationReqDto) {
 
-        Member findMember = memberQueryRepository.findById(saveNotificationReqDto.getMemberId())
-                .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
+        try {
+            Member findMember = memberQueryRepository.findById(saveNotificationReqDto.getMemberId())
+                    .orElseThrow(() -> new AlarmException("해당 유저가 존재하지 않습니다."));
 
-        Notification findNotification = notificationRepository.findByMember(findMember);
-        log.info(findNotification.getToken());
+            Notification findNotification = notificationRepository.findByMember(findMember);
+            log.info(findNotification.getToken());
 
-        if (findNotification != null) {
-            notificationRepository.delete(findNotification);
-            log.info("토큰 삭제");
+            if (findNotification != null) {
+                notificationRepository.delete(findNotification);
+                log.info("토큰 삭제");
 
-            em.flush();
+                em.flush();
+            }
+
+            Notification newNotification = Notification.builder()
+                    .token(saveNotificationReqDto.getToken())
+                    .build();
+
+            log.info("새로운 토큰 : " + newNotification.getToken());
+            newNotification.confirmUser(findMember);
+
+            notificationRepository.save(newNotification);
+
+        } catch (Exception e) {
+            throw new AlarmException(e.getMessage());
         }
-
-        Notification newNotification = Notification.builder()
-                .token(saveNotificationReqDto.getToken())
-                .build();
-
-        log.info("새로운 토큰 : " + newNotification.getToken());
-        newNotification.confirmUser(findMember);
-
-        notificationRepository.save(newNotification);
 
     }
 

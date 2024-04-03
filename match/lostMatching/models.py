@@ -270,7 +270,7 @@ class matchModel():
         elif query in colorLst:
             index = colorLst.index(query)
         else:
-            index = random.randint(0, len(colorLst))
+            index = random.randint(0, len(colorLst)-1)
 
         select = Select(colorBox)
         try:

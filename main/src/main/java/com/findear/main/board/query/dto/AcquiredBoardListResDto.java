@@ -32,7 +32,6 @@ public class AcquiredBoardListResDto {
     public static AcquiredBoardListResDto of(AcquiredBoard acquiredBoard) {
         Board board = acquiredBoard.getBoard();
         Member writer = board.getMember();
-        Agency dbAgency = board.getMember().getAgency();
 
         return AcquiredBoardListResDto.builder()
                 .boardId(board.getId())
@@ -40,7 +39,7 @@ public class AcquiredBoardListResDto {
                 .productName(board.getProductName())
                 .category(board.getCategoryName())
                 .thumbnailUrl(board.getThumbnailUrl())
-                .agency(new LoginResAgencyDto(dbAgency.getId(), dbAgency.getName(), dbAgency.getAddress()))
+                .agency(new LoginResAgencyDto(null, acquiredBoard.getName(), acquiredBoard.getAddress()))
                 .acquiredAt(acquiredBoard.getAcquiredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .writer(new BriefMemberDto(writer.getId(), writer.getPhoneNumber()))
                 .status(board.getStatus())

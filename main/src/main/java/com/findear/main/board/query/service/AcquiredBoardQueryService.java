@@ -151,7 +151,11 @@ public class AcquiredBoardQueryService {
         return Math.max(1, totalRowNum / pageSize + (totalRowNum % pageSize == 0 ? 0 : 1));
     }
 
-    public Long getYesterdaysReturnCount() {
-        return returnLogRepository.countReturn(LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+    public Map<String, Long> getYesterdaysReturnCount() {
+        Map<String, Long> result = new HashMap<>();
+
+        result.put("yesterday", returnLogRepository.countReturn(LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
+        result.put("today", returnLogRepository.countReturn(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)));
+        return result;
     }
 }

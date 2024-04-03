@@ -83,7 +83,10 @@ public class LostBoardCommandService {
         requestFirstMatching(saveResult)
                 .subscribe(
                         this::parseAndRequestAlert,
-                        error -> log.error("분실물 등록 후 첫 매칭 요청 실패 \nerror = " + error)
+                        error -> {
+                            log.error("분실물 등록 후 첫 매칭 요청 실패 \nerror = " + error);
+                            error.printStackTrace();
+                        }
                 );
 
         return savedBoard.getId();

@@ -118,7 +118,7 @@ Cooperation
 
 - Lost112 공공 API를 활용한 습득물 통합 조회 서비스 제공
 - 물건 종류, 키워드, 기간으로 필터 검색
-- 무한 스크롤 연동
+- 무한 스크롤 연동  
   <img src="/uploads/d6c1c7c10375ba2c313680eb2e249328/KakaoTalk_20240404_105153351.jpg" width="300" height="500">
 
 ### 4. AI 기반 습득물 등록

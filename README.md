@@ -49,12 +49,17 @@
 <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black" width="auto" height="25">
 <img src="https://img.shields.io/badge/pwa-5A0FC8?style=for-the-badge&logo=pwa&logoColor=black" width="auto" height="25">
 <img src="https://img.shields.io/badge/tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" width="auto" height="25">
+<img src="https://img.shields.io/badge/zustand-FF9900?style=for-the-badge&logo=zustand&logoColor=white" width="auto" height="25">
 
 **Back**
 <br/>
 <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" width="auto" height="25">
 <img src="https://img.shields.io/badge/SPRING DATA JPA-6DB33F?style=for-the-badge&logoColor=white" width="auto" height="25">
 <img src="https://img.shields.io/badge/SPRING SECURITY-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" width="auto" height="25">
+<img src="https://img.shields.io/badge/firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" width="auto" height="25">
+<img src="https://img.shields.io/badge/Spring Batch-6DB33F?style=for-the-badge&logo=Spring Batch&logoColor=white" width="auto" height="25">
+<img src="https://img.shields.io/badge/String Cloud Config-6DB33F?style=for-the-badge&logo=String Cloud Config&logoColor=white" width="auto" height="25">
+<img src="https://img.shields.io/badge/Spring Webflux-6DB33F?style=for-the-badge&logo=sSpring Webflux&logoColor=white" width="auto" height="25">
 
 **Data/AI**
 <br/>
@@ -65,6 +70,7 @@
 
 **Database**
 <br/>
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white" width="auto" height="25">
 <img src="https://img.shields.io/badge/mariadb-003545?style=for-the-badge&logo=mariadb&logoColor=white" width="auto" height="25">
 <img src="https://img.shields.io/badge/elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white" width="auto" height="25">
 <img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" width="auto" height="25">

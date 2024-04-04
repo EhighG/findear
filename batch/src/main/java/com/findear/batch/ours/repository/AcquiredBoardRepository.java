@@ -11,6 +11,6 @@ import java.util.List;
 public interface AcquiredBoardRepository extends JpaRepository<AcquiredBoard, Long> {
 
     @Query("select ab from AcquiredBoard ab join fetch ab.board " +
-            "where ab.board.categoryName = :categoryName and ab.board.registeredAt >= :lostAt")
+            "where ab.board.categoryName = :categoryName and ab.board.registeredAt >= :lostAt and ab.board.status = 'ONGOING'")
     List<AcquiredBoard> findAllWithBoardByCategoryAndAfterLostAt(String categoryName, LocalDateTime lostAt);
 }

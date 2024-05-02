@@ -148,7 +148,7 @@ const Main = () => {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [viewOptions, setViewOptions] = useState<boolean>(false);
-  const [mainViewState, setMainViewState] = useState<string>("NORMAL");
+  const [mainViewState, setMainViewState] = useState<string>(member.role);
   const [acquisitionThumbnailList, setAcquisitionThumbnailList] = useState<
     AcquisitionThumbnail[]
   >([]);
@@ -830,9 +830,13 @@ const Main = () => {
                       ? best.findearBest.acquiredBoard.category
                       : best.lost112Best!.mainPrdtClNm}
                   </span>
-                  <span className="bg-blue-900 text-A706Yellow text-xs font-bold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 h-fit">
-                    Lost112
-                  </span>
+                  {best.findearBest ? (
+                    <></>
+                  ) : (
+                    <span className="bg-blue-900 text-A706Yellow text-xs font-bold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 h-fit">
+                      Lost112
+                    </span>
+                  )}
                   <p className="text-right text-xs w-fit">
                     {best.findearBest
                       ? best.findearBest.acquiredBoard.acquiredAt
@@ -863,8 +867,8 @@ const Main = () => {
                     labelProgress
                     progress={
                       best.findearBest
-                        ? best.findearBest.similarityRate * 100
-                        : best.lost112Best!.similarityRate * 100
+                        ? Math.ceil(best.findearBest.similarityRate * 100)
+                        : Math.ceil(best.lost112Best!.similarityRate * 100)
                     }
                     progressLabelPosition="inside"
                     color="A706CheryBlue"
@@ -1014,7 +1018,9 @@ const Main = () => {
                               <Progress
                                 theme={customProgress}
                                 labelProgress
-                                progress={best.findearBest.similarityRate * 100}
+                                progress={Math.ceil(
+                                  best.findearBest.similarityRate * 100
+                                )}
                                 progressLabelPosition="inside"
                                 color="A706CheryBlue"
                                 size={"lg"}
@@ -1066,7 +1072,9 @@ const Main = () => {
                               <Progress
                                 theme={customProgress}
                                 labelProgress
-                                progress={best.lost112Best.similarityRate * 100}
+                                progress={Math.ceil(
+                                  best.lost112Best.similarityRate * 100
+                                )}
                                 progressLabelPosition="inside"
                                 color="A706CheryBlue"
                                 size={"lg"}
